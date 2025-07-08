@@ -7,70 +7,21 @@ if (isset($_POST['login'])) {
     $password = sanitizeInput($_POST['password']);
     
     try {
-        // Check if account is temporarily locked
         $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
         $stmt->execute([$username]);
         $user = $stmt->fetch();
         
-        if ($user) {
-            // Check if account is locked
-            if ($user['locked_until'] && strtotime($user['locked_until']) > time()) {
-                $remaining_time = strtotime($user['locked_until']) - time();
-                $_SESSION['error'] = "Account temporarily locked. Please try again in " . ceil($remaining_time/60) . " minutes.";
-                redirect(BASE_URL);
-            }
+        if ($user && password_verify($password, $user['password'])) {
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_role'] = $user['role'];
+            $_SESSION['username'] = $user['username'];
             
-            // Check if we should show CAPTCHA (after 3 failed attempts)
-            if ($user['login_attempts'] >= 3) {
-                if (!isset($_POST['captcha']) || $_POST['captcha'] != $_SESSION['captcha_code']) {
-                    $_SESSION['show_captcha'] = true;
-                    $_SESSION['error'] = "Please enter the CAPTCHA code correctly.";
-                    redirect(BASE_URL);
-                }
-            }
-            
-            // Verify password
-            if (password_verify($password, $user['password'])) {
-                // Reset login attempts on successful login
-                $stmt = $pdo->prepare("UPDATE users SET login_attempts = 0, last_failed_login = NULL, locked_until = NULL WHERE id = ?");
-                $stmt->execute([$user['id']]);
-                
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['user_role'] = $user['role'];
-                $_SESSION['username'] = $user['username'];
-                
-                if (isAdmin()) {
-                    redirect(ADMIN_URL);
-                } else {
-                    redirect(BASE_URL . 'dashboard.php');
-                }
+            if (isAdmin()) {
+                redirect(ADMIN_URL);
             } else {
-                // Increment failed login attempts
-                $login_attempts = $user['login_attempts'] + 1;
-                $locked_until = null;
-                
-                // Lock account after 5 failed attempts for 30 minutes
-                if ($login_attempts >= 5) {
-                    $locked_until = date('Y-m-d H:i:s', strtotime('+30 minutes'));
-                    $_SESSION['error'] = "Too many failed attempts. Account locked for 30 minutes.";
-                } else {
-                    $_SESSION['error'] = "Invalid username or password";
-                    if ($login_attempts >= 3) {
-                        $_SESSION['show_captcha'] = true;
-                    }
-                }
-                
-                $stmt = $pdo->prepare("UPDATE users SET login_attempts = ?, last_failed_login = NOW(), locked_until = ? WHERE id = ?");
-                $stmt->execute([$login_attempts, $locked_until, $user['id']]);
-                
-                // Add delay for failed attempts (1 second per attempt)
-                sleep(min($login_attempts, 5));
-                
-                redirect(BASE_URL);
+                redirect(BASE_URL . 'dashboard.php');
             }
         } else {
-            // Username doesn't exist, but don't reveal that
-            sleep(3); // Delay to prevent username enumeration
             $_SESSION['error'] = "Invalid username or password";
             redirect(BASE_URL);
         }
@@ -80,4 +31,38 @@ if (isset($_POST['login'])) {
     }
 }
 
-// Handle registration remains the same...
+// Handle registration
+if (isset($_POST['register'])) {
+    $username = sanitizeInput($_POST['username']);
+    $email = sanitizeInput($_POST['email']);
+    $password = sanitizeInput($_POST['password']);
+    $confirm_password = sanitizeInput($_POST['confirm_password']);
+    
+    // Validation
+    if ($password !== $confirm_password) {
+        $_SESSION['error'] = "Passwords do not match";
+        redirect(BASE_URL . 'register.php');
+    }
+    
+    try {
+        // Check if username or email exists
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
+        $stmt->execute([$username, $email]);
+        
+        if ($stmt->rowCount() > 0) {
+            $_SESSION['error'] = "Username or email already exists";
+            redirect(BASE_URL . 'register.php');
+        }
+        
+        // Insert new user
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        $stmt = $pdo->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
+        $stmt->execute([$username, $email, $hashed_password]);
+        
+        $_SESSION['success'] = "Registration successful! Please login.";
+        redirect(BASE_URL);
+    } catch (PDOException $e) {
+        $_SESSION['error'] = "Registration failed: " . $e->getMessage();
+        redirect(BASE_URL . 'register.php');
+    }
+}

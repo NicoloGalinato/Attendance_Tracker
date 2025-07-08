@@ -20,9 +20,4 @@ $(document).ready(function() {
             $('#loadingModal').modal('hide');
         }
     });
-    
-    // CAPTCHA refresh
-    $('.captcha-image').on('click', function() {
-        $(this).attr('src', $(this).attr('src').split('?')[0] + '?' + Math.random());
-    });
 });
