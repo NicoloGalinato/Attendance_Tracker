@@ -88,7 +88,7 @@ try {
                             <tr>
                                 <th>ID</th>
                                 <th>Username</th>
-                                <th>Email</th>
+                                <th>Name</th>
                                 <th>Role</th>
                                 <th>Created At</th>
                                 <th>Actions</th>
@@ -99,7 +99,7 @@ try {
                                 <tr>
                                     <td><?= $user['id']; ?></td>
                                     <td><?= htmlspecialchars($user['username']); ?></td>
-                                    <td><?= htmlspecialchars($user['email']); ?></td>
+                                    <td><?= htmlspecialchars($user['fullname']); ?></td>
                                     <td>
                                         <span class="badge bg-<?= $user['role'] === 'admin' ? 'danger' : 'primary'; ?>">
                                             <?= ucfirst($user['role']); ?>

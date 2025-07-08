@@ -30,3 +30,33 @@ body {
     width: 3rem;
     height: 3rem;
 }
+
+/* Password strength meter */
+.strength-0 {
+    width: 20% !important;
+    background-color: #dc3545 !important;
+}
+.strength-1 {
+    width: 40% !important;
+    background-color: #fd7e14 !important;
+}
+.strength-2 {
+    width: 60% !important;
+    background-color: #ffc107 !important;
+}
+.strength-3 {
+    width: 80% !important;
+    background-color: #28a745 !important;
+}
+.strength-4, .strength-5 {
+    width: 100% !important;
+    background-color: #28a745 !important;
+}
+
+.alert {
+    transition: opacity 0.5s ease-in-out;
+}
+
+.fade:not(.show) {
+    opacity: 0;
+}

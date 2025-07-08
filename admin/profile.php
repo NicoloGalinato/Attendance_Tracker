@@ -10,39 +10,65 @@ $action = isset($_GET['action']) ? $_GET['action'] : '';
 $userId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 // Handle form submission
+// At the top of the file, after session_start()
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $userId = (int)$_POST['user_id'];
-    $fullName = sanitizeInput($_POST['full_name']);
-    $phone = sanitizeInput($_POST['phone']);
-    $address = sanitizeInput($_POST['address']);
+    $empid = strtoupper (sanitizeInput($_POST['empid']));
+    $fullname_ed = strtoupper (sanitizeInput($_POST['fullname_ed']));
+    $fullname = strtoupper (sanitizeInput($_POST['fullname']));
+    $username = sanitizeInput($_POST['username']);
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $role = sanitizeInput($_POST['role']);
     
+
     try {
-        // Check if profile exists
-        $stmt = $pdo->prepare("SELECT id FROM user_profiles WHERE user_id = ?");
+        $pdo->beginTransaction();
+
+        //to get the ID in the hidden input
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE id = ?");
         $stmt->execute([$userId]);
-        
+
+
         if ($stmt->rowCount() > 0) {
             // Update existing profile
-            $stmt = $pdo->prepare("UPDATE user_profiles SET full_name = ?, phone = ?, address = ? WHERE user_id = ?");
-            $stmt->execute([$fullName, $phone, $address, $userId]);
+           $stmt = $pdo->prepare("UPDATE users SET fullname = ? WHERE id = ?");
+           $stmt->execute([$fullname_ed, $userId]);
+           
         } else {
             // Insert new profile
-            $stmt = $pdo->prepare("INSERT INTO user_profiles (user_id, full_name, phone, address) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$userId, $fullName, $phone, $address]);
+           $stmt = $pdo->prepare("INSERT INTO users (emp_id, fullname, username, password, role) VALUES (?, ?, ?, ?, ?)");
+           $stmt->execute([$empid, $fullname, $username, $password, $role]);
+
+        }
+
+
+        // Handle password change if new password is provided
+        if (!empty($_POST['new_password'])) {
+            // Verify new passwords match
+            if ($_POST['new_password'] !== $_POST['confirm_password']) {
+                throw new Exception("New passwords do not match");
+            }
+            else {
+                // Update password
+                $new_hashed_password = password_hash($_POST['new_password'], PASSWORD_DEFAULT);
+                $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
+                $stmt->execute([$new_hashed_password, $_POST['user_id']]);
+            }
         }
         
-        $_SESSION['success'] = "Profile saved successfully";
+        $pdo->commit();
+        $_SESSION['success'] = "Profile updated successfully";
         redirect(ADMIN_URL . 'users.php');
-    } catch (PDOException $e) {
-        $_SESSION['error'] = "Error saving profile: " . $e->getMessage();
-        redirect(ADMIN_URL . 'profile.php?id=' . $userId);
+        
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        $_SESSION['error'] = $e->getMessage();
+        redirect(ADMIN_URL . 'profile.php?id=' . $_POST['user_id']);
     }
 }
 
 // Get user data
 $user = null;
-$profile = ['full_name' => '', 'phone' => '', 'address' => ''];
-
 if ($userId > 0) {
     try {
         // Get user
@@ -55,14 +81,6 @@ if ($userId > 0) {
             redirect(ADMIN_URL . 'users.php');
         }
         
-        // Get profile
-        $stmt = $pdo->prepare("SELECT * FROM user_profiles WHERE user_id = ?");
-        $stmt->execute([$userId]);
-        $profileData = $stmt->fetch();
-        
-        if ($profileData) {
-            $profile = $profileData;
-        }
     } catch (PDOException $e) {
         $_SESSION['error'] = "Error fetching data: " . $e->getMessage();
         redirect(ADMIN_URL . 'users.php');
@@ -78,7 +96,7 @@ if ($userId > 0) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $userId ? 'Edit' : 'Add'; ?> User | Auth System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="../../assets/css/style.css" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -118,48 +136,63 @@ if ($userId > 0) {
                     
                     <?php if ($userId): ?>
                         <div class="mb-3">
+                            <label class="form-label">Employee ID</label>
+                            <input type="text" style="text-transform: uppercase;" class="form-control" value="<?= htmlspecialchars($user['emp_id']); ?>" readonly>
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label">Username</label>
                             <input type="text" class="form-control" value="<?= htmlspecialchars($user['username']); ?>" readonly>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="text" class="form-control" value="<?= htmlspecialchars($user['email']); ?>" readonly>
+                            <label class="form-label">Full Name</label>
+                            <input type="text" style="text-transform: uppercase;" class="form-control" id="fullname_ed" name="fullname_ed" value="<?= htmlspecialchars($user['fullname']); ?>" required>
                         </div>
+
+                        <!-- Add this after the address field in the form -->
+                        <div class="mb-3">
+                            <label for="new_password" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="new_password" name="new_password">
+                        </div>
+                        <div class="mb-5">
+                            <label for="confirm_password" class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+
+                            <!-- After the confirm password field -->
+                            <div id="password-match-error" class="invalid-feedback d-none">Passwords do not match</div>
+                            <div class="password-strength-meter mt-2">
+                                <div class="progress">
+                                    <div id="password-strength" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <small class="text-muted">Password strength: <span id="strength-text">Weak</span></small>
+                            </div>
+                        </div>
+
                     <?php else: ?>
+                        <div class="mb-3">
+                            <label for="username" class="form-label" >Employee ID</label>
+                            <input type="text" style="text-transform: uppercase;" class="form-control" id="empid" name="empid" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="fullanme" class="form-label">Full Name</label>
+                            <input type="text" style="text-transform: uppercase;" class="form-control" id="fullname" name="fullname" required>
+                        </div>
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
                             <input type="text" class="form-control" id="username" name="username" required>
                         </div>
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
-                        </div>
-                        <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
                             <input type="password" class="form-control" id="password" name="password" required>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-5">
                             <label for="role" class="form-label">Role</label>
                             <select class="form-select" id="role" name="role">
                                 <option value="user">User</option>
                                 <option value="admin">Admin</option>
                             </select>
                         </div>
-                    <?php endif; ?>
-                    
-                    <div class="mb-3">
-                        <label for="full_name" class="form-label">Full Name</label>
-                        <input type="text" class="form-control" id="full_name" name="full_name" value="<?= htmlspecialchars($profile['full_name']); ?>">
-                    </div>
-                    <div class="mb-3">
-                        <label for="phone" class="form-label">Phone</label>
-                        <input type="text" class="form-control" id="phone" name="phone" value="<?= htmlspecialchars($profile['phone']); ?>">
-                    </div>
-                    <div class="mb-3">
-                        <label for="address" class="form-label">Address</label>
-                        <textarea class="form-control" id="address" name="address" rows="3"><?= htmlspecialchars($profile['address']); ?></textarea>
-                    </div>
-                    
+                    <?php endif; ?>  
+
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary">Save</button>
                         <a href="users.php" class="btn btn-secondary">Cancel</a>
@@ -171,5 +204,6 @@ if ($userId > 0) {
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/script.js"></script>
 </body>
 </html>
