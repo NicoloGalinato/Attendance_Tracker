@@ -1,5 +1,9 @@
 
 $(document).ready(function() {
+    $('#prompt').delay(2000).fadeOut(400, function() {
+        $(this).remove();
+    });
+
     // Loading animation for forms
     $('form').on('submit', function() {
         $('#loadingModal').modal('show');
@@ -52,6 +56,7 @@ $(document).ready(function() {
         
         $('#password-strength').removeClass().addClass('strength-' + strength);
     });
+
 });
 
 

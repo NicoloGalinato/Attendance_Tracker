@@ -42,7 +42,7 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Users | Auth System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="../../assets/css/style.css" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -69,11 +69,11 @@ try {
 
     <div class="container mt-5">
         <?php if (isset($_SESSION['error'])): ?>
-            <div class="alert alert-danger"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
+            <div class="alert alert-danger" id="prompt"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
         <?php endif; ?>
         
         <?php if (isset($_SESSION['success'])): ?>
-            <div class="alert alert-success"><?= $_SESSION['success']; unset($_SESSION['success']); ?></div>
+            <div class="alert alert-success" id="prompt"><?= $_SESSION['success']; unset($_SESSION['success']); ?></div>
         <?php endif; ?>
         
         <div class="card shadow">
@@ -123,5 +123,7 @@ try {
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/script.js"></script>
+    <script src="../assets/js/prompt.js"></script>
 </body>
 </html>
