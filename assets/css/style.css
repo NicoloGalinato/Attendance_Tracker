@@ -1,24 +1,35 @@
 body {
     background-color: #f8f9fa;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+.lto-bg-primary {
+    background-color: #004a8d;
+}
+.lto-bg-primary:hover {
+    background-color: #00376b;
+}
+.lto-bg-secondary {
+    background-color: #e67e22;
+}
+.lto-bg-secondary:hover {
+    background-color: #b4641e;
+}
+.lto-text-primary {
+    color: #004a8d;
+}
+.portal-shadow {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+.login-card {
+    min-height: 400px;
+}
+.nav-tabs .nav-link.active {
+    font-weight: 600;
+    border-bottom: 3px solid #004a8d;
+    color: #004a8d;
 }
 
-.card {
-    border-radius: 10px;
-}
 
-.card-header {
-    border-radius: 10px 10px 0 0 !important;
-}
-
-.btn-primary {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
-}
-
-.btn-primary:hover {
-    background-color: #0b5ed7;
-    border-color: #0a58ca;
-}
 
 #loadingModal .modal-content {
     background: transparent;
@@ -48,7 +59,8 @@ body {
     width: 80% !important;
     background-color: #28a745 !important;
 }
-.strength-4, .strength-5 {
+.strength-4,
+.strength-5 {
     width: 100% !important;
     background-color: #28a745 !important;
 }
