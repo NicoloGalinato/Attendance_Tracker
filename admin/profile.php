@@ -57,12 +57,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         $pdo->commit();
-        $_SESSION['success'] = "Profile updated successfully";
+        $_SESSION['success'] = "Add new SLT successfully!";
         redirect('users.php');
         
     } catch (Exception $e) {
         $pdo->rollBack();
-        $_SESSION['error'] = $e->getMessage();
+        $_SESSION['error'] = "Account exist! Try add different Account.";
         redirect('profile.php?id=' . $_POST['user_id']);
     }
 }
@@ -71,7 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $user = null;
 if ($userId > 0) {
     try {
-        // Get user
         $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
         $stmt->execute([$userId]);
         $user = $stmt->fetch();
@@ -80,7 +79,6 @@ if ($userId > 0) {
             $_SESSION['error'] = "User not found";
             redirect('users.php');
         }
-        
     } catch (PDOException $e) {
         $_SESSION['error'] = "Error fetching data: " . $e->getMessage();
         redirect('users.php');
@@ -88,118 +86,167 @@ if ($userId > 0) {
 } elseif ($action !== 'create') {
     redirect('users.php');
 }
+
+require_once '../components/layout.php';
+renderHead($userId ? 'Edit User' : 'Add User');
+renderNavbar();
+renderSidebar('users');
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $userId ? 'Edit' : 'Add'; ?> User | Auth System</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="../assets/css/style.css" rel="stylesheet">
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="#">Auth System</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="dashboard.php">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="users.php">Manage SLT</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../logout.php">Logout</a>
-                    </li>
-                </ul>
-            </div>
+
+<div class="md:ml-64 pt-2 min-h-screen">
+    <main class="p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold"><?= $userId ? 'Edit SLT Member' : 'Add New SLT Member' ?></h1>
+            <a href="users.php" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times fa-lg"></i>
+            </a>
         </div>
-    </nav>
 
-    <div class="container mt-5">
-        <?php if (isset($_SESSION['error'])): ?>
-            <div class="alert alert-danger" id="prompt"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
-        <?php endif; ?>
-        
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h4><?= $userId ? 'Edit User Profile' : 'Add New User'; ?></h4>
-            </div>
-            <div class="card-body">
-                <form method="POST">
-                    <input type="hidden" name="user_id" value="<?= $userId; ?>">
-                    
-                    <?php if ($userId): ?>                 
-                        <div class="mb-3">
-                            <label class="form-label">Username</label>
-                            <input type="text" class="form-control" value="<?= htmlspecialchars($user['username']); ?>">
+        <?php renderAlert(); ?>
+
+        <div class="bg-gray-800 rounded-xl border border-gray-700 p-6 shadow">
+            <form method="POST">
+                <input type="hidden" name="user_id" value="<?= $userId ?>">
+                
+                <div class="space-y-6">
+                    <?php if ($userId): ?>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Username</label>
+                            <input type="text" class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" value="<?= htmlspecialchars($user['username']) ?>" readonly>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Full Name</label>
-                            <input type="text" style="text-transform: uppercase;" class="form-control" id="fullname_ed" name="fullname_ed" value="<?= htmlspecialchars($user['fullname']); ?>" required>
+                        
+                        <div>
+                            <label for="fullname_ed" class="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
+                            <input type="text" style="text-transform: uppercase;" class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" id="fullname_ed" name="fullname_ed" value="<?= htmlspecialchars($user['fullname']) ?>" required>
                         </div>
 
-                        <!-- Add this after the address field in the form -->
-                        <div class="mb-3">
-                            <label for="new_password" class="form-label">New Password</label>
-                            <input type="password" class="form-control" id="new_password" name="new_password">
-                        </div>
-                        <div class="mb-5">
-                            <label for="confirm_password" class="form-label">Confirm New Password</label>
-                            <input type="password" class="form-control" id="confirm_password" name="confirm_password">
-
-                            <!-- After the confirm password field -->
-                            <div id="password-match-error" class="invalid-feedback d-none">Passwords do not match</div>
-                            <div class="password-strength-meter mt-2">
-                                <div class="progress">
-                                    <div id="password-strength" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="new_password" class="block text-sm font-medium text-gray-300 mb-2">New Password</label>
+                                <input type="password" class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" id="new_password" name="new_password">
+                            </div>
+                            <div>
+                                <label for="confirm_password" class="block text-sm font-medium text-gray-300 mb-2">Confirm New Password</label>
+                                <input type="password" class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" id="confirm_password" name="confirm_password">
+                            </div>
+                            <div id="password-match-error" class="hidden text-sm text-red-500">Passwords do not match</div>
+                            <div class="space-y-2">
+                                <div class="h-1.5 w-full bg-gray-700 rounded-full overflow-hidden">
+                                    <div id="password-strength" class="h-full bg-red-500" style="width: 0%"></div>
                                 </div>
-                                <small class="text-muted">Password strength: <span id="strength-text">Weak</span></small>
+                                <p class="text-xs text-gray-400">Password strength: <span id="strength-text">Weak</span></p>
                             </div>
                         </div>
 
                     <?php else: ?>
-                        <div class="mb-3">
-                            <label for="fullanme" class="form-label">Full Name</label>
-                            <input type="text" style="text-transform: uppercase;" class="form-control" id="fullname" name="fullname" required>
+                        <div>
+                            <label for="fullname" class="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
+                            <input type="text" style="text-transform: uppercase;" class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" id="fullname" name="fullname" required>
                         </div>
-                        <div class="mb-3">
-                            <label for="nickname" class="form-label">Nickname</label>
-                            <input type="text" style="text-transform: uppercase;" class="form-control" id="nickname" name="nickname" required>
+                        
+                        <div>
+                            <label for="nickname" class="block text-sm font-medium text-gray-300 mb-2">Nickname</label>
+                            <input type="text" style="text-transform: uppercase;" class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" id="nickname" name="nickname" required>
                         </div>
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
+                        
+                        <div>
+                            <label for="username" class="block text-sm font-medium text-gray-300 mb-2">Username</label>
+                            <input type="text" class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" id="username" name="username" required>
                         </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                        
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                            <input type="password" class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" id="password" name="password" required>
                         </div>
-                        <div class="mb-5" style="visibility: hidden">
-                            <label for="role" class="form-label">Role</label>
-                            <select class="form-select" id="role" name="role" disabled="disabled">
+                        
+                        <div class="hidden">
+                            <label for="role" class="block text-sm font-medium text-gray-300 mb-2">Role</label>
+                            <select class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" id="role" name="role">
                                 <option value="admin">Admin</option>
                                 <option value="user">User</option>
                             </select>
                         </div>
-                    <?php endif; ?>  
-
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">Save</button>
-                        <a href="users.php" class="btn btn-secondary">Cancel</a>
+                    <?php endif; ?>
+                    
+                    <div class="flex space-x-3 pt-4">
+                        <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-lg flex items-center">
+                            <i class="fas fa-save mr-2"></i> Save
+                        </button>
+                        <a href="users.php" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg flex items-center">
+                            Cancel
+                        </a>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
-    </div>
+    </main>
+</div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../assets/js/prompt.js"></script>
-</body>
-</html>
+<script>
+// Password strength and match checking
+document.addEventListener('DOMContentLoaded', function() {
+    const newPassword = document.getElementById('new_password');
+    const confirmPassword = document.getElementById('confirm_password');
+    const matchError = document.getElementById('password-match-error');
+    const strengthBar = document.getElementById('password-strength');
+    const strengthText = document.getElementById('strength-text');
+
+    function checkPasswordMatch() {
+        if (newPassword.value && confirmPassword.value && newPassword.value !== confirmPassword.value) {
+            matchError.classList.remove('hidden');
+            return false;
+        } else {
+            matchError.classList.add('hidden');
+            return true;
+        }
+    }
+
+    function checkPasswordStrength(password) {
+        let strength = 0;
+        
+        if (password.length >= 8) strength += 1;
+        if (password.match(/[a-z]/)) strength += 1;
+        if (password.match(/[A-Z]/)) strength += 1;
+        if (password.match(/[0-9]/)) strength += 1;
+        if (password.match(/[^a-zA-Z0-9]/)) strength += 1;
+        
+        return strength;
+    }
+
+    function updatePasswordStrength() {
+        const password = newPassword.value;
+        const strength = checkPasswordStrength(password);
+        
+        let width = 0;
+        let color = 'bg-red-500';
+        let text = 'Weak';
+        
+        if (strength >= 4) {
+            width = 100;
+            color = 'bg-green-500';
+            text = 'Strong';
+        } else if (strength >= 2) {
+            width = 66;
+            color = 'bg-yellow-500';
+            text = 'Medium';
+        } else if (password.length > 0) {
+            width = 33;
+        }
+        
+        strengthBar.style.width = width + '%';
+        strengthBar.className = `h-full ${color}`;
+        strengthText.textContent = text;
+    }
+
+    if (newPassword && confirmPassword) {
+        newPassword.addEventListener('input', function() {
+            checkPasswordMatch();
+            updatePasswordStrength();
+        });
+        
+        confirmPassword.addEventListener('input', checkPasswordMatch);
+    }
+});
+</script>
+
+<?php renderFooter(); ?>

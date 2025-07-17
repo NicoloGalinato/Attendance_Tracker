@@ -13,74 +13,55 @@ try {
 } catch (PDOException $e) {
     $userCount = 0;
 }
-?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | Auth System</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="../assets/css/style.css" rel="stylesheet">
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="#">Auth System</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="dashboard.php">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="users.php">Manage SLT</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../logout.php">Logout</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
 
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-md-8 mx-auto">
-                <div class="card shadow">
-                    <div class="card-header bg-primary text-white">
-                        <h4>Admin Dashboard</h4>
+require_once '../components/layout.php';
+renderHead('Dashboard');
+renderNavbar();
+renderSidebar('dashboard');
+?>
+
+<div class="md:ml-64 pt-16 min-h-screen">
+    <main class="p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold">Dashboard</h1>
+        </div>
+
+        <?php renderAlert(); ?>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-gray-800 rounded-xl border border-gray-700 p-6 shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-gray-400 text-sm font-medium">Total Users</h3>
+                        <p class="text-3xl font-bold mt-2"><?= $userCount ?></p>
                     </div>
-                    <div class="card-body">
-                        <p>Welcome to the admin panel. You can manage users and their profiles from here.</p>
-                        
-                        <div class="row mt-4">
-                            <div class="col-md-6">
-                                <div class="card text-white bg-success mb-3">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Total Users</h5>
-                                        <p class="card-text display-4"><?= $userCount; ?></p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card text-white bg-info mb-3">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Your Role</h5>
-                                        <p class="card-text display-4">Admin</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="bg-primary-500/20 p-3 rounded-full">
+                        <i class="fas fa-users text-primary-500 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 rounded-xl border border-gray-700 p-6 shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-gray-400 text-sm font-medium">Your Role</h3>
+                        <p class="text-3xl font-bold mt-2">Admin</p>
+                    </div>
+                    <div class="bg-green-500/20 p-3 rounded-full">
+                        <i class="fas fa-shield-alt text-green-500 text-xl"></i>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+        <div class="bg-gray-800 rounded-xl border border-gray-700 p-6 shadow">
+            <h2 class="text-xl font-semibold mb-4">Welcome to CXI Admin Panel</h2>
+            <p class="text-gray-400">
+                You can manage all SLT members and their profiles from this dashboard. 
+                Use the navigation menu to access different sections of the system.
+            </p>
+        </div>
+    </main>
+</div>
+
+<?php renderFooter(); ?>
