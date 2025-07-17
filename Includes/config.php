@@ -9,4 +9,4 @@ session_start();
 
 // Constants
 define('BASE_URL', 'http://localhost/auth-system/');
-define('ADMIN_URL', BASE_URL . 'admin/');
+define('ADMIN_URL', BASE_URL . 'admin/dashboard.php');

@@ -2,35 +2,6 @@ body {
     background-color: #f8f9fa;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
-.lto-bg-primary {
-    background-color: #004a8d;
-}
-.lto-bg-primary:hover {
-    background-color: #00376b;
-}
-.lto-bg-secondary {
-    background-color: #e67e22;
-}
-.lto-bg-secondary:hover {
-    background-color: #b4641e;
-}
-.lto-text-primary {
-    color: #004a8d;
-}
-.portal-shadow {
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-}
-.login-card {
-    min-height: 400px;
-}
-.nav-tabs .nav-link.active {
-    font-weight: 600;
-    border-bottom: 3px solid #004a8d;
-    color: #004a8d;
-}
-
-
-
 #loadingModal .modal-content {
     background: transparent;
     border: none;

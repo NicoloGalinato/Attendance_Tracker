@@ -42,7 +42,7 @@ if (isset($_POST['login'])) {
                 if (isAdmin()) {
                     redirect(ADMIN_URL);
                 } else {
-                    redirect(BASE_URL . 'dashboard.php');
+                    redirect(BASE_URL);
                 }
             } else {
                 // Increment failed login attempts
