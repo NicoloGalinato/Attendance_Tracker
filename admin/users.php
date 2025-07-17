@@ -79,16 +79,15 @@ try {
         <div class="card shadow">
             <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                 <h4>Manage Users</h4>
-                <a href="profile.php?action=create" class="btn btn-light">Add New User</a>
+                <a href="profile.php?action=create" class="btn btn-light">Add New SLT</a>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-striped table-hover">
                         <thead>
                             <tr>
-                                <th>ID</th>
                                 <th>Username</th>
-                                <th>Name</th>
+                                <th>SLT</th>
                                 <th>Role</th>
                                 <th>Created At</th>
                                 <th>Actions</th>
@@ -97,18 +96,17 @@ try {
                         <tbody>
                             <?php foreach ($users as $user): ?>
                                 <tr>
-                                    <td><?= $user['id']; ?></td>
                                     <td><?= htmlspecialchars($user['username']); ?></td>
-                                    <td><?= htmlspecialchars($user['fullname']); ?></td>
+                                    <td><?= htmlspecialchars($user['sub_name']); ?></td>
                                     <td>
-                                        <span class="badge bg-<?= $user['role'] === 'admin' ? 'danger' : 'primary'; ?>">
+                                        <span class="badge bg-<?= $user['role'] === 'admin' ? 'primary' : 'danger'; ?>">
                                             <?= ucfirst($user['role']); ?>
                                         </span>
                                     </td>
                                     <td><?= date('M d, Y H:i', strtotime($user['created_at'])); ?></td>
                                     <td>
                                         <a href="profile.php?id=<?= $user['id']; ?>" class="btn btn-sm btn-info">Edit</a>
-                                        <?php if ($user['role'] !== 'admin'): ?>
+                                        <?php if ($user['role'] == 'admin'): ?>
                                             <a href="users.php?delete=<?= $user['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
                                         <?php endif; ?>
                                     </td>

@@ -13,9 +13,9 @@ $userId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 // At the top of the file, after session_start()
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $userId = (int)$_POST['user_id'];
-    $empid = strtoupper (sanitizeInput($_POST['empid']));
     $fullname_ed = strtoupper (sanitizeInput($_POST['fullname_ed']));
     $fullname = strtoupper (sanitizeInput($_POST['fullname']));
+    $nickname = strtoupper (sanitizeInput($_POST['nickname']));
     $username = sanitizeInput($_POST['username']);
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
     $role = sanitizeInput($_POST['role']);
@@ -36,8 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
            
         } else {
             // Insert new profile
-           $stmt = $pdo->prepare("INSERT INTO users (emp_id, fullname, username, password, role) VALUES (?, ?, ?, ?, ?)");
-           $stmt->execute([$empid, $fullname, $username, $password, $role]);
+           $stmt = $pdo->prepare("INSERT INTO users (fullname, sub_name, username, password, role) VALUES (?, ?, ?, ?, ?)");
+           $stmt->execute([$fullname, $nickname, $username, $password, $role]);
 
         }
 
@@ -58,12 +58,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         $pdo->commit();
         $_SESSION['success'] = "Profile updated successfully";
-        redirect(ADMIN_URL . 'users.php');
+        redirect('users.php');
         
     } catch (Exception $e) {
         $pdo->rollBack();
         $_SESSION['error'] = $e->getMessage();
-        redirect(ADMIN_URL . 'profile.php?id=' . $_POST['user_id']);
+        redirect('profile.php?id=' . $_POST['user_id']);
     }
 }
 
@@ -78,15 +78,15 @@ if ($userId > 0) {
         
         if (!$user) {
             $_SESSION['error'] = "User not found";
-            redirect(ADMIN_URL . 'users.php');
+            redirect('users.php');
         }
         
     } catch (PDOException $e) {
         $_SESSION['error'] = "Error fetching data: " . $e->getMessage();
-        redirect(ADMIN_URL . 'users.php');
+        redirect('users.php');
     }
 } elseif ($action !== 'create') {
-    redirect(ADMIN_URL . 'users.php');
+    redirect('users.php');
 }
 ?>
 <!DOCTYPE html>
@@ -134,14 +134,10 @@ if ($userId > 0) {
                 <form method="POST">
                     <input type="hidden" name="user_id" value="<?= $userId; ?>">
                     
-                    <?php if ($userId): ?>
-                        <div class="mb-3">
-                            <label class="form-label">Employee ID</label>
-                            <input type="text" style="text-transform: uppercase;" class="form-control" value="<?= htmlspecialchars($user['emp_id']); ?>" readonly>
-                        </div>
+                    <?php if ($userId): ?>                 
                         <div class="mb-3">
                             <label class="form-label">Username</label>
-                            <input type="text" class="form-control" value="<?= htmlspecialchars($user['username']); ?>" readonly>
+                            <input type="text" class="form-control" value="<?= htmlspecialchars($user['username']); ?>">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Full Name</label>
@@ -169,12 +165,12 @@ if ($userId > 0) {
 
                     <?php else: ?>
                         <div class="mb-3">
-                            <label for="username" class="form-label" >Employee ID</label>
-                            <input type="text" style="text-transform: uppercase;" class="form-control" id="empid" name="empid" required>
-                        </div>
-                        <div class="mb-3">
                             <label for="fullanme" class="form-label">Full Name</label>
                             <input type="text" style="text-transform: uppercase;" class="form-control" id="fullname" name="fullname" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="nickname" class="form-label">Nickname</label>
+                            <input type="text" style="text-transform: uppercase;" class="form-control" id="nickname" name="nickname" required>
                         </div>
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
@@ -184,11 +180,11 @@ if ($userId > 0) {
                             <label for="password" class="form-label">Password</label>
                             <input type="password" class="form-control" id="password" name="password" required>
                         </div>
-                        <div class="mb-5">
+                        <div class="mb-5" style="visibility: hidden">
                             <label for="role" class="form-label">Role</label>
-                            <select class="form-select" id="role" name="role">
-                                <option value="user">User</option>
+                            <select class="form-select" id="role" name="role" disabled="disabled">
                                 <option value="admin">Admin</option>
+                                <option value="user">User</option>
                             </select>
                         </div>
                     <?php endif; ?>  
