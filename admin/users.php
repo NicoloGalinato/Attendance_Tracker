@@ -11,7 +11,7 @@ if (isset($_GET['delete'])) {
     $userId = (int)$_GET['delete'];
     
     try {
-        $stmt = $pdo->prepare("DELETE FROM users WHERE id = ? AND role != 'admin'");
+        $stmt = $pdo->prepare("DELETE FROM users WHERE id = ? ");
         $stmt->execute([$userId]);
         
         if ($stmt->rowCount() > 0) {
