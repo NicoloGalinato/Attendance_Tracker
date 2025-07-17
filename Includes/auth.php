@@ -54,7 +54,7 @@ if (isset($_POST['login'])) {
                     $locked_until = date('Y-m-d H:i:s', strtotime('+30 minutes'));
                     $_SESSION['error'] = "Too many failed attempts. Account locked for 30 minutes.";
                 } else {
-                    $_SESSION['error'] = "Invalid username or password";
+                    $_SESSION['error'] = "Incorrect username or password";
                     if ($login_attempts >= 3) {
                         $_SESSION['show_captcha'] = true;
                     }
@@ -71,7 +71,7 @@ if (isset($_POST['login'])) {
         } else {
             // Username doesn't exist, but don't reveal that
             sleep(3); // Delay to prevent username enumeration
-            $_SESSION['error'] = "Invalid username or password";
+            $_SESSION['error'] = "Incorrect username or password";
             redirect(BASE_URL);
         }
     } catch (PDOException $e) {

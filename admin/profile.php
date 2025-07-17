@@ -111,7 +111,7 @@ if ($userId > 0) {
                         <a class="nav-link" href="dashboard.php">Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="users.php">Manage Users</a>
+                        <a class="nav-link" href="users.php">Manage SLT</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="../logout.php">Logout</a>

@@ -8,5 +8,5 @@ error_reporting(E_ALL);
 session_start();
 
 // Constants
-define('BASE_URL', 'http://localhost/auth-system/');
+define('BASE_URL', 'http://localhost/test-project/');
 define('ADMIN_URL', BASE_URL . 'admin/dashboard.php');
