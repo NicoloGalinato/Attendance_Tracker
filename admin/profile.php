@@ -13,9 +13,13 @@ $userId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 // At the top of the file, after session_start()
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $userId = (int)$_POST['user_id'];
+    $nickname_ed = strtoupper (sanitizeInput($_POST['nickname_ed']));
     $fullname_ed = strtoupper (sanitizeInput($_POST['fullname_ed']));
+    $slt_email_ed = sanitizeInput($_POST['slt_email_ed']);
+
     $fullname = strtoupper (sanitizeInput($_POST['fullname']));
     $nickname = strtoupper (sanitizeInput($_POST['nickname']));
+    $email = sanitizeInput($_POST['email']);
     $username = sanitizeInput($_POST['username']);
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
     $role = sanitizeInput($_POST['role']);
@@ -31,13 +35,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($stmt->rowCount() > 0) {
             // Update existing profile
-           $stmt = $pdo->prepare("UPDATE users SET fullname = ? WHERE id = ?");
-           $stmt->execute([$fullname_ed, $userId]);
-           
+            $stmt = $pdo->prepare("UPDATE users SET fullname = ?, slt_email = ?, sub_name = ? WHERE id = ?");
+            $stmt->execute([$fullname_ed, $slt_email_ed, $nickname_ed, $userId]);
         } else {
             // Insert new profile
-           $stmt = $pdo->prepare("INSERT INTO users (fullname, sub_name, username, password, role) VALUES (?, ?, ?, ?, ?)");
-           $stmt->execute([$fullname, $nickname, $username, $password, $role]);
+           $stmt = $pdo->prepare("INSERT INTO users (fullname, sub_name, slt_email, username, password, role) VALUES (?, ?, ?, ?, ?, ?)");
+           $stmt->execute([$fullname, $nickname, $email, $username, $password, $role]);
 
         }
 
@@ -62,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
     } catch (Exception $e) {
         $pdo->rollBack();
-        $_SESSION['error'] = "Account exist! Try add different Account.";
+        $_SESSION['error'] = "Account exist! Try add different Account." ;
         redirect('profile.php?id=' . $_POST['user_id']);
     }
 }
@@ -114,10 +117,20 @@ renderSidebar('users');
                             <label class="block text-sm font-medium text-gray-300 mb-2">Username</label>
                             <input type="text" class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" value="<?= htmlspecialchars($user['username']) ?>" readonly>
                         </div>
+
+                        <div>
+                            <label for="nickname_ed" class="block text-sm font-medium text-gray-300 mb-2">Nickname</label>
+                            <input type="text" style="text-transform: uppercase;" class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" id="nickname_ed" name="nickname_ed" value="<?= htmlspecialchars($user['sub_name']) ?>" required>
+                        </div>
                         
                         <div>
                             <label for="fullname_ed" class="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
                             <input type="text" style="text-transform: uppercase;" class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" id="fullname_ed" name="fullname_ed" value="<?= htmlspecialchars($user['fullname']) ?>" required>
+                        </div>
+
+                        <div>
+                            <label for="slt_email_ed" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                            <input type="email" class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" id="slt_email_ed" name="slt_email_ed" value="<?= htmlspecialchars($user['slt_email']) ?>" required>
                         </div>
 
                         <div class="space-y-4">
@@ -147,6 +160,11 @@ renderSidebar('users');
                         <div>
                             <label for="nickname" class="block text-sm font-medium text-gray-300 mb-2">Nickname</label>
                             <input type="text" style="text-transform: uppercase;" class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" id="nickname" name="nickname" required>
+                        </div>
+
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                            <input type="email" class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" id="email" name="email" required>
                         </div>
                         
                         <div>

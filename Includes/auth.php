@@ -38,6 +38,7 @@ if (isset($_POST['login'])) {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_role'] = $user['role'];
                 $_SESSION['username'] = $user['username'];
+                $_SESSION['nickname'] = $user['sub_name'];
                 
                 if (isAdmin()) {
                     redirect(ADMIN_URL);
@@ -52,9 +53,9 @@ if (isset($_POST['login'])) {
                 // Lock account after 5 failed attempts for 30 minutes
                 if ($login_attempts >= 5) {
                     $locked_until = date('Y-m-d H:i:s', strtotime('+30 minutes'));
-                    $_SESSION['error'] = "Too many failed attempts. Account locked for 30 minutes.";
+                    $_SESSION['error'] = "Too many failed attempts. Account locked for 30 minutes!";
                 } else {
-                    $_SESSION['error'] = "Incorrect username or password";
+                    $_SESSION['error'] = "Incorrect username or password!";
                     if ($login_attempts >= 3) {
                         $_SESSION['show_captcha'] = true;
                     }

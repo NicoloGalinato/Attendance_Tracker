@@ -63,6 +63,7 @@ try {
                 <tr>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Username</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">SLT</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Email</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Role</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Created At</th>
                     <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
@@ -79,13 +80,16 @@ try {
                     <?php foreach ($users as $user): ?>
                     <tr class="hover:bg-gray-700/50">
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-100"><?= htmlspecialchars($user['username']) ?></div>
+                            <div class="text-sm font-medium text-gray-100" style="text-transform: uppercase;"><?= htmlspecialchars($user['username']) ?></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-300"><?= htmlspecialchars($user['sub_name']) ?></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $user['role'] === 'admin' ? 'bg-primary-100 text-primary-800' : 'bg-green-100 text-green-800' ?>">
+                            <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($user['slt_email']) ?></div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $user['role'] === 'admin' ? 'bg-primary-100 text-primary-800' : 'bg-green-100 text-green-800' ?>" style="text-transform: uppercase;">
                                 <?= ucfirst($user['role']) ?>
                             </span>
                         </td>

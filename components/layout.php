@@ -68,7 +68,7 @@ function renderNavbar() {
                         <div class="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center">
                             <i class="fas fa-user text-white"></i>
                         </div>
-                        <span class="hidden md:inline">Admin</span>
+                        <span class="hidden md:inline"><?= htmlspecialchars($_SESSION['nickname']); ?></span>
                     </button>
                     <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-700">
                         <a href="../logout.php" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Sign out</a>
@@ -95,8 +95,16 @@ function renderSidebar($activePage = 'dashboard') {
                     <i class="sidebar-icon fas fa-tachometer-alt mr-3"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="users.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'users' ? 'active' : '' ?>">
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === '#' ? 'active' : '' ?>">
+                    <i class="sidebar-icon fas fa-chart-line mr-3"></i>
+                    <span>Tracker</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === '#' ? 'active' : '' ?>">
                     <i class="sidebar-icon fas fa-users mr-3"></i>
+                    <span>Manage Agents</span>
+                </a>
+                <a href="users.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'users' ? 'active' : '' ?>">
+                    <i class="sidebar-icon fas fa-cog mr-3"></i>
                     <span>Manage SLT</span>
                 </a>
             </div>
