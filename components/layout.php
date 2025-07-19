@@ -7,6 +7,8 @@ function renderHead($title) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title><?= htmlspecialchars($title) ?> | CXI Admin</title>
+        <link rel="icon" href="<?= BASE_URL ?>assets/cxiico.png" type="image/png">
+        <meta name="theme-color" content="#0ea5e9">
         <script src="https://cdn.tailwindcss.com"></script>
         <script>
             tailwind.config = {
@@ -99,7 +101,7 @@ function renderSidebar($activePage = 'dashboard') {
                     <i class="sidebar-icon fas fa-chart-line mr-3"></i>
                     <span>Tracker</span>
                 </a>
-                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === '#' ? 'active' : '' ?>">
+                <a href="employees.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'employees' ? 'active' : '' ?>">
                     <i class="sidebar-icon fas fa-users mr-3"></i>
                     <span>Manage Agents</span>
                 </a>

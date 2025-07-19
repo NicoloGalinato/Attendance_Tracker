@@ -72,7 +72,7 @@ if (isset($_POST['login'])) {
         } else {
             // Username doesn't exist, but don't reveal that
             sleep(3); // Delay to prevent username enumeration
-            $_SESSION['error'] = "Incorrect username or password";
+            $_SESSION['error'] = "Incorrect username or password!";
             redirect(BASE_URL);
         }
     } catch (PDOException $e) {

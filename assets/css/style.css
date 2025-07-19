@@ -1,17 +1,3 @@
-body {
-    background-color: #0f2842;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-}
-#loadingModal .modal-content {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-}
-
-.spinner-border {
-    width: 3rem;
-    height: 3rem;
-}
 
 /* Password strength meter */
 .strength-0 {
