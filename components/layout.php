@@ -107,7 +107,7 @@ function renderSidebar($activePage = 'dashboard') {
                 </a>
                 <a href="users.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'users' ? 'active' : '' ?>">
                     <i class="sidebar-icon fas fa-cog mr-3"></i>
-                    <span>Manage SLT</span>
+                    <span>Management Settings</span>
                 </a>
             </div>
         </div>

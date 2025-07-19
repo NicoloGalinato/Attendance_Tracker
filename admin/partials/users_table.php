@@ -2,12 +2,26 @@
 require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/functions.php';
 
-
-
 // Get parameters from POST (AJAX) or GET (initial load)
 $search = isset($_POST['search']) ? trim($_POST['search']) : (isset($_GET['search']) ? trim($_GET['search']) : '');
 $page = isset($_POST['page']) ? (int)$_POST['page'] : (isset($_GET['page']) ? (int)$_GET['page'] : 1);
+$type = isset($_POST['type']) ? $_POST['type'] : (isset($_GET['tab']) ? $_GET['tab'] : 'users');
 $page = max($page, 1); // Ensure page is at least 1
+
+// Determine which table to query
+$table = 'users';
+$columns = ['username', 'sub_name', 'fullname', 'slt_email', 'role', 'created_at'];
+$idColumn = 'id';
+
+if ($type === 'management') {
+    $table = 'management';
+    $columns = ['cxi_id', 'fullname', 'department', 'email', 'created_at'];
+    $idColumn = 'id';
+} elseif ($type === 'operations') {
+    $table = 'operations_managers';
+    $columns = ['cxi_id', 'fullname', 'department', 'email', 'created_at'];
+    $idColumn = 'id';
+}
 
 // Pagination configuration
 $perPage = 10;
@@ -15,31 +29,38 @@ $searchQuery = '';
 $params = [];
 
 if (!empty($search)) {
-    $searchQuery = "WHERE username LIKE :search OR sub_name LIKE :search OR fullname LIKE :search";
+    $searchConditions = [];
+    foreach ($columns as $column) {
+        if ($column !== 'created_at') {
+            $searchConditions[] = "$column LIKE :search";
+        }
+    }
+    $searchQuery = "WHERE " . implode(' OR ', $searchConditions);
     $params[':search'] = "%$search%";
 }
 
 // Get total count for pagination
 try {
-    $countStmt = $pdo->prepare("SELECT COUNT(*) FROM users $searchQuery");
+    $countStmt = $pdo->prepare("SELECT COUNT(*) FROM $table $searchQuery");
     if (!empty($search)) {
         foreach ($params as $key => $value) {
             $countStmt->bindValue($key, $value);
         }
     }
     $countStmt->execute();
-    $totalUsers = $countStmt->fetchColumn();
+    $totalRecords = $countStmt->fetchColumn();
 } catch (PDOException $e) {
-    $totalUsers = 0;
+    $totalRecords = 0;
 }
 
-$totalPages = ceil($totalUsers / $perPage);
+$totalPages = ceil($totalRecords / $perPage);
 $page = min($page, $totalPages); // Ensure page doesn't exceed total pages
 $offset = ($page - 1) * $perPage;
 
-// Get paginated users
+// Get paginated records
 try {
-    $stmt = $pdo->prepare("SELECT * FROM users $searchQuery ORDER BY created_at DESC LIMIT :limit OFFSET :offset");
+    $query = "SELECT * FROM $table $searchQuery ORDER BY created_at DESC LIMIT :limit OFFSET :offset";
+    $stmt = $pdo->prepare($query);
     
     if (!empty($search)) {
         foreach ($params as $key => $value) {
@@ -50,9 +71,9 @@ try {
     $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
     $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
     $stmt->execute();
-    $users = $stmt->fetchAll();
+    $records = $stmt->fetchAll();
 } catch (PDOException $e) {
-    $users = [];
+    $records = [];
 }
 ?>
 
@@ -61,54 +82,74 @@ try {
         <table class="min-w-full divide-y divide-gray-700">
             <thead class="bg-gray-700">
                 <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Username</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">SLT</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Fullname</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Email</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Role</th>
+                    <?php if ($type === 'users'): ?>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Username</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">SLT</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Fullname</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Email</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Role</th>
+                    <?php else: ?>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">CXI ID</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Fullname</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Department</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Email</th>
+                    <?php endif; ?>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Created At</th>
                     <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
             <tbody class="bg-gray-800 divide-y divide-gray-700">
-                <?php if (empty($users)): ?>
+                <?php if (empty($records)): ?>
                     <tr>
-                        <td colspan="5" class="px-6 py-4 text-center text-gray-400">
-                            No users found
+                        <td colspan="<?= $type === 'users' ? 7 : 6 ?>" class="px-6 py-4 text-center text-gray-400">
+                            No records found
                         </td>
                     </tr>
                 <?php else: ?>
-                    <?php foreach ($users as $user): ?>
+                    <?php foreach ($records as $record): ?>
                     <tr class="hover:bg-gray-700/50">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-100" style="text-transform: uppercase;"><?= htmlspecialchars($user['username']) ?></div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-300"><?= htmlspecialchars($user['sub_name']) ?></div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-300"><?= htmlspecialchars($user['fullname']) ?></div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($user['slt_email']) ?></div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $user['role'] === 'admin' ? 'bg-primary-100 text-primary-800' : 'bg-green-100 text-green-800' ?>" style="text-transform: uppercase;">
-                                <?= ucfirst($user['role']) ?>
-                            </span>
-                        </td>
+                        <?php if ($type === 'users'): ?>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-100" style="text-transform: uppercase;"><?= htmlspecialchars($record['username']) ?></div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['sub_name']) ?></div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['fullname']) ?></div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['slt_email']) ?></div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['role'] === 'admin' ? 'bg-primary-100 text-primary-800' : 'bg-green-100 text-green-800' ?>" style="text-transform: uppercase;">
+                                    <?= ucfirst($record['role']) ?>
+                                </span>
+                            </td>
+                        <?php else: ?>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-100" style="text-transform: uppercase;"><?= htmlspecialchars($record['cxi_id']) ?></div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['fullname']) ?></div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['department']) ?></div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['email']) ?></div>
+                            </td>
+                        <?php endif; ?>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                            <?= date('M d, Y H:i', strtotime($user['created_at'])) ?>
+                            <?= date('M d, Y H:i', strtotime($record['created_at'])) ?>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <a href="profile.php?id=<?= $user['id'] ?>" class="text-primary-500 hover:text-primary-400 mr-3">
+                            <a href="profile.php?id=<?= $record[$idColumn] ?>&type=<?= $type ?>" class="text-primary-500 hover:text-primary-400 mr-3">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <?php if ($user['role'] == 'admin'): ?>
-                            <a href="users.php?delete=<?= $user['id'] ?>" class="text-red-500 hover:text-red-400" onclick="return confirm('Are you sure?')">
+                            <a href="users.php?delete=<?= $record[$idColumn] ?>&type=<?= $type ?>" class="text-red-500 hover:text-red-400" onclick="return confirm('Are you sure you want to delete this record?')">
                                 <i class="fas fa-trash"></i>
                             </a>
-                            <?php endif; ?>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -122,7 +163,7 @@ try {
 <?php if ($totalPages > 1): ?>
 <div class="mt-6 flex items-center justify-between">
     <div class="text-sm text-gray-400">
-        Showing <?= ($offset + 1) ?> to <?= min($offset + $perPage, $totalUsers) ?> of <?= $totalUsers ?> SLT
+        Showing <?= ($offset + 1) ?> to <?= min($offset + $perPage, $totalRecords) ?> of <?= $totalRecords ?> records
     </div>
     <div class="flex gap-1">
         <?php if ($page > 1): ?>
