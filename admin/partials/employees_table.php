@@ -99,13 +99,13 @@ try {
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <a href="employee.php?id=<?= $employee['id'] ?>" class="text-primary-500 hover:text-primary-400 mr-3">
+                            <a href="employee.php?id=<?= $employee['id'] ?>" title="Edit record" class="text-primary-500 hover:text-primary-400 mr-3">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <a href="employees.php?toggle_status=<?= $employee['id'] ?>" class="text-yellow-500 hover:text-yellow-400 mr-3" onclick="return confirm('Are you sure you want to <?= $employee['is_active'] ? 'deactivate' : 'activate' ?> this agent?')">
+                            <a href="employees.php?toggle_status=<?= $employee['id'] ?>" class="text-yellow-500 hover:text-yellow-400 mr-3" title="Status update" onclick="return confirm('Are you sure you want to <?= $employee['is_active'] ? 'deactivate' : 'activate' ?> this agent?')">
                                 <i class="fas fa-<?= $employee['is_active'] ? 'times' : 'check' ?>"></i>
                             </a>
-                            <a href="employees.php?delete=<?= $employee['id'] ?>" class="text-red-500 hover:text-red-400" onclick="return confirm('Are you sure you want to delete this agent?')">
+                            <a href="employees.php?delete=<?= $employee['id'] ?>" class="text-red-500 hover:text-red-400" title="Delete record" onclick="return confirm('Are you sure you want to delete this agent?')">
                                 <i class="fas fa-trash"></i>
                             </a>
                         </td>

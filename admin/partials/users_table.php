@@ -151,13 +151,13 @@ try {
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <a href="profile.php?id=<?= $record[$idColumn] ?>&type=<?= $type ?>" class="text-primary-500 hover:text-primary-400 mr-3">
+                            <a href="profile.php?id=<?= $record[$idColumn] ?>&type=<?= $type ?>" title="Edit record" class="text-primary-500 hover:text-primary-400 mr-3">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <a href="users.php?toggle_status=<?= $record[$idColumn] ?>&type=<?= $type ?>" class="text-yellow-500 hover:text-yellow-400 mr-3" onclick="return confirm('Are you sure you want to <?= $record['is_active'] ? 'deactivate' : 'activate' ?> this record?')">
+                            <a href="users.php?toggle_status=<?= $record[$idColumn] ?>&type=<?= $type ?>" class="text-yellow-500 hover:text-yellow-400 mr-3" title="Status update" onclick="return confirm('Are you sure you want to <?= $record['is_active'] ? 'deactivate' : 'activate' ?> this record?')">
                                 <i class="fas fa-<?= $record['is_active'] ? 'times' : 'check' ?>"></i>
                             </a>
-                            <a href="users.php?delete=<?= $record[$idColumn] ?>&type=<?= $type ?>" class="text-red-500 hover:text-red-400" onclick="return confirm('Are you sure you want to delete this record?')">
+                            <a href="users.php?delete=<?= $record[$idColumn] ?>&type=<?= $type ?>" class="text-red-500 hover:text-red-400" title="Delete record" onclick="return confirm('Are you sure you want to delete this record?')">
                                 <i class="fas fa-trash"></i>
                             </a>
                         </td>
