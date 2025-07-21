@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 19, 2025 at 08:32 PM
+-- Generation Time: Jul 21, 2025 at 12:36 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -36,15 +36,16 @@ CREATE TABLE `employees` (
   `operation_manager` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `is_active` tinyint(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `employees`
 --
 
-INSERT INTO `employees` (`id`, `employee_id`, `full_name`, `department`, `supervisor`, `operation_manager`, `email`, `created_at`, `updated_at`) VALUES
-(10, 'cxi11812', 'CHRISTIAN MONTOYA', 'SLT', 'JUAN TORRES', 'PHAY-BRIONES BARRAMEDA', 'c.montoya@communixinc.com', '2025-07-20 00:16:46', '2025-07-20 00:16:46');
+INSERT INTO `employees` (`id`, `employee_id`, `full_name`, `department`, `supervisor`, `operation_manager`, `email`, `created_at`, `updated_at`, `is_active`) VALUES
+(10, 'cxi11812', 'CHRISTIAN MONTOYA', 'SLT', 'JUAN TORRES', 'PHAY-BRIONES BARRAMEDA', 'c.montoya@communixinc.com', '2025-07-20 00:16:46', '2025-07-21 18:35:02', 1);
 
 -- --------------------------------------------------------
 
@@ -58,15 +59,17 @@ CREATE TABLE `management` (
   `fullname` varchar(100) NOT NULL,
   `department` varchar(50) NOT NULL,
   `email` varchar(100) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `is_active` tinyint(1) DEFAULT 1,
+  `last_activity` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `management`
 --
 
-INSERT INTO `management` (`id`, `cxi_id`, `fullname`, `department`, `email`, `created_at`) VALUES
-(3, 'cxi11899', 'GALINATO, NICO', 'executive', 'nicolo.galinato@communixinc.com', '2025-07-19 18:17:37');
+INSERT INTO `management` (`id`, `cxi_id`, `fullname`, `department`, `email`, `created_at`, `is_active`, `last_activity`) VALUES
+(3, 'cxi11899', 'GALINATO, NICO', 'executive', 'nicolo.galinato@communixinc.com', '2025-07-19 18:17:37', 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -80,6 +83,7 @@ CREATE TABLE `operations_managers` (
   `fullname` varchar(100) NOT NULL,
   `department` varchar(50) NOT NULL,
   `email` varchar(100) NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -87,8 +91,8 @@ CREATE TABLE `operations_managers` (
 -- Dumping data for table `operations_managers`
 --
 
-INSERT INTO `operations_managers` (`id`, `cxi_id`, `fullname`, `department`, `email`, `created_at`) VALUES
-(3, 'cxi11899', 'GALINATO, NICO', 'operations manager', 'nicolo.galinato@communixinc.com', '2025-07-19 18:17:59');
+INSERT INTO `operations_managers` (`id`, `cxi_id`, `fullname`, `department`, `email`, `is_active`, `created_at`) VALUES
+(3, 'cxi11899', 'GALINATO, NICO', 'operations manager', 'nicolo.galinato@communixinc.com', 1, '2025-07-19 18:17:59');
 
 -- --------------------------------------------------------
 
@@ -107,21 +111,22 @@ CREATE TABLE `users` (
   `login_attempts` int(11) DEFAULT 0,
   `last_failed_login` timestamp NULL DEFAULT NULL,
   `locked_until` timestamp NULL DEFAULT NULL,
-  `role` enum('user','admin') DEFAULT 'admin'
+  `role` enum('user','admin') DEFAULT 'admin',
+  `is_active` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `fullname`, `sub_name`, `password`, `slt_email`, `created_at`, `login_attempts`, `last_failed_login`, `locked_until`, `role`) VALUES
-(1, 'cxi11899', 'GALINATO, NICO', 'SLT NICO', '$2y$10$Nq1m.u1mc22CgjCYuRzHp.16IMLEc5PvKtFeZpPt0ej7V9xhIghc6', 'nicolo.galinato@communixinc.com', '2025-07-17 15:24:12', 0, NULL, NULL, 'admin'),
-(37, 'cxi00525', 'JUAN TORRES', 'SLT JC', '$2y$10$fSnVChxO1EvhBhXFPkl/HOGC.uxik2kHay6cvlOKwkaIgXju.ASqS', 'juan.torres@communixinc.com', '2025-07-17 19:44:34', 0, NULL, NULL, 'admin'),
-(38, 'cxi00730', 'RG DUTERTE', 'SLT RG', '$2y$10$4Tnf9CRtLqS4fvFM2Otjme8zCSX6bbtUDiSgNVQ8IGUgo/VBZ4gqe', 'rg.duterte@communixinc.com', '2025-07-17 19:45:03', 0, NULL, NULL, 'admin'),
-(39, 'cxi11647', 'ALEXANDER RAY OLAES', 'SLT ALEX', '$2y$10$drhplWGrgo0Gz7nbnRXV.OcYwpieFAkaKROp/xrH2Hj5hNxnyEItW', 'a.olaes@communixinc.com', '2025-07-17 19:45:22', 0, NULL, NULL, 'admin'),
-(40, 'cxi11652', 'ANGKIKO, MIGUEL JEAN', 'SLT MIGS', '$2y$10$QfoRP/1fsDr2jyaTZTSQfORiDix1fHi..f4KK9p.lzU38sk7oWv7S', 'miguel.angkiko@communixinc.com', '2025-07-17 19:45:49', 0, NULL, NULL, 'admin'),
-(41, 'cxi11664', 'IVERSON LOMAT', 'SLT IVER', '$2y$10$ju/wgHSL1tQJeM4/weg5nuX3oGwKhBSOg3fcGjRZUIlzELPwtPeXi', 'iverson.lomat@communixinc.com', '2025-07-17 19:46:06', 0, NULL, NULL, 'admin'),
-(42, 'cxi11812', 'CHRISTIAN MONTOYA', 'SLT CIAN', '$2y$10$jyCYyY.UBtHPSBlKONCrpeZ15N4u0VHQw20/LxV0q6fxvqpuAa2cy', 'c.montoya@communixinc.com', '2025-07-17 19:46:35', 0, NULL, NULL, 'admin');
+INSERT INTO `users` (`id`, `username`, `fullname`, `sub_name`, `password`, `slt_email`, `created_at`, `login_attempts`, `last_failed_login`, `locked_until`, `role`, `is_active`) VALUES
+(1, 'cxi11899', 'GALINATO, NICO', 'SLT NICO', '$2y$10$Nq1m.u1mc22CgjCYuRzHp.16IMLEc5PvKtFeZpPt0ej7V9xhIghc6', 'nicolo.galinato@communixinc.com', '2025-07-17 15:24:12', 0, NULL, NULL, 'admin', 1),
+(37, 'cxi00525', 'JUAN TORRES', 'SLT JC', '$2y$10$fSnVChxO1EvhBhXFPkl/HOGC.uxik2kHay6cvlOKwkaIgXju.ASqS', 'juan.torres@communixinc.com', '2025-07-17 19:44:34', 0, NULL, NULL, 'admin', 1),
+(38, 'cxi00730', 'RG DUTERTE', 'SLT RG', '$2y$10$4Tnf9CRtLqS4fvFM2Otjme8zCSX6bbtUDiSgNVQ8IGUgo/VBZ4gqe', 'rg.duterte@communixinc.com', '2025-07-17 19:45:03', 0, NULL, NULL, 'admin', 1),
+(39, 'cxi11647', 'ALEXANDER RAY OLAES', 'SLT ALEX', '$2y$10$drhplWGrgo0Gz7nbnRXV.OcYwpieFAkaKROp/xrH2Hj5hNxnyEItW', 'a.olaes@communixinc.com', '2025-07-17 19:45:22', 0, NULL, NULL, 'admin', 1),
+(40, 'cxi11652', 'ANGKIKO, MIGUEL JEAN', 'SLT MIGS', '$2y$10$QfoRP/1fsDr2jyaTZTSQfORiDix1fHi..f4KK9p.lzU38sk7oWv7S', 'miguel.angkiko@communixinc.com', '2025-07-17 19:45:49', 0, NULL, NULL, 'admin', 1),
+(41, 'cxi11664', 'IVERSON LOMAT', 'SLT IVER', '$2y$10$ju/wgHSL1tQJeM4/weg5nuX3oGwKhBSOg3fcGjRZUIlzELPwtPeXi', 'iverson.lomat@communixinc.com', '2025-07-17 19:46:06', 0, NULL, NULL, 'admin', 1),
+(42, 'cxi11812', 'CHRISTIAN MONTOYA', 'SLT CIAN', '$2y$10$jyCYyY.UBtHPSBlKONCrpeZ15N4u0VHQw20/LxV0q6fxvqpuAa2cy', 'c.montoya@communixinc.com', '2025-07-17 19:46:35', 0, NULL, NULL, 'admin', 1);
 
 --
 -- Indexes for dumped tables
@@ -176,7 +181,7 @@ ALTER TABLE `management`
 -- AUTO_INCREMENT for table `operations_managers`
 --
 ALTER TABLE `operations_managers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `users`

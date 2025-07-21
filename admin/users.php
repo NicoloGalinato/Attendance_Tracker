@@ -45,7 +45,7 @@ if (isset($_GET['toggle_status'])) {
         $stmt = $pdo->prepare("UPDATE $table SET is_active = ? WHERE id = ?");
         $stmt->execute([$newStatus, $userId]);
         
-        $_SESSION['success'] = "Record status updated successfully! . $type";
+        $_SESSION['success'] = "Record status updated successfully!";
     } catch (PDOException $e) {
         $_SESSION['error'] = "Error updating record status: " . $e->getMessage();
     }
