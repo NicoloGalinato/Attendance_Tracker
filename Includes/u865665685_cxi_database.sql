@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 18, 2025 at 09:28 PM
+-- Generation Time: Jul 19, 2025 at 08:32 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,75 @@ SET time_zone = "+00:00";
 --
 -- Database: `auth_system`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `employees`
+--
+
+CREATE TABLE `employees` (
+  `id` int(11) NOT NULL,
+  `employee_id` varchar(50) NOT NULL,
+  `full_name` varchar(100) NOT NULL,
+  `department` varchar(50) NOT NULL,
+  `supervisor` varchar(100) NOT NULL,
+  `operation_manager` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `employees`
+--
+
+INSERT INTO `employees` (`id`, `employee_id`, `full_name`, `department`, `supervisor`, `operation_manager`, `email`, `created_at`, `updated_at`) VALUES
+(10, 'cxi11812', 'CHRISTIAN MONTOYA', 'SLT', 'JUAN TORRES', 'PHAY-BRIONES BARRAMEDA', 'c.montoya@communixinc.com', '2025-07-20 00:16:46', '2025-07-20 00:16:46');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `management`
+--
+
+CREATE TABLE `management` (
+  `id` int(11) NOT NULL,
+  `cxi_id` varchar(20) NOT NULL,
+  `fullname` varchar(100) NOT NULL,
+  `department` varchar(50) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `management`
+--
+
+INSERT INTO `management` (`id`, `cxi_id`, `fullname`, `department`, `email`, `created_at`) VALUES
+(3, 'cxi11899', 'GALINATO, NICO', 'executive', 'nicolo.galinato@communixinc.com', '2025-07-19 18:17:37');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `operations_managers`
+--
+
+CREATE TABLE `operations_managers` (
+  `id` int(11) NOT NULL,
+  `cxi_id` varchar(20) NOT NULL,
+  `fullname` varchar(100) NOT NULL,
+  `department` varchar(50) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `operations_managers`
+--
+
+INSERT INTO `operations_managers` (`id`, `cxi_id`, `fullname`, `department`, `email`, `created_at`) VALUES
+(3, 'cxi11899', 'GALINATO, NICO', 'operations manager', 'nicolo.galinato@communixinc.com', '2025-07-19 18:17:59');
 
 -- --------------------------------------------------------
 
@@ -59,6 +128,27 @@ INSERT INTO `users` (`id`, `username`, `fullname`, `sub_name`, `password`, `slt_
 --
 
 --
+-- Indexes for table `employees`
+--
+ALTER TABLE `employees`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `employee_id` (`employee_id`);
+
+--
+-- Indexes for table `management`
+--
+ALTER TABLE `management`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `cxi_id` (`cxi_id`);
+
+--
+-- Indexes for table `operations_managers`
+--
+ALTER TABLE `operations_managers`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `cxi_id` (`cxi_id`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -69,6 +159,24 @@ ALTER TABLE `users`
 --
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `employees`
+--
+ALTER TABLE `employees`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `management`
+--
+ALTER TABLE `management`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `operations_managers`
+--
+ALTER TABLE `operations_managers`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `users`
