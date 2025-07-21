@@ -6,6 +6,8 @@ if (!isLoggedIn() || !isAdmin()) {
     redirect(BASE_URL);
 }
 
+updateLastActivity();
+
 require_once '../components/layout.php';
 renderHead('Manage Employees');
 renderNavbar();

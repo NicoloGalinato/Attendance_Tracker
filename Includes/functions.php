@@ -26,4 +26,13 @@ function sanitizeInput($data) {
     return htmlspecialchars(strip_tags(trim($data)));
 }
 
+function updateLastActivity() {
+    global $pdo;
+    if (isset($_SESSION['user_id'])) {
+        $stmt = $pdo->prepare("UPDATE users SET last_activity = NOW() WHERE id = ?");
+        $stmt->execute([$_SESSION['user_id']]);
+        $_SESSION['last_activity'] = time();
+    }
+}
+
 ob_end_flush();

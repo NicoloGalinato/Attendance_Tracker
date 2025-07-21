@@ -6,6 +6,9 @@ if (!isLoggedIn() || !isAdmin()) {
     redirect(BASE_URL);
 }
 
+updateLastActivity();
+
+
 // Get user count
 try {
     $stmt = $pdo->query("SELECT COUNT(*) as count FROM users");

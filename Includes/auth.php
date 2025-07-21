@@ -34,11 +34,14 @@ if (isset($_POST['login'])) {
                 // Reset login attempts on successful login
                 $stmt = $pdo->prepare("UPDATE users SET login_attempts = 0, last_failed_login = NULL, locked_until = NULL WHERE id = ?");
                 $stmt->execute([$user['id']]);
+                $stmt = $pdo->prepare("UPDATE users SET last_activity = NOW() WHERE id = ?");
+                $stmt->execute([$_SESSION['user_id']]);
                 
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_role'] = $user['role'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['nickname'] = $user['sub_name'];
+                $_SESSION['last_activity'] = time();
                 
                 if (isAdmin()) {
                     redirect(ADMIN_URL);

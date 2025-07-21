@@ -111,7 +111,15 @@ try {
                     <tr class="hover:bg-gray-700/50">
                         <?php if ($type === 'users'): ?>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-100" style="text-transform: uppercase;"><?= htmlspecialchars($record['username']) ?></div>
+                                <div class="flex items-center">
+                                    <div class="text-sm font-medium text-gray-100" style="text-transform: uppercase;"><?= htmlspecialchars($record['username']) ?></div>
+                                    <?php if ($type === 'users'): ?>
+                                        <span class="ml-2 relative flex h-3 w-3">
+                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 online-indicator" data-user-id="<?= $record[$idColumn] ?>" style="display: none;"></span>
+                                            <span class="relative inline-flex rounded-full h-3 w-3 bg-gray-400 online-status" data-user-id="<?= $record[$idColumn] ?>"></span>
+                                        </span>
+                                    <?php endif; ?>
+                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-300"><?= htmlspecialchars($record['sub_name']) ?></div>
@@ -127,6 +135,7 @@ try {
                                     <?= ucfirst($record['role']) ?>
                                 </span>
                             </td>
+                            
                         <?php else: ?>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-medium text-gray-100" style="text-transform: uppercase;"><?= htmlspecialchars($record['cxi_id']) ?></div>

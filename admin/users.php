@@ -6,6 +6,8 @@ if (!isLoggedIn() || !isAdmin()) {
     redirect(BASE_URL);
 }
 
+updateLastActivity();
+
 // Handle user deletion
 if (isset($_GET['delete'])) {
     $userId = (int)$_GET['delete'];

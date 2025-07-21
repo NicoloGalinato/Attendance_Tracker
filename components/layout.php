@@ -71,6 +71,7 @@ function renderNavbar() {
                             <i class="fas fa-user text-white"></i>
                         </div>
                         <span class="hidden md:inline"><?= htmlspecialchars($_SESSION['nickname']); ?></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-gray-400 online-status" data-user-id="<?= $_SESSION['user_id'] ?>"></span>
                     </button>
                     <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-700">
                         <a href="../logout.php" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Sign out</a>
@@ -141,6 +142,46 @@ function renderFooter() {
                 document.getElementById('userMenu').classList.add('hidden');
             }
         });
+
+        // Online status functionality
+        function checkOnlineStatus() {
+            fetch('../api/online_status.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) return;
+                    
+                    // Get all user indicators
+                    const allUserIds = Array.from(document.querySelectorAll('.online-status'))
+                        .map(el => parseInt(el.getAttribute('data-user-id')));
+                    
+                    // Update all indicators
+                    document.querySelectorAll('.online-status').forEach(indicator => {
+                        const userId = parseInt(indicator.getAttribute('data-user-id'));
+                        const pingElement = indicator.previousElementSibling;
+                        
+                        // If user is in onlineUsers array, show as online
+                        if (data.onlineUsers.includes(userId)) {
+                            indicator.classList.remove('bg-gray-400');
+                            indicator.classList.add('bg-green-400');
+                            pingElement.style.display = 'inline-flex';
+                        } else {
+                            // User is offline
+                            indicator.classList.remove('bg-green-400');
+                            indicator.classList.add('bg-gray-400');
+                            pingElement.style.display = 'none';
+                        }
+                    });
+                })
+                .catch(error => console.error('Error checking online status:', error));
+        }
+
+// Check immediately and then every 15 seconds
+checkOnlineStatus();
+const statusCheckInterval = setInterval(checkOnlineStatus, 15000);
+
+        // Check status every 30 seconds
+        checkOnlineStatus();
+        setInterval(checkOnlineStatus, 500);
     </script>
     </body>
     </html>

@@ -6,6 +6,9 @@ if (!isLoggedIn() || !isAdmin()) {
     redirect(BASE_URL);
 }
 
+updateLastActivity();
+
+
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 $employeeId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
