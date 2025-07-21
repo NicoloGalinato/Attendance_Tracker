@@ -17,7 +17,7 @@ if (isset($_GET['delete'])) {
         $stmt->execute([$userId]);
         
         if ($stmt->rowCount() > 0) {
-            $_SESSION['success'] = "Record deleted successfully!";
+            $_SESSION['success'] = "Record deleted successfully! . $type";
         } else {
             $_SESSION['error'] = "Record not found";
         }
@@ -26,6 +26,32 @@ if (isset($_GET['delete'])) {
     }
     
     redirect('users.php?tab=' . $type);
+}
+
+// Handle status toggle
+if (isset($_GET['toggle_status'])) {
+    $userId = (int)$_GET['toggle_status'];
+    $type = isset($_GET['type']) ? $_GET['type'] : 'users';
+    
+    try {
+        // Get current status
+        $table = ($type === 'management') ? 'management' : (($type === 'operations') ? 'operations_managers' : 'users');
+        $stmt = $pdo->prepare("SELECT is_active FROM $table WHERE id = ?");
+        $stmt->execute([$userId]);
+        $currentStatus = $stmt->fetchColumn();
+        
+        // Toggle status
+        $newStatus = $currentStatus ? 0 : 1;
+        $stmt = $pdo->prepare("UPDATE $table SET is_active = ? WHERE id = ?");
+        $stmt->execute([$newStatus, $userId]);
+        
+        $_SESSION['success'] = "Record status updated successfully! . $type";
+    } catch (PDOException $e) {
+        $_SESSION['error'] = "Error updating record status: " . $e->getMessage();
+    }
+    
+    redirect('users.php?tab=' . $type);
+    
 }
 
 require_once '../components/layout.php';

@@ -18,7 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'department' => sanitizeInput($_POST['department']),
         'supervisor' => sanitizeInput($_POST['supervisor']),
         'operation_manager' => sanitizeInput($_POST['operation_manager']),
-        'email' => sanitizeInput($_POST['email'])
+        'email' => sanitizeInput($_POST['email']),
+        'is_active' => isset($_POST['is_active']) ? 1 : 0
     ];
 
     try {
@@ -32,7 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 department = :department,
                 supervisor = :supervisor,
                 operation_manager = :operation_manager,
-                email = :email
+                email = :email,
+                is_active = :is_active
                 WHERE id = :id");
                 
             $employeeData['id'] = $employeeId;
@@ -42,9 +44,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             // Add new employee
             $stmt = $pdo->prepare("INSERT INTO employees 
-                (employee_id, full_name, department, supervisor, operation_manager, email) 
+                (employee_id, full_name, department, supervisor, operation_manager, email, is_active) 
                 VALUES 
-                (:employee_id, :full_name, :department, :supervisor, :operation_manager, :email)");
+                (:employee_id, :full_name, :department, :supervisor, :operation_manager, :email, :is_active)");
                 
             $stmt->execute($employeeData);
             
@@ -142,6 +144,13 @@ renderSidebar('employees');
                         <input type="email" id="email" name="email"
                                class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
                                value="<?= $employee ? htmlspecialchars($employee['email']) : '' ?>" required>
+                    </div>
+
+                    <div class="flex items-center">
+                        <input type="checkbox" id="is_active" name="is_active" 
+                               class="w-4 h-4 text-primary-600 bg-gray-700 border-gray-600 rounded focus:ring-primary-500 focus:ring-2"
+                               <?= ($employee && $employee['is_active']) || !$employee ? 'checked' : '' ?>>
+                        <label for="is_active" class="ml-2 text-sm font-medium text-gray-300">Active</label>
                     </div>
                 </div>
                 

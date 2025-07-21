@@ -30,6 +30,29 @@ if (isset($_GET['delete'])) {
     
     redirect('employees.php');
 }
+
+// Handle status toggle
+if (isset($_GET['toggle_status'])) {
+    $employeeId = (int)$_GET['toggle_status'];
+    
+    try {
+        // Get current status
+        $stmt = $pdo->prepare("SELECT is_active FROM employees WHERE id = ?");
+        $stmt->execute([$employeeId]);
+        $currentStatus = $stmt->fetchColumn();
+        
+        // Toggle status
+        $newStatus = $currentStatus ? 0 : 1;
+        $stmt = $pdo->prepare("UPDATE employees SET is_active = ? WHERE id = ?");
+        $stmt->execute([$newStatus, $employeeId]);
+        
+        $_SESSION['success'] = "Employee status updated successfully!";
+    } catch (PDOException $e) {
+        $_SESSION['error'] = "Error updating employee status: " . $e->getMessage();
+    }
+    
+    redirect('employees.php');
+}
 ?>
 
 <div class="md:ml-64 pt-2 min-h-screen">

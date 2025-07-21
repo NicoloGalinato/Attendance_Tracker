@@ -10,16 +10,16 @@ $page = max($page, 1); // Ensure page is at least 1
 
 // Determine which table to query
 $table = 'users';
-$columns = ['username', 'sub_name', 'fullname', 'slt_email', 'role', 'created_at'];
+$columns = ['username', 'sub_name', 'fullname', 'slt_email', 'role', 'is_active', 'created_at'];
 $idColumn = 'id';
 
 if ($type === 'management') {
     $table = 'management';
-    $columns = ['cxi_id', 'fullname', 'department', 'email', 'created_at'];
+    $columns = ['cxi_id', 'fullname', 'department', 'email', 'is_active', 'created_at'];
     $idColumn = 'id';
 } elseif ($type === 'operations') {
     $table = 'operations_managers';
-    $columns = ['cxi_id', 'fullname', 'department', 'email', 'created_at'];
+    $columns = ['cxi_id', 'fullname', 'department', 'email', 'is_active', 'created_at'];
     $idColumn = 'id';
 }
 
@@ -31,7 +31,7 @@ $params = [];
 if (!empty($search)) {
     $searchConditions = [];
     foreach ($columns as $column) {
-        if ($column !== 'created_at') {
+        if ($column !== 'created_at' && $column !== 'is_active') {
             $searchConditions[] = "$column LIKE :search";
         }
     }
@@ -95,13 +95,14 @@ try {
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Email</th>
                     <?php endif; ?>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Created At</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
                     <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
             <tbody class="bg-gray-800 divide-y divide-gray-700">
                 <?php if (empty($records)): ?>
                     <tr>
-                        <td colspan="<?= $type === 'users' ? 7 : 6 ?>" class="px-6 py-4 text-center text-gray-400">
+                        <td colspan="<?= $type === 'users' ? 8 : 7 ?>" class="px-6 py-4 text-center text-gray-400">
                             No records found
                         </td>
                     </tr>
@@ -140,12 +141,21 @@ try {
                                 <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['email']) ?></div>
                             </td>
                         <?php endif; ?>
+                        
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                             <?= date('M d, Y H:i', strtotime($record['created_at'])) ?>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['is_active'] ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' ?>">
+                                <?= $record['is_active'] ? 'Active' : 'Inactive' ?>
+                            </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <a href="profile.php?id=<?= $record[$idColumn] ?>&type=<?= $type ?>" class="text-primary-500 hover:text-primary-400 mr-3">
                                 <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="users.php?toggle_status=<?= $record[$idColumn] ?>&type=<?= $type ?>" class="text-yellow-500 hover:text-yellow-400 mr-3" onclick="return confirm('Are you sure you want to <?= $record['is_active'] ? 'deactivate' : 'activate' ?> this record?')">
+                                <i class="fas fa-<?= $record['is_active'] ? 'times' : 'check' ?>"></i>
                             </a>
                             <a href="users.php?delete=<?= $record[$idColumn] ?>&type=<?= $type ?>" class="text-red-500 hover:text-red-400" onclick="return confirm('Are you sure you want to delete this record?')">
                                 <i class="fas fa-trash"></i>

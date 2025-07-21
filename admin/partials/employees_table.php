@@ -61,13 +61,14 @@ try {
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Supervisor</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Operations Manager</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Email</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
                     <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
             <tbody class="bg-gray-800 divide-y divide-gray-700">
                 <?php if (empty($employees)): ?>
                     <tr>
-                        <td colspan="7" class="px-6 py-4 text-center text-gray-400">
+                        <td colspan="8" class="px-6 py-4 text-center text-gray-400">
                             No agents found
                         </td>
                     </tr>
@@ -92,9 +93,17 @@ try {
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($employee['email']) ?></div>
                         </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $employee['is_active'] ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' ?>">
+                                <?= $employee['is_active'] ? 'Active' : 'Inactive' ?>
+                            </span>
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <a href="employee.php?id=<?= $employee['id'] ?>" class="text-primary-500 hover:text-primary-400 mr-3">
                                 <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="employees.php?toggle_status=<?= $employee['id'] ?>" class="text-yellow-500 hover:text-yellow-400 mr-3" onclick="return confirm('Are you sure you want to <?= $employee['is_active'] ? 'deactivate' : 'activate' ?> this agent?')">
+                                <i class="fas fa-<?= $employee['is_active'] ? 'times' : 'check' ?>"></i>
                             </a>
                             <a href="employees.php?delete=<?= $employee['id'] ?>" class="text-red-500 hover:text-red-400" onclick="return confirm('Are you sure you want to delete this agent?')">
                                 <i class="fas fa-trash"></i>

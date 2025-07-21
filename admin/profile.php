@@ -34,15 +34,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Check if user exists
             $stmt = $pdo->prepare("SELECT id FROM users WHERE id = ?");
             $stmt->execute([$userId]);
+            $is_active = isset($_POST['is_active']) ? 1 : 0;
 
             if ($stmt->rowCount() > 0) {
                 // Update existing profile
-                $stmt = $pdo->prepare("UPDATE users SET fullname = ?, slt_email = ?, sub_name = ? WHERE id = ?");
-                $stmt->execute([$fullname_ed, $slt_email_ed, $nickname_ed, $userId]);
+                $stmt = $pdo->prepare("UPDATE users SET fullname = ?, slt_email = ?, sub_name = ?, is_active = ? WHERE id = ?");
+                $stmt->execute([$fullname_ed, $slt_email_ed, $nickname_ed, $is_active, $userId]);
             } else {
                 // Insert new profile
-                $stmt = $pdo->prepare("INSERT INTO users (fullname, sub_name, slt_email, username, password, role) VALUES (?, ?, ?, ?, ?, ?)");
-                $stmt->execute([$fullname, $nickname, $email, $username, $password, $role]);
+                $stmt = $pdo->prepare("INSERT INTO users (fullname, sub_name, slt_email, username, password, role, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$fullname, $nickname, $email, $username, $password, $role, $is_active]);
             }
 
             // Handle password change if new password is provided
@@ -66,15 +67,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Check if record exists
             $stmt = $pdo->prepare("SELECT id FROM $table WHERE id = ?");
             $stmt->execute([$userId]);
+            $is_active = isset($_POST['is_active']) ? 1 : 0;
+
 
             if ($stmt->rowCount() > 0) {
                 // Update existing record
-                $stmt = $pdo->prepare("UPDATE $table SET cxi_id = ?, fullname = ?, department = ?, email = ? WHERE id = ?");
-                $stmt->execute([$cxi_id, $fullname, $department, $email, $userId]);
+                $stmt = $pdo->prepare("UPDATE $table SET cxi_id = ?, fullname = ?, department = ?, email = ?, is_active = ? WHERE id = ?");
+                $stmt->execute([$cxi_id, $fullname, $department, $email, $is_active, $userId]);
             } else {
                 // Insert new record
-                $stmt = $pdo->prepare("INSERT INTO $table (cxi_id, fullname, department, email) VALUES (?, ?, ?, ?)");
-                $stmt->execute([$cxi_id, $fullname, $department, $email]);
+                $stmt = $pdo->prepare("INSERT INTO $table (cxi_id, fullname, department, email, is_active) VALUES (?, ?, ?, ?, ?)");
+                $stmt->execute([$cxi_id, $fullname, $department, $email, $is_active]);
             }
         }
         
@@ -172,6 +175,12 @@ renderSidebar('users');
                                     <p class="text-xs text-gray-400">Password strength: <span id="strength-text">Weak</span></p>
                                 </div>
                             </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="is_active" name="is_active" 
+                                    class="w-4 h-4 text-primary-600 bg-gray-700 border-gray-600 rounded focus:ring-primary-500 focus:ring-2"
+                                    <?= $userId && $record['is_active'] ? 'checked' : '' ?>>
+                                <label for="is_active" class="ml-2 text-sm font-medium text-gray-300">Active</label>
+                            </div>
                         <?php else: ?>
                             <div>
                                 <label for="fullname" class="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
@@ -197,7 +206,13 @@ renderSidebar('users');
                                 <label for="password" class="block text-sm font-medium text-gray-300 mb-2">Password</label>
                                 <input type="password" class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" id="password" name="password" required>
                             </div>
-                            
+                            <div class="flex items-center">
+                                <input type="checkbox" id="is_active" name="is_active" 
+                                    class="w-4 h-4 text-primary-600 bg-gray-700 border-gray-600 rounded focus:ring-primary-500 focus:ring-2"
+                                    <?= $userId && $record['is_active'] ? 'checked' : '' ?> checked>
+                                <label for="is_active" class="ml-2 text-sm font-medium text-gray-300">Active</label>
+                            </div>
+                                                        
                             <div class="hidden">
                                 <label for="role" class="block text-sm font-medium text-gray-300 mb-2">Role</label>
                                 <select class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" id="role" name="role">
@@ -225,6 +240,13 @@ renderSidebar('users');
                         <div>
                             <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
                             <input type="email" class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" id="email" name="email" value="<?= $record ? htmlspecialchars($record['email']) : '' ?>" required>
+                        </div>
+
+                        <div class="flex items-center">
+                            <input type="checkbox" id="is_active" name="is_active" 
+                                class="w-4 h-4 text-primary-600 bg-gray-700 border-gray-600 rounded focus:ring-primary-500 focus:ring-2"
+                                <?= $userId && $record['is_active'] ? 'checked' : '' ?>>
+                            <label for="is_active" class="ml-2 text-sm font-medium text-gray-300">Active</label>
                         </div>
                     <?php endif; ?>
                     
