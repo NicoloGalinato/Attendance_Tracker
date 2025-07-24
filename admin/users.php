@@ -19,7 +19,7 @@ if (isset($_GET['delete'])) {
         $stmt->execute([$userId]);
         
         if ($stmt->rowCount() > 0) {
-            $_SESSION['success'] = "Record deleted successfully! . $type";
+            $_SESSION['success'] = "Record deleted successfully!";
         } else {
             $_SESSION['error'] = "Record not found";
         }

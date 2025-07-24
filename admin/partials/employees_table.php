@@ -82,16 +82,16 @@ try {
                             <div class="text-sm text-gray-300"><?= htmlspecialchars($employee['full_name']) ?></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-300"><?= htmlspecialchars($employee['department']) ?></div>
+                            <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($employee['department']) ?></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-300"><?= htmlspecialchars($employee['supervisor']) ?></div>
+                            <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($employee['supervisor']) ?></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-300"><?= htmlspecialchars($employee['operation_manager']) ?></div>
+                            <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($employee['operation_manager']) ?></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($employee['email']) ?></div>
+                            <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($employee['email'] ?? '') ?></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $employee['is_active'] ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' ?>">

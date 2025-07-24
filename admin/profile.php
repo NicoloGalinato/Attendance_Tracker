@@ -180,7 +180,7 @@ renderSidebar('users');
                             <div class="flex items-center">
                                 <input type="checkbox" id="is_active" name="is_active" 
                                     class="w-4 h-4 text-primary-600 bg-gray-700 border-gray-600 rounded focus:ring-primary-500 focus:ring-2"
-                                    <?= $userId && $record['is_active'] ? 'checked' : '' ?>>
+                                    <?= $userId && $record['is_active'] ? 'checked' : '' ?> checked>
                                 <label for="is_active" class="ml-2 text-sm font-medium text-gray-300">Active</label>
                             </div>
                         <?php else: ?>
@@ -247,7 +247,7 @@ renderSidebar('users');
                         <div class="flex items-center">
                             <input type="checkbox" id="is_active" name="is_active" 
                                 class="w-4 h-4 text-primary-600 bg-gray-700 border-gray-600 rounded focus:ring-primary-500 focus:ring-2"
-                                <?= $userId && $record['is_active'] ? 'checked' : '' ?>>
+                                <?= $userId && $record['is_active'] ? 'checked' : '' ?> checked>
                             <label for="is_active" class="ml-2 text-sm font-medium text-gray-300">Active</label>
                         </div>
                     <?php endif; ?>

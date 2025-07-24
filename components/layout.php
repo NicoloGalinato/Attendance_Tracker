@@ -175,9 +175,9 @@ function renderFooter() {
                 .catch(error => console.error('Error checking online status:', error));
         }
 
-// Check immediately and then every 15 seconds
-checkOnlineStatus();
-const statusCheckInterval = setInterval(checkOnlineStatus, 15000);
+        // Check immediately and then every 15 seconds
+        checkOnlineStatus();
+        const statusCheckInterval = setInterval(checkOnlineStatus, 15000);
 
         // Check status every 30 seconds
         checkOnlineStatus();
