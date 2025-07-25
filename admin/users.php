@@ -79,11 +79,11 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'users';
                 <a href="?tab=users" class="<?= $currentTab === 'users' ? 'border-primary-500 text-primary-400' : 'border-transparent text-gray-400 hover:text-gray-300' ?> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
                     SLT Members
                 </a>
-                <a href="?tab=management" style="display: none;" class="<?= $currentTab === 'management' ? 'border-primary-500 text-primary-400' : 'border-transparent text-gray-400 hover:text-gray-300' ?> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-                    Executive
-                </a>
                 <a href="?tab=operations" class="<?= $currentTab === 'operations' ? 'border-primary-500 text-primary-400' : 'border-transparent text-gray-400 hover:text-gray-300' ?> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
                     Operations Managers
+                </a>
+                <a href="?tab=management" class="<?= $currentTab === 'management' ? 'border-primary-500 text-primary-400' : 'border-transparent text-gray-400 hover:text-gray-300' ?> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                    Team Leaders
                 </a>
             </nav>
         </div>

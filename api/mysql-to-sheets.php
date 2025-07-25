@@ -1,4 +1,11 @@
 <?php
+require_once '../includes/config.php';
+require_once '../includes/functions.php';
+
+if (!isLoggedIn() || !isAdmin()) {
+    redirect(BASE_URL);
+}
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
