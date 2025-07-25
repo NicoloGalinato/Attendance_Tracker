@@ -2,6 +2,10 @@
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/functions.php';
 
+if (!isLoggedIn() || !isAdmin()) {
+    redirect(BASE_URL);
+}
+
 header('Content-Type: application/json');
 
 // Get all users who have been active in the last 100 seconds and have non-NULL last_activity

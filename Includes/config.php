@@ -6,6 +6,7 @@ error_reporting(E_ALL);
 
 // Session
 session_start();
+date_default_timezone_set('Asia/Manila'); 
 
 // Constants
 define('BASE_URL', 'http://localhost/test-project/');

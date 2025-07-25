@@ -98,7 +98,7 @@ function renderSidebar($activePage = 'dashboard') {
                     <i class="sidebar-icon fas fa-tachometer-alt mr-3"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === '#' ? 'active' : '' ?>">
+                <a href="attendance.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === '#' ? 'active' : '' ?>">
                     <i class="sidebar-icon fas fa-chart-line mr-3"></i>
                     <span>Tracker</span>
                 </a>
