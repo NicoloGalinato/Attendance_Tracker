@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jul 24, 2025 at 10:07 PM
+-- Generation Time: Jul 25, 2025 at 11:18 AM
 -- Server version: 10.11.10-MariaDB
 -- PHP Version: 7.2.34
 
@@ -335,7 +335,7 @@ INSERT INTO `employees` (`id`, `employee_id`, `full_name`, `department`, `superv
 (4480, 'CXI11548', 'BONIFE, JIN EZEKIEL', 'US CREW', 'PONTAWE, ALVIN', 'Benedict Mendoza', 'bonifejin@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4481, 'CXI11965', 'RUBI, BRIAN DAVE', 'US CREW', 'PONTAWE, ALVIN', 'Benedict Mendoza', 'rubibrian200@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4482, 'CXI11678', 'LOVENDINO JR, ARTHUR', 'US CREW', 'PONTAWE, ALVIN', 'Benedict Mendoza', 'arthur.lovendinojr@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
-(4483, 'CXI00252', 'JOCOM, IVAN JOSHUA CAMANO', 'US CREW', 'PONTAWE, ALVIN', 'Benedict Mendoza', 'camanoivanjoshua@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
+(4483, 'CXI00252', 'JOCOM, IVAN JOSHUA CAMANO', 'US CREW', 'PONTAWE, ALVIN', 'Benedict Mendoza', 'camanoivanjoshua@gmail.com', '2025-07-24 01:14:15', '2025-07-25 02:02:16', 1),
 (4484, 'CXI00060', 'VISITACION, CHRISTINE', 'US CREW', 'PONTAWE, ALVIN', 'Benedict Mendoza', 'tin2visitacion01@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4485, 'CXI11640', 'BERIN, KHEN KHURLO D.', 'US CREW', 'PONTAWE, ALVIN', 'Benedict Mendoza', 'khenkhurlo@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1);
 INSERT INTO `employees` (`id`, `employee_id`, `full_name`, `department`, `supervisor`, `operation_manager`, `email`, `created_at`, `updated_at`, `is_active`) VALUES
@@ -676,14 +676,15 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `fullname`, `sub_name`, `password`, `slt_email`, `created_at`, `login_attempts`, `last_failed_login`, `locked_until`, `role`, `is_active`, `last_activity`, `last_modified`) VALUES
-(1, 'cxi11899', 'GALINATO, NICO', 'SLT NICO', '$2y$10$Nq1m.u1mc22CgjCYuRzHp.16IMLEc5PvKtFeZpPt0ej7V9xhIghc6', 'nicolo.galinato@communixinc.com', '2025-07-17 15:24:12', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 17:12:24'),
-(37, 'cxi00525', 'JUAN TORRES', 'SLT JC', '$2y$10$fSnVChxO1EvhBhXFPkl/HOGC.uxik2kHay6cvlOKwkaIgXju.ASqS', 'juan.torres@communixinc.com', '2025-07-17 19:44:34', 0, NULL, NULL, 'admin', 1, '2025-07-24 17:45:31', '2025-07-24 17:45:31'),
+(1, 'cxi11899', 'GALINATO, NICO', 'SLT NICO', '$2y$10$Nq1m.u1mc22CgjCYuRzHp.16IMLEc5PvKtFeZpPt0ej7V9xhIghc6', 'nicolo.galinato@communixinc.com', '2025-07-17 15:24:12', 0, NULL, NULL, 'admin', 1, '2025-07-25 10:09:44', '2025-07-25 10:09:44'),
+(37, 'cxi00525', 'JC TORRES', 'SLT JC', '$2y$10$fSnVChxO1EvhBhXFPkl/HOGC.uxik2kHay6cvlOKwkaIgXju.ASqS', 'juan.torres@communixinc.com', '2025-07-17 19:44:34', 0, NULL, NULL, 'admin', 1, '2025-07-25 02:02:44', '2025-07-25 02:02:44'),
 (38, 'cxi00730', 'RG DUTERTE', 'SLT RG', '$2y$10$4Tnf9CRtLqS4fvFM2Otjme8zCSX6bbtUDiSgNVQ8IGUgo/VBZ4gqe', 'rg.duterte@communixinc.com', '2025-07-17 19:45:03', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 15:08:02'),
 (39, 'cxi11647', 'ALEXANDER RAY OLAES', 'SLT ALEX', '$2y$10$drhplWGrgo0Gz7nbnRXV.OcYwpieFAkaKROp/xrH2Hj5hNxnyEItW', 'a.olaes@communixinc.com', '2025-07-17 19:45:22', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 15:08:02'),
 (40, 'cxi11652', 'ANGKIKO, MIGUEL JEAN', 'SLT MIGS', '$2y$10$QfoRP/1fsDr2jyaTZTSQfORiDix1fHi..f4KK9p.lzU38sk7oWv7S', 'miguel.angkiko@communixinc.com', '2025-07-17 19:45:49', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 15:08:02'),
 (41, 'cxi11664', 'IVERSON LOMAT', 'SLT IVER', '$2y$10$ju/wgHSL1tQJeM4/weg5nuX3oGwKhBSOg3fcGjRZUIlzELPwtPeXi', 'iverson.lomat@communixinc.com', '2025-07-17 19:46:06', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 15:08:02'),
 (42, 'cxi11812', 'CHRISTIAN MONTOYA', 'SLT CIAN', '$2y$10$jyCYyY.UBtHPSBlKONCrpeZ15N4u0VHQw20/LxV0q6fxvqpuAa2cy', 'c.montoya@communixinc.com', '2025-07-17 19:46:35', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 15:08:02'),
-(56, 'CXI12100', 'MONEDA ROLANDO', 'SLT OLAN', '$2y$10$JpoID58r9ghFzquMZLVXHOzd9v.NuKZLu3el1aarMZmZ9U2leJpQS', 'R.moneda@communixinc.com', '2025-07-24 17:08:38', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 17:08:38');
+(56, 'CXI12100', 'MONEDA ROLANDO', 'SLT OLAN', '$2y$10$JpoID58r9ghFzquMZLVXHOzd9v.NuKZLu3el1aarMZmZ9U2leJpQS', 'R.moneda@communixinc.com', '2025-07-24 17:08:38', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 17:08:38'),
+(57, 'CXI00732', 'APRIL BARRAMEDA', 'SOM PHAY', '$2y$10$inCw3t1pr0JEyWUYHOxpYONz28ucTCEPyZeacQvVFJFfPIGlbXE3i', 'phay.barrameda@communixinc.com', '2025-07-25 01:55:13', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-25 01:56:13');
 
 --
 -- Indexes for dumped tables
@@ -744,7 +745,7 @@ ALTER TABLE `operations_managers`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -1,0 +1,408 @@
+<?php
+require_once '../includes/config.php';
+require_once '../includes/functions.php';
+
+if (!isLoggedIn() || !isAdmin()) {
+    redirect(BASE_URL);
+}
+
+updateLastActivity();
+
+$action = isset($_GET['action']) ? $_GET['action'] : '';
+$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$type = isset($_GET['type']) ? $_GET['type'] : (isset($_POST['type']) ? $_POST['type'] : 'absenteeism');
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $id = (int)$_POST['id'];
+    $type = $_POST['type'];
+    
+    try {
+        $pdo->beginTransaction();
+        
+        // Get current user's sub_name
+        $userStmt = $pdo->prepare("SELECT sub_name FROM users WHERE id = ?");
+        $userStmt->execute([$_SESSION['user_id']]);
+        $user = $userStmt->fetch();
+        $sub_name = $user['sub_name'];
+        
+        // Get employee details
+        $employeeId = sanitizeInput($_POST['employee_id']);
+        $employeeStmt = $pdo->prepare("SELECT * FROM employees WHERE employee_id = ?");
+        $employeeStmt->execute([$employeeId]);
+        $employee = $employeeStmt->fetch();
+        
+        if (!$employee) {
+            throw new Exception("Employee not found");
+        }
+        
+        $currentMonth = date('M Y');
+        $currentDate = date('Y-m-d');
+        $currentTime = date('g:i A');
+        
+        if ($type === 'absenteeism') {
+            $data = [
+                'month' => $currentMonth,
+                'employee_id' => $employeeId,
+                'full_name' => $employee['full_name'],
+                'department' => $employee['department'],
+                'supervisor' => $employee['supervisor'],
+                'operation_manager' => $employee['operation_manager'],
+                'email' => $employee['email'],
+                'date_of_absent' => sanitizeInput($_POST['date_of_absent']),
+                'follow_call_in_procedure' => sanitizeInput($_POST['follow_call_in_procedure']),
+                'sanction' => sanitizeInput($_POST['sanction']),
+                'reason' => sanitizeInput($_POST['reason']),
+                'coverage' => sanitizeInput($_POST['coverage']),
+                'coverage_type' => sanitizeInput($_POST['coverage_type']),
+                'shift' => sanitizeInput($_POST['shift']),
+                'ir_form' => sanitizeInput($_POST['ir_form']),
+                'timestamp' => $currentTime,
+                'sub_name' => $sub_name
+            ];
+            
+            if ($id > 0) {
+                // Update existing record
+                $stmt = $pdo->prepare("UPDATE absenteeism SET 
+                    month = :month,
+                    employee_id = :employee_id,
+                    full_name = :full_name,
+                    department = :department,
+                    supervisor = :supervisor,
+                    operation_manager = :operation_manager,
+                    email = :email,
+                    date_of_absent = :date_of_absent,
+                    follow_call_in_procedure = :follow_call_in_procedure,
+                    sanction = :sanction,
+                    reason = :reason,
+                    coverage = :coverage,
+                    coverage_type = :coverage_type,
+                    shift = :shift,
+                    ir_form = :ir_form,
+                    timestamp = :timestamp,
+                    sub_name = :sub_name
+                    WHERE id = :id");
+                
+                $data['id'] = $id;
+                $stmt->execute($data);
+                
+                $_SESSION['success'] = "Absenteeism record updated successfully!";
+            } else {
+                // Insert new record
+                $stmt = $pdo->prepare("INSERT INTO absenteeism 
+                    (month, employee_id, full_name, department, supervisor, operation_manager, email, 
+                    date_of_absent, follow_call_in_procedure, sanction, reason, coverage, coverage_type, 
+                    shift, ir_form, timestamp, sub_name)
+                    VALUES 
+                    (:month, :employee_id, :full_name, :department, :supervisor, :operation_manager, :email, 
+                    :date_of_absent, :follow_call_in_procedure, :sanction, :reason, :coverage, :coverage_type, 
+                    :shift, :ir_form, :timestamp, :sub_name)");
+                
+                $stmt->execute($data);
+                
+                $_SESSION['success'] = "Absenteeism record added successfully!";
+            }
+        } else {
+            // Tardiness form
+            $data = [
+                'month' => $currentMonth,
+                'employee_id' => $employeeId,
+                'full_name' => $employee['full_name'],
+                'department' => $employee['department'],
+                'supervisor' => $employee['supervisor'],
+                'operation_manager' => $employee['operation_manager'],
+                'email' => $employee['email'],
+                'date_of_incident' => sanitizeInput($_POST['date_of_incident']),
+                'type' => sanitizeInput($_POST['type']),
+                'minutes_late' => (int)$_POST['minutes_late'],
+                'shift' => sanitizeInput($_POST['shift']),
+                'ir_form' => sanitizeInput($_POST['ir_form']),
+                'timestamp' => $currentTime,
+                'sub_name' => $sub_name
+            ];
+            
+            if ($id > 0) {
+                // Update existing record
+                $stmt = $pdo->prepare("UPDATE tardiness SET 
+                    month = :month,
+                    employee_id = :employee_id,
+                    full_name = :full_name,
+                    department = :department,
+                    supervisor = :supervisor,
+                    operation_manager = :operation_manager,
+                    email = :email,
+                    date_of_incident = :date_of_incident,
+                    type = :type,
+                    minutes_late = :minutes_late,
+                    shift = :shift,
+                    ir_form = :ir_form,
+                    timestamp = :timestamp,
+                    sub_name = :sub_name
+                    WHERE id = :id");
+                
+                $data['id'] = $id;
+                $stmt->execute($data);
+                
+                $_SESSION['success'] = "Tardiness record updated successfully!";
+            } else {
+                // Insert new record
+                $stmt = $pdo->prepare("INSERT INTO tardiness 
+                    (month, employee_id, full_name, department, supervisor, operation_manager, email, 
+                    date_of_incident, type, minutes_late, shift, ir_form, timestamp, sub_name)
+                    VALUES 
+                    (:month, :employee_id, :full_name, :department, :supervisor, :operation_manager, :email, 
+                    :date_of_incident, :type, :minutes_late, :shift, :ir_form, :timestamp, :sub_name)");
+                
+                $stmt->execute($data);
+                
+                $_SESSION['success'] = "Tardiness record added successfully!";
+            }
+        }
+        
+        $pdo->commit();
+        redirect('attendance.php?tab=' . $type);
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        $_SESSION['error'] = "Error: " . $e->getMessage();
+        redirect($id ? 'attendance_form.php?id=' . $id . '&type=' . $type : 'attendance_form.php?action=create&type=' . $type);
+    }
+}
+
+// Get record data
+$record = null;
+if ($id > 0) {
+    try {
+        $table = ($type === 'tardiness') ? 'tardiness' : 'absenteeism';
+        $stmt = $pdo->prepare("SELECT * FROM $table WHERE id = ?");
+        $stmt->execute([$id]);
+        $record = $stmt->fetch();
+        
+        if (!$record) {
+            $_SESSION['error'] = "Record not found";
+            redirect('attendance.php?tab=' . $type);
+        }
+    } catch (PDOException $e) {
+        $_SESSION['error'] = "Error fetching record: " . $e->getMessage();
+        redirect('attendance.php?tab=' . $type);
+    }
+} elseif ($action !== 'create') {
+    redirect('attendance.php?tab=' . $type);
+}
+
+require_once '../components/layout.php';
+renderHead($id ? 'Edit Record' : 'Add Record');
+renderNavbar();
+renderSidebar('attendance');
+?>
+
+<div class="md:ml-64 pt-2 min-h-screen">
+    <main class="p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold"><?= $id ? 'Edit Record' : 'Add New Record' ?></h1>
+            <a href="attendance.php?tab=<?= $type ?>" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times fa-lg"></i>
+            </a>
+        </div>
+
+        <?php renderAlert(); ?>
+
+        <div class="bg-gray-800 rounded-xl border border-gray-700 p-6 shadow">
+            <form method="POST">
+                <input type="hidden" name="id" value="<?= $id ?>">
+                <input type="hidden" name="type" value="<?= $type ?>">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="employee_id" class="block text-sm font-medium text-gray-300 mb-2">Employee ID</label>
+                        <input type="text" id="employee_id" name="employee_id" 
+                               class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                               value="<?= $record ? htmlspecialchars($record['employee_id']) : '' ?>" required
+                               onchange="fetchEmployeeDetails(this.value)">
+                    </div>
+                    
+                    <div>
+                        <label for="full_name" class="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
+                        <input type="text" id="full_name" name="full_name" readonly
+                               class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-400" 
+                               value="<?= $record ? htmlspecialchars($record['full_name']) : '' ?>">
+                    </div>
+                    
+                    <div>
+                        <label for="department" class="block text-sm font-medium text-gray-300 mb-2">Department</label>
+                        <input type="text" id="department" name="department" readonly
+                               class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-400" 
+                               value="<?= $record ? htmlspecialchars($record['department']) : '' ?>">
+                    </div>
+                    
+                    <div>
+                        <label for="supervisor" class="block text-sm font-medium text-gray-300 mb-2">Supervisor</label>
+                        <input type="text" id="supervisor" name="supervisor" readonly
+                               class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-400" 
+                               value="<?= $record ? htmlspecialchars($record['supervisor']) : '' ?>">
+                    </div>
+                    
+                    <div>
+                        <label for="operation_manager" class="block text-sm font-medium text-gray-300 mb-2">Operations Manager</label>
+                        <input type="text" id="operation_manager" name="operation_manager" readonly
+                               class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-400" 
+                               value="<?= $record ? htmlspecialchars($record['operation_manager']) : '' ?>">
+                    </div>
+                    
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                        <input type="text" id="email" name="email" readonly
+                               class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-400" 
+                               value="<?= $record ? htmlspecialchars($record['email']) : '' ?>">
+                    </div>
+                    
+                    <?php if ($type === 'absenteeism'): ?>
+                        <div>
+                            <label for="date_of_absent" class="block text-sm font-medium text-gray-300 mb-2">Date of Absence</label>
+                            <input type="date" id="date_of_absent" name="date_of_absent"
+                                   class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                                   value="<?= $record ? htmlspecialchars($record['date_of_absent']) : '' ?>" required>
+                        </div>
+                        
+                        <div>
+                            <label for="follow_call_in_procedure" class="block text-sm font-medium text-gray-300 mb-2">Followed Call-in Procedure?</label>
+                            <select id="follow_call_in_procedure" name="follow_call_in_procedure"
+                                    class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" required>
+                                <option value="Yes" <?= $record && $record['follow_call_in_procedure'] === 'Yes' ? 'selected' : '' ?>>Yes</option>
+                                <option value="No" <?= $record && $record['follow_call_in_procedure'] === 'No' ? 'selected' : '' ?>>No</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="sanction" class="block text-sm font-medium text-gray-300 mb-2">Sanction</label>
+                            <input type="text" id="sanction" name="sanction"
+                                   class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                                   value="<?= $record ? htmlspecialchars($record['sanction']) : '' ?>">
+                        </div>
+                        
+                        <div>
+                            <label for="reason" class="block text-sm font-medium text-gray-300 mb-2">Reason</label>
+                            <textarea id="reason" name="reason"
+                                      class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                                      required><?= $record ? htmlspecialchars($record['reason']) : '' ?></textarea>
+                        </div>
+                        
+                        <div>
+                            <label for="coverage" class="block text-sm font-medium text-gray-300 mb-2">Coverage</label>
+                            <input type="text" id="coverage" name="coverage"
+                                   class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                                   value="<?= $record ? htmlspecialchars($record['coverage']) : '' ?>">
+                        </div>
+                        
+                        <div>
+                            <label for="coverage_type" class="block text-sm font-medium text-gray-300 mb-2">Coverage Type</label>
+                            <select id="coverage_type" name="coverage_type"
+                                    class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" required>
+                                <option value="DSOT" <?= $record && $record['coverage_type'] === 'DSOT' ? 'selected' : '' ?>>DSOT</option>
+                                <option value="RDOT" <?= $record && $record['coverage_type'] === 'RDOT' ? 'selected' : '' ?>>RDOT</option>
+                                <option value="AGENT MODE" <?= $record && $record['coverage_type'] === 'AGENT MODE' ? 'selected' : '' ?>>AGENT MODE</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="shift" class="block text-sm font-medium text-gray-300 mb-2">Shift</label>
+                            <input type="text" id="shift" name="shift"
+                                   class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                                   value="<?= $record ? htmlspecialchars($record['shift']) : '' ?>" required>
+                        </div>
+                        
+                        <div>
+                            <label for="ir_form" class="block text-sm font-medium text-gray-300 mb-2">IR Form</label>
+                            <input type="text" id="ir_form" name="ir_form"
+                                   class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                                   value="<?= $record ? htmlspecialchars($record['ir_form']) : '' ?>">
+                        </div>
+                    <?php else: ?>
+                        <div>
+                            <label for="date_of_incident" class="block text-sm font-medium text-gray-300 mb-2">Date of Incident</label>
+                            <input type="date" id="date_of_incident" name="date_of_incident"
+                                   class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                                   value="<?= $record ? htmlspecialchars($record['date_of_incident']) : '' ?>" required>
+                        </div>
+                        
+                        <div>
+                            <label for="type" class="block text-sm font-medium text-gray-300 mb-2">Type</label>
+                            <select id="type" name="type"
+                                    class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" required>
+                                <option value="Late" <?= $record && $record['type'] === 'Late' ? 'selected' : '' ?>>Late</option>
+                                <option value="Undertime" <?= $record && $record['type'] === 'Undertime' ? 'selected' : '' ?>>Undertime</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="minutes_late" class="block text-sm font-medium text-gray-300 mb-2">Minutes Late/Undertime</label>
+                            <input type="number" id="minutes_late" name="minutes_late"
+                                   class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                                   value="<?= $record ? htmlspecialchars($record['minutes_late']) : '' ?>" required>
+                        </div>
+                        
+                        <div>
+                            <label for="shift" class="block text-sm font-medium text-gray-300 mb-2">Shift</label>
+                            <input type="text" id="shift" name="shift"
+                                   class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                                   value="<?= $record ? htmlspecialchars($record['shift']) : '' ?>" required>
+                        </div>
+                        
+                        <div>
+                            <label for="ir_form" class="block text-sm font-medium text-gray-300 mb-2">IR Form</label>
+                            <input type="text" id="ir_form" name="ir_form"
+                                   class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                                   value="<?= $record ? htmlspecialchars($record['ir_form']) : '' ?>">
+                        </div>
+                    <?php endif; ?>
+                </div>
+                
+                <div class="flex space-x-3 pt-6">
+                    <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-lg flex items-center">
+                        <i class="fas fa-save mr-2"></i> Save
+                    </button>
+                    <a href="attendance.php?tab=<?= $type ?>" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg flex items-center">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+
+<script>
+function fetchEmployeeDetails(employeeId) {
+    if (!employeeId) return;
+    
+    fetch('../api/get_employee.php?employee_id=' + encodeURIComponent(employeeId))
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('full_name').value = data.employee.full_name;
+                document.getElementById('department').value = data.employee.department;
+                document.getElementById('supervisor').value = data.employee.supervisor;
+                document.getElementById('operation_manager').value = data.employee.operation_manager;
+                document.getElementById('email').value = data.employee.email;
+            } else {
+                alert('Employee not found');
+                document.getElementById('employee_id').value = '';
+                document.getElementById('full_name').value = '';
+                document.getElementById('department').value = '';
+                document.getElementById('supervisor').value = '';
+                document.getElementById('operation_manager').value = '';
+                document.getElementById('email').value = '';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
+// Auto-fill employee details if editing
+document.addEventListener('DOMContentLoaded', function() {
+    <?php if ($record): ?>
+        fetchEmployeeDetails('<?= $record['employee_id'] ?>');
+    <?php endif; ?>
+});
+</script>
+
+<?php renderFooter(); ?>
