@@ -215,9 +215,11 @@ renderSidebar('attendance');
                     <div>
                         <label for="employee_id" class="block text-sm font-medium text-gray-300 mb-2">Employee ID</label>
                         <input type="text" id="employee_id" name="employee_id" style="text-transform: uppercase;"
-                               class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
-                               value="<?= $record ? htmlspecialchars($record['employee_id']) : '' ?>" required
-                               onchange="fetchEmployeeDetails(this.value)">
+                            class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                            value="<?= $record ? htmlspecialchars($record['employee_id']) : '' ?>" required
+                            onchange="fetchEmployeeDetails(this.value)"
+                            autocomplete="off">
+                        <div id="employeeSearchResults" class="hidden absolute z-10 mt-1 w-full max-w-md bg-gray-800 border border-gray-700 rounded-lg shadow-lg"></div>
                     </div>
                     
                     <div>
@@ -371,6 +373,67 @@ renderSidebar('attendance');
 </div>
 
 <script>
+    function searchEmployees(query) {
+    if (query.length < 2) {
+        document.getElementById('employeeSearchResults').classList.add('hidden');
+        return;
+    }
+
+    fetch('../api/search_employees.php?query=' + encodeURIComponent(query))
+        .then(response => response.json())
+        .then(data => {
+            const resultsContainer = document.getElementById('employeeSearchResults');
+            resultsContainer.innerHTML = '';
+            
+            if (data.success && data.employees.length > 0) {
+                data.employees.forEach(employee => {
+                    const item = document.createElement('div');
+                    item.className = 'px-4 py-2 hover:bg-gray-700 cursor-pointer border-b border-gray-700';
+                    item.innerHTML = `
+                        <div class="font-medium text-gray-200">${employee.employee_id}</div>
+                        <div class="text-sm text-gray-400">${employee.full_name}</div>
+                    `;
+                    item.addEventListener('click', () => {
+                        document.getElementById('employee_id').value = employee.employee_id;
+                        fetchEmployeeDetails(employee.employee_id);
+                        resultsContainer.classList.add('hidden');
+                    });
+                    resultsContainer.appendChild(item);
+                });
+                resultsContainer.classList.remove('hidden');
+            } else {
+                const item = document.createElement('div');
+                item.className = 'px-4 py-2 text-gray-400';
+                item.textContent = 'No employees found';
+                resultsContainer.appendChild(item);
+                resultsContainer.classList.remove('hidden');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
+// Add event listener for search
+document.getElementById('employee_id').addEventListener('input', function() {
+    searchEmployees(this.value);
+});
+
+// Hide results when clicking outside
+document.addEventListener('click', function(e) {
+    if (!document.getElementById('employee_id').contains(e.target) && 
+        !document.getElementById('employeeSearchResults').contains(e.target)) {
+        document.getElementById('employeeSearchResults').classList.add('hidden');
+    }
+});
+
+// Auto-fill employee details if editing
+document.addEventListener('DOMContentLoaded', function() {
+    <?php if ($record): ?>
+        fetchEmployeeDetails('<?= $record['employee_id'] ?>');
+    <?php endif; ?>
+});
+
 function fetchEmployeeDetails(employeeId) {
     if (!employeeId) return;
     
@@ -383,14 +446,6 @@ function fetchEmployeeDetails(employeeId) {
                 document.getElementById('supervisor').value = data.employee.supervisor;
                 document.getElementById('operation_manager').value = data.employee.operation_manager;
                 document.getElementById('email').value = data.employee.email;
-            } else {
-                alert('Employee not found');
-                document.getElementById('employee_id').value = '';
-                document.getElementById('full_name').value = '';
-                document.getElementById('department').value = '';
-                document.getElementById('supervisor').value = '';
-                document.getElementById('operation_manager').value = '';
-                document.getElementById('email').value = '';
             }
         })
         .catch(error => {
