@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1:3306
--- Generation Time: Jul 25, 2025 at 11:18 AM
--- Server version: 10.11.10-MariaDB
--- PHP Version: 7.2.34
+-- Host: 127.0.0.1
+-- Generation Time: Jul 25, 2025 at 06:38 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,8 +18,46 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `u865665685_cxi_database`
+-- Database: `auth_system`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `absenteeism`
+--
+
+CREATE TABLE `absenteeism` (
+  `id` int(11) NOT NULL,
+  `month` varchar(20) NOT NULL,
+  `employee_id` varchar(50) NOT NULL,
+  `full_name` varchar(100) NOT NULL,
+  `department` varchar(100) NOT NULL,
+  `supervisor` varchar(100) NOT NULL,
+  `operation_manager` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `date_of_absent` date NOT NULL,
+  `follow_call_in_procedure` enum('Yes','No') NOT NULL,
+  `sanction` text DEFAULT NULL,
+  `reason` text NOT NULL,
+  `coverage` varchar(100) DEFAULT NULL,
+  `coverage_type` enum('DSOT','RDOT','AGENT MODE') NOT NULL,
+  `shift` varchar(50) NOT NULL,
+  `ir_form` varchar(100) DEFAULT NULL,
+  `timestamp` time NOT NULL,
+  `sub_name` varchar(50) NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `email_sent` tinyint(1) DEFAULT 0,
+  `email_sent_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `absenteeism`
+--
+
+INSERT INTO `absenteeism` (`id`, `month`, `employee_id`, `full_name`, `department`, `supervisor`, `operation_manager`, `email`, `date_of_absent`, `follow_call_in_procedure`, `sanction`, `reason`, `coverage`, `coverage_type`, `shift`, `ir_form`, `timestamp`, `sub_name`, `created_at`, `email_sent`, `email_sent_at`) VALUES
+(3, 'Jul 2025', 'cxi11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'Phay Barrameda', 'nicologalinato80@gmail.com', '2025-07-25', 'Yes', 'NCNS', 'asd', 'ALEX', 'RDOT', 'asd', 'PENDING', '13:42:31', 'SLT NICO', '2025-07-25 19:42:31', 1, '2025-07-25 19:46:56'),
+(4, 'Jul 2025', 'cxi11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'Phay Barrameda', 'nicologalinato80@gmail.com', '2025-07-25', 'Yes', 'NCNS', 'asd', 'ALEX', 'DSOT', 'asd', 'asd', '01:44:00', 'SLT NICO', '2025-07-25 19:44:08', 1, '2025-07-25 19:46:57');
 
 -- --------------------------------------------------------
 
@@ -651,6 +689,35 @@ INSERT INTO `operations_managers` (`id`, `cxi_id`, `fullname`, `department`, `em
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `tardiness`
+--
+
+CREATE TABLE `tardiness` (
+  `id` int(11) NOT NULL,
+  `month` varchar(20) NOT NULL,
+  `employee_id` varchar(50) NOT NULL,
+  `full_name` varchar(100) NOT NULL,
+  `department` varchar(100) NOT NULL,
+  `supervisor` varchar(100) NOT NULL,
+  `operation_manager` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `date_of_incident` date NOT NULL,
+  `type` enum('Late','Undertime') NOT NULL,
+  `minutes_late` int(11) NOT NULL,
+  `shift` varchar(50) NOT NULL,
+  `ir_form` varchar(100) DEFAULT NULL,
+  `accumulation_count` int(11) DEFAULT 1,
+  `timestamp` time NOT NULL,
+  `sub_name` varchar(50) NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `email_sent` tinyint(1) DEFAULT 0,
+  `email_sent_at` datetime DEFAULT NULL,
+  `expires_at` datetime GENERATED ALWAYS AS (`created_at` + interval 1 month) STORED
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 
@@ -676,7 +743,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `fullname`, `sub_name`, `password`, `slt_email`, `created_at`, `login_attempts`, `last_failed_login`, `locked_until`, `role`, `is_active`, `last_activity`, `last_modified`) VALUES
-(1, 'cxi11899', 'GALINATO, NICO', 'SLT NICO', '$2y$10$Nq1m.u1mc22CgjCYuRzHp.16IMLEc5PvKtFeZpPt0ej7V9xhIghc6', 'nicolo.galinato@communixinc.com', '2025-07-17 15:24:12', 0, NULL, NULL, 'admin', 1, '2025-07-25 10:09:44', '2025-07-25 10:09:44'),
+(1, 'cxi11899', 'GALINATO, NICO', 'SLT NICO', '$2y$10$Nq1m.u1mc22CgjCYuRzHp.16IMLEc5PvKtFeZpPt0ej7V9xhIghc6', 'nicolo.galinato@communixinc.com', '2025-07-17 15:24:12', 0, NULL, NULL, 'admin', 1, '2025-07-25 11:46:57', '2025-07-25 11:46:57'),
 (37, 'cxi00525', 'JC TORRES', 'SLT JC', '$2y$10$fSnVChxO1EvhBhXFPkl/HOGC.uxik2kHay6cvlOKwkaIgXju.ASqS', 'juan.torres@communixinc.com', '2025-07-17 19:44:34', 0, NULL, NULL, 'admin', 1, '2025-07-25 02:02:44', '2025-07-25 02:02:44'),
 (38, 'cxi00730', 'RG DUTERTE', 'SLT RG', '$2y$10$4Tnf9CRtLqS4fvFM2Otjme8zCSX6bbtUDiSgNVQ8IGUgo/VBZ4gqe', 'rg.duterte@communixinc.com', '2025-07-17 19:45:03', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 15:08:02'),
 (39, 'cxi11647', 'ALEXANDER RAY OLAES', 'SLT ALEX', '$2y$10$drhplWGrgo0Gz7nbnRXV.OcYwpieFAkaKROp/xrH2Hj5hNxnyEItW', 'a.olaes@communixinc.com', '2025-07-17 19:45:22', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 15:08:02'),
@@ -689,6 +756,12 @@ INSERT INTO `users` (`id`, `username`, `fullname`, `sub_name`, `password`, `slt_
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `absenteeism`
+--
+ALTER TABLE `absenteeism`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `employees`
@@ -712,6 +785,12 @@ ALTER TABLE `operations_managers`
   ADD UNIQUE KEY `cxi_id` (`cxi_id`);
 
 --
+-- Indexes for table `tardiness`
+--
+ALTER TABLE `tardiness`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -722,6 +801,12 @@ ALTER TABLE `users`
 --
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `absenteeism`
+--
+ALTER TABLE `absenteeism`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `employees`
@@ -740,6 +825,12 @@ ALTER TABLE `management`
 --
 ALTER TABLE `operations_managers`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- AUTO_INCREMENT for table `tardiness`
+--
+ALTER TABLE `tardiness`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `users`
