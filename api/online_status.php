@@ -3,17 +3,19 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/functions.php';
 
 if (!isLoggedIn() || !isAdmin()) {
-    redirect(BASE_URL);
+    header('HTTP/1.1 403 Forbidden');
+    exit;
 }
 
 header('Content-Type: application/json');
 
-// Get all users who have been active in the last 100 seconds and have non-NULL last_activity
-$onlineThreshold = time() - 100;
-
 try {
+    // Create DateTime object for threshold in UTC
+    $threshold = new DateTime('now', new DateTimeZone(DB_TIMEZONE));
+    $threshold->modify('-100 seconds');
+    
     $stmt = $pdo->prepare("SELECT id FROM users WHERE last_activity IS NOT NULL AND last_activity > ?");
-    $stmt->execute([date('Y-m-d H:i:s', $onlineThreshold)]);
+    $stmt->execute([$threshold->format('Y-m-d H:i:s')]);
     $onlineUsers = $stmt->fetchAll(PDO::FETCH_COLUMN);
     
     echo json_encode([
@@ -23,6 +25,6 @@ try {
 } catch (PDOException $e) {
     echo json_encode([
         'success' => false,
-        'error' => $e->getMessage()
+        'error' => 'Database error'
     ]);
 }

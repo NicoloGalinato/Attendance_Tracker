@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect('employees.php');
     } catch (PDOException $e) {
         $pdo->rollBack();
-        $_SESSION['error'] = "Error: " . $e->getMessage();
+        $_SESSION['error'] = "Agent already exist!";
         redirect($employeeId ? 'employee.php?id=' . $employeeId : 'employee.php?action=create');
     }
 }

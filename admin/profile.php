@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
     } catch (Exception $e) {
         $pdo->rollBack();
-        $_SESSION['error'] = "Error: " . $e->getMessage();
+        $_SESSION['error'] = "Record already exist!";
         redirect('profile.php?id=' . $_POST['user_id'] . '&type=' . $type);
     }
 }

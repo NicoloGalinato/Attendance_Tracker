@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Jul 26, 2025 at 01:10 AM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Host: 127.0.0.1:3306
+-- Generation Time: Jul 27, 2025 at 03:15 PM
+-- Server version: 10.11.10-MariaDB
+-- PHP Version: 7.2.34
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `auth_system`
+-- Database: `u865665685_cxi_database`
 --
 
 -- --------------------------------------------------------
@@ -41,7 +41,7 @@ CREATE TABLE `absenteeism` (
   `sanction` text DEFAULT NULL,
   `reason` text NOT NULL,
   `coverage` varchar(100) DEFAULT NULL,
-  `coverage_type` enum('PENDING','DSOT','RDOT','AGENT MODE') NOT NULL,
+  `coverage_type` enum('-','NO NEED','TRAINEE','BACK UP','PENDING','DSOT','RDOT','AGENT MODE') NOT NULL,
   `shift` varchar(50) NOT NULL,
   `ir_form` varchar(100) DEFAULT NULL,
   `timestamp` varchar(20) DEFAULT NULL,
@@ -56,7 +56,10 @@ CREATE TABLE `absenteeism` (
 --
 
 INSERT INTO `absenteeism` (`id`, `month`, `employee_id`, `full_name`, `department`, `supervisor`, `operation_manager`, `email`, `date_of_absent`, `follow_call_in_procedure`, `sanction`, `reason`, `coverage`, `coverage_type`, `shift`, `ir_form`, `timestamp`, `sub_name`, `created_at`, `email_sent`, `email_sent_at`) VALUES
-(7, 'Jul 2025', 'cxi11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'Phay Barrameda', 'nicologalinato80@gmail.com', '2025-07-26', 'Yes', 'ABSENCE / CWD - VIBER 7:51 PM JULY 25, 2025', 'DUE TO FLOOD', 'VERANO. ERWIN', 'RDOT', '1:00 AM - 12:00 PM', 'PENDING 1:00 AM JULY 26, 2025', '6:26 AM', 'SLT NICO', '2025-07-26 06:26:02', 0, NULL);
+(15, 'Jul 2025', 'CXI01059', 'MARCELINO, MICHELLE', 'AUTOBOOKING', 'AREVALO PO, MARK FRANCES', 'Christopher Paller', 'marcelinomichelle1@gmail.com', '2025-07-26', 'No', 'ABSENCE / NCNS / CWD', 'NCNS', 'ARGOSO, ALFREDO ODRONIA', 'DSOT', '5:00 AM - 2:00 PM', 'NO NEED', '11:30 AM', 'SLT NICO', '2025-07-26 03:30:25', 0, NULL),
+(16, 'Jul 2025', 'CXI11684', 'BELOSTRINO, JEROME PAGUYO', 'BK-EMEA', 'BAILLO, CRISTINE', 'Fred Bier', 'Jerome.Belostrino@corpay.com', '2025-07-26', 'Yes', 'ABSENCE - VIBER 9:39 AM JULY 26, 2025', 'DUE TO EXPERIENCING SEVERE HEADACHE AND FLU SYMPTOMS', 'RUBI, MYLYN CAROLLA', 'DSOT', '2:00 PM - 11:00 PM', 'PENDING / JULY 28 2:00 PM', '11:31 AM', 'SLT NICO', '2025-07-26 03:31:43', 0, NULL),
+(17, 'Jul 2025', 'CXI11595', 'SANCHEZ, ABIGAIL BUENCONSEJO', 'AMERICAN AIRLINES', 'CONCEPCION, CHERRY MAY', 'Benedict Mendoza', 'abiece076@gmail.com', '2025-07-26', 'Yes', 'ABSENCE / CWD - VIBER 7:22 AM JULY 26, 2025', 'DUE TO FAMILY MATTER THAT STILL NEEDS HER PRESENCE', 'CUNANAN, JO ANDREA SABENIA', 'RDOT', '12:00 PM - 9:00 PM', 'PENDING / JULY 27 12:00 PM', '11:32 AM', 'SLT NICO', '2025-07-26 03:32:16', 1, NULL),
+(18, 'Jul 2025', 'CXI00160', 'LAZARO, ALLIYAH CAMILLE DIZON', 'CREWREZ / AIR', 'CXI MNGT', 'Fred Bier', 'acdlazaro@gmail.com', '2025-07-26', 'No', 'ABSENCE / NCNS / CWD (LATE ADVISED) - VIBER 5:54 AM JULY 26, 2025', 'DUE TO FEVER AND SORE THROAT', '-', '-', '7:00 AM - 7:00 PM', 'YES - NICO', '11:57 AM', 'SLT NICO', '2025-07-26 03:36:20', 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -714,13 +717,6 @@ CREATE TABLE `tardiness` (
   `expires_at` datetime GENERATED ALWAYS AS (`created_at` + interval 1 month) STORED
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `tardiness`
---
-
-INSERT INTO `tardiness` (`id`, `month`, `employee_id`, `full_name`, `department`, `supervisor`, `operation_manager`, `email`, `date_of_incident`, `type`, `minutes_late`, `shift`, `ir_form`, `accumulation_count`, `timestamp`, `sub_name`, `created_at`, `email_sent`, `email_sent_at`) VALUES
-(1, 'Jul 2025', 'cxi11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'Phay Barrameda', 'nicologalinato80@gmail.com', '2025-07-26', 'Late', 4, '4:00 AM - 1:00 PM', 'For accumulation', 1, '6:40 AM', 'SLT NICO', '2025-07-26 06:40:20', 0, NULL);
-
 -- --------------------------------------------------------
 
 --
@@ -749,8 +745,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `fullname`, `sub_name`, `password`, `slt_email`, `created_at`, `login_attempts`, `last_failed_login`, `locked_until`, `role`, `is_active`, `last_activity`, `last_modified`) VALUES
-(1, 'cxi11899', 'GALINATO, NICO', 'SLT NICO', '$2y$10$Nq1m.u1mc22CgjCYuRzHp.16IMLEc5PvKtFeZpPt0ej7V9xhIghc6', 'nicolo.galinato@communixinc.com', '2025-07-17 15:24:12', 0, NULL, NULL, 'admin', 1, '2025-07-25 23:10:18', '2025-07-25 23:10:18'),
-(37, 'cxi00525', 'JC TORRES', 'SLT JC', '$2y$10$fSnVChxO1EvhBhXFPkl/HOGC.uxik2kHay6cvlOKwkaIgXju.ASqS', 'juan.torres@communixinc.com', '2025-07-17 19:44:34', 0, NULL, NULL, 'admin', 1, '2025-07-25 02:02:44', '2025-07-25 02:02:44'),
+(1, 'cxi11899', 'GALINATO, NICO', 'SLT NICO', '$2y$10$Nq1m.u1mc22CgjCYuRzHp.16IMLEc5PvKtFeZpPt0ej7V9xhIghc6', 'nicolo.galinato@communixinc.com', '2025-07-17 15:24:12', 0, NULL, NULL, 'admin', 1, '2025-07-27 15:09:49', '2025-07-27 15:09:49'),
+(37, 'cxi00525', 'JC TORRES', 'SLT JC', '$2y$10$fSnVChxO1EvhBhXFPkl/HOGC.uxik2kHay6cvlOKwkaIgXju.ASqS', 'juan.torres@communixinc.com', '2025-07-17 19:44:34', 0, NULL, NULL, 'admin', 1, '2025-07-26 15:18:39', '2025-07-26 15:18:39'),
 (38, 'cxi00730', 'RG DUTERTE', 'SLT RG', '$2y$10$4Tnf9CRtLqS4fvFM2Otjme8zCSX6bbtUDiSgNVQ8IGUgo/VBZ4gqe', 'rg.duterte@communixinc.com', '2025-07-17 19:45:03', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 15:08:02'),
 (39, 'cxi11647', 'ALEXANDER RAY OLAES', 'SLT ALEX', '$2y$10$drhplWGrgo0Gz7nbnRXV.OcYwpieFAkaKROp/xrH2Hj5hNxnyEItW', 'a.olaes@communixinc.com', '2025-07-17 19:45:22', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 15:08:02'),
 (40, 'cxi11652', 'ANGKIKO, MIGUEL JEAN', 'SLT MIGS', '$2y$10$QfoRP/1fsDr2jyaTZTSQfORiDix1fHi..f4KK9p.lzU38sk7oWv7S', 'miguel.angkiko@communixinc.com', '2025-07-17 19:45:49', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 15:08:02'),
@@ -812,13 +808,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `absenteeism`
 --
 ALTER TABLE `absenteeism`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `employees`
 --
 ALTER TABLE `employees`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4750;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4752;
 
 --
 -- AUTO_INCREMENT for table `management`
@@ -842,7 +838,7 @@ ALTER TABLE `tardiness`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

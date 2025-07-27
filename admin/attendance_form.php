@@ -299,6 +299,10 @@ renderSidebar('attendance');
                             <label for="coverage_type" class="block text-sm font-medium text-gray-300 mb-2">Coverage Type</label>
                             <select id="coverage_type" name="coverage_type"
                                     class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" required>
+                                <option value="-" <?= $record && $record['coverage_type'] === '-' ? 'selected' : '' ?>>-</option>
+                                <option value="NO NEED" <?= $record && $record['coverage_type'] === 'NO NEED' ? 'selected' : '' ?>>NO NEED</option>
+                                <option value="TRAINEE" <?= $record && $record['coverage_type'] === 'TRAINEE' ? 'selected' : '' ?>>TRAINEE</option>
+                                <option value="BACK UP" <?= $record && $record['coverage_type'] === 'BACK UP' ? 'selected' : '' ?>>BACK UP</option>
                                 <option value="PENDING" <?= $record && $record['coverage_type'] === 'PENDING' ? 'selected' : '' ?>>PENDING</option>
                                 <option value="DSOT" <?= $record && $record['coverage_type'] === 'DSOT' ? 'selected' : '' ?>>DSOT</option>
                                 <option value="RDOT" <?= $record && $record['coverage_type'] === 'RDOT' ? 'selected' : '' ?>>RDOT</option>

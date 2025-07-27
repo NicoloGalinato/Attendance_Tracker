@@ -1,11 +1,4 @@
 <?php
-require_once '../includes/config.php';
-require_once '../includes/functions.php';
-
-if (!isLoggedIn() || !isAdmin()) {
-    redirect(BASE_URL);
-}
-
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
@@ -23,8 +16,8 @@ if ($conn->connect_error) {
 }
 
 // 3. Sanitize input and set defaults
-$allowed_tables = ['users'];
-$table = $conn->real_escape_string($_GET['table'] ?? 'users');
+$allowed_tables = ['absenteeism', 'employees']; // Added both tables that might be needed
+$table = $conn->real_escape_string($_GET['table'] ?? 'absenteeism'); // Default to absenteeism
 $mode = $_GET['mode'] ?? 'incremental';
 $limit = min((int)($_GET['limit'] ?? 100), 500);
 $lastId = max((int)($_GET['last_id'] ?? 0), 0);
@@ -50,7 +43,7 @@ if ($mode === 'full') {
     // Get the data with optional last_update filter
     $dataQuery = "SELECT * FROM $table WHERE id > ?";
     if (!empty($lastUpdate)) {
-        $dataQuery .= " OR last_modified >= ?";
+        $dataQuery .= " OR created_at >= ?";
     }
     $dataQuery .= " LIMIT ?";
     
@@ -88,7 +81,7 @@ if ($mode === 'full') {
 // 6. Handle incremental sync with last_update support
 $query = "SELECT * FROM $table WHERE id > ?";
 if (!empty($lastUpdate)) {
-    $query .= " OR last_modified >= ?";
+    $query .= " OR created_at >= ?";
 }
 $query .= " LIMIT ?";
 
