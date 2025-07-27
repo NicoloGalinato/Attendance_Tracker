@@ -67,9 +67,10 @@ try {
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Coverage</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Coverage Type</th>
                     <?php else: ?>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Date of Incident</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Date of Tardiness</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Type</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Minutes</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Shift</th>
                     <?php endif; ?>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Incident Report</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Reported By</th>
@@ -119,18 +120,21 @@ try {
                                 <div class="text-sm text-gray-300"><?= date('M d, Y', strtotime($record['date_of_incident'])) ?></div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['type'] === 'Late' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800' ?> ">
-                                    <?= $record['type'] ?>
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['types'] === 'Late' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800' ?> ">
+                                    <?= $record['types'] ?>
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-300"><?= $record['minutes_late'] ?></div>
                             </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-300"><?= $record['shift'] ?></div>
+                            </td>
                         <?php endif; ?>
                         
                         
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-300"><?= $record['ir_form'] ?></div>
+                            <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= $record['ir_form'] ?></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-300"><?= htmlspecialchars($record['sub_name']) ?></div>

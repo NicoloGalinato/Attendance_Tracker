@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'operation_manager' => $employee['operation_manager'],
                 'email' => $employee['email'],
                 'date_of_incident' => sanitizeInput($_POST['date_of_incident']),
-                'type' => sanitizeInput($_POST['type']),
+                'types' => sanitizeInput($_POST['types']),
                 'minutes_late' => (int)$_POST['minutes_late'],
                 'shift' => sanitizeInput($_POST['shift']),
                 'ir_form' => sanitizeInput($_POST['ir_form']),
@@ -132,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     operation_manager = :operation_manager,
                     email = :email,
                     date_of_incident = :date_of_incident,
-                    type = :type,
+                    types = :types,
                     minutes_late = :minutes_late,
                     shift = :shift,
                     ir_form = :ir_form,
@@ -148,10 +148,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Insert new record
                 $stmt = $pdo->prepare("INSERT INTO tardiness 
                     (month, employee_id, full_name, department, supervisor, operation_manager, email, 
-                    date_of_incident, type, minutes_late, shift, ir_form, timestamp, sub_name)
+                    date_of_incident, types, minutes_late, shift, ir_form, timestamp, sub_name)
                     VALUES 
                     (:month, :employee_id, :full_name, :department, :supervisor, :operation_manager, :email, 
-                    :date_of_incident, :type, :minutes_late, :shift, :ir_form, :timestamp, :sub_name)");
+                    :date_of_incident, :types, :minutes_late, :shift, :ir_form, :timestamp, :sub_name)");
                 
                 $stmt->execute($data);
                 
@@ -252,7 +252,7 @@ renderSidebar('attendance');
                     
                     <div>
                         <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
-                        <input type="text" id="email" name="email" readonly
+                        <input type="text" id="email" name="email"
                                class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-400" 
                                value="<?= $record ? htmlspecialchars($record['email']) : '' ?>">
                     </div>
@@ -325,18 +325,18 @@ renderSidebar('attendance');
                         </div>
                     <?php else: ?>
                         <div>
-                            <label for="date_of_incident" class="block text-sm font-medium text-gray-300 mb-2">Date of Incident</label>
+                            <label for="date_of_incident" class="block text-sm font-medium text-gray-300 mb-2">Date of Tardiness</label>
                             <input type="date" id="date_of_incident" name="date_of_incident" style="text-transform: uppercase;"
                                    class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
                                    value="<?= $record ? htmlspecialchars($record['date_of_incident']) : '' ?>" required>
                         </div>
                         
                         <div>
-                            <label for="type" class="block text-sm font-medium text-gray-300 mb-2">Type</label>
-                            <select id="type" name="type"
+                            <label for="types" class="block text-sm font-medium text-gray-300 mb-2">Type</label>
+                            <select id="types" name="types"
                                     class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" required>
-                                <option value="LATE" <?= $record && $record['type'] === 'LATE' ? 'selected' : '' ?>>LATE</option>
-                                <option value="UNDERTIME" <?= $record && $record['type'] === 'UNDERTIME' ? 'selected' : '' ?>>UNDERTIME</option>
+                                <option value="LATE" <?= $record && $record['types'] === 'LATE' ? 'selected' : '' ?>>LATE</option>
+                                <option value="UNDERTIME" <?= $record && $record['types'] === 'UNDERTIME' ? 'selected' : '' ?>>UNDERTIME</option>
                             </select>
                         </div>
                         
