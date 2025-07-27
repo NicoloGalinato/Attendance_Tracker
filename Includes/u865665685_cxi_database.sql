@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 25, 2025 at 06:38 PM
+-- Generation Time: Jul 26, 2025 at 01:10 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -41,14 +41,14 @@ CREATE TABLE `absenteeism` (
   `sanction` text DEFAULT NULL,
   `reason` text NOT NULL,
   `coverage` varchar(100) DEFAULT NULL,
-  `coverage_type` enum('DSOT','RDOT','AGENT MODE') NOT NULL,
+  `coverage_type` enum('PENDING','DSOT','RDOT','AGENT MODE') NOT NULL,
   `shift` varchar(50) NOT NULL,
   `ir_form` varchar(100) DEFAULT NULL,
-  `timestamp` time NOT NULL,
+  `timestamp` varchar(20) DEFAULT NULL,
   `sub_name` varchar(50) NOT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
   `email_sent` tinyint(1) DEFAULT 0,
-  `email_sent_at` datetime DEFAULT NULL
+  `email_sent_at` varchar(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -56,8 +56,7 @@ CREATE TABLE `absenteeism` (
 --
 
 INSERT INTO `absenteeism` (`id`, `month`, `employee_id`, `full_name`, `department`, `supervisor`, `operation_manager`, `email`, `date_of_absent`, `follow_call_in_procedure`, `sanction`, `reason`, `coverage`, `coverage_type`, `shift`, `ir_form`, `timestamp`, `sub_name`, `created_at`, `email_sent`, `email_sent_at`) VALUES
-(3, 'Jul 2025', 'cxi11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'Phay Barrameda', 'nicologalinato80@gmail.com', '2025-07-25', 'Yes', 'NCNS', 'asd', 'ALEX', 'RDOT', 'asd', 'PENDING', '13:42:31', 'SLT NICO', '2025-07-25 19:42:31', 1, '2025-07-25 19:46:56'),
-(4, 'Jul 2025', 'cxi11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'Phay Barrameda', 'nicologalinato80@gmail.com', '2025-07-25', 'Yes', 'NCNS', 'asd', 'ALEX', 'DSOT', 'asd', 'asd', '01:44:00', 'SLT NICO', '2025-07-25 19:44:08', 1, '2025-07-25 19:46:57');
+(7, 'Jul 2025', 'cxi11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'Phay Barrameda', 'nicologalinato80@gmail.com', '2025-07-26', 'Yes', 'ABSENCE / CWD - VIBER 7:51 PM JULY 25, 2025', 'DUE TO FLOOD', 'VERANO. ERWIN', 'RDOT', '1:00 AM - 12:00 PM', 'PENDING 1:00 AM JULY 26, 2025', '6:26 AM', 'SLT NICO', '2025-07-26 06:26:02', 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -707,13 +706,20 @@ CREATE TABLE `tardiness` (
   `shift` varchar(50) NOT NULL,
   `ir_form` varchar(100) DEFAULT NULL,
   `accumulation_count` int(11) DEFAULT 1,
-  `timestamp` time NOT NULL,
+  `timestamp` varchar(20) DEFAULT NULL,
   `sub_name` varchar(50) NOT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
   `email_sent` tinyint(1) DEFAULT 0,
-  `email_sent_at` datetime DEFAULT NULL,
+  `email_sent_at` varchar(20) DEFAULT NULL,
   `expires_at` datetime GENERATED ALWAYS AS (`created_at` + interval 1 month) STORED
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tardiness`
+--
+
+INSERT INTO `tardiness` (`id`, `month`, `employee_id`, `full_name`, `department`, `supervisor`, `operation_manager`, `email`, `date_of_incident`, `type`, `minutes_late`, `shift`, `ir_form`, `accumulation_count`, `timestamp`, `sub_name`, `created_at`, `email_sent`, `email_sent_at`) VALUES
+(1, 'Jul 2025', 'cxi11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'Phay Barrameda', 'nicologalinato80@gmail.com', '2025-07-26', 'Late', 4, '4:00 AM - 1:00 PM', 'For accumulation', 1, '6:40 AM', 'SLT NICO', '2025-07-26 06:40:20', 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -743,12 +749,12 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `fullname`, `sub_name`, `password`, `slt_email`, `created_at`, `login_attempts`, `last_failed_login`, `locked_until`, `role`, `is_active`, `last_activity`, `last_modified`) VALUES
-(1, 'cxi11899', 'GALINATO, NICO', 'SLT NICO', '$2y$10$Nq1m.u1mc22CgjCYuRzHp.16IMLEc5PvKtFeZpPt0ej7V9xhIghc6', 'nicolo.galinato@communixinc.com', '2025-07-17 15:24:12', 0, NULL, NULL, 'admin', 1, '2025-07-25 11:46:57', '2025-07-25 11:46:57'),
+(1, 'cxi11899', 'GALINATO, NICO', 'SLT NICO', '$2y$10$Nq1m.u1mc22CgjCYuRzHp.16IMLEc5PvKtFeZpPt0ej7V9xhIghc6', 'nicolo.galinato@communixinc.com', '2025-07-17 15:24:12', 0, NULL, NULL, 'admin', 1, '2025-07-25 23:10:18', '2025-07-25 23:10:18'),
 (37, 'cxi00525', 'JC TORRES', 'SLT JC', '$2y$10$fSnVChxO1EvhBhXFPkl/HOGC.uxik2kHay6cvlOKwkaIgXju.ASqS', 'juan.torres@communixinc.com', '2025-07-17 19:44:34', 0, NULL, NULL, 'admin', 1, '2025-07-25 02:02:44', '2025-07-25 02:02:44'),
 (38, 'cxi00730', 'RG DUTERTE', 'SLT RG', '$2y$10$4Tnf9CRtLqS4fvFM2Otjme8zCSX6bbtUDiSgNVQ8IGUgo/VBZ4gqe', 'rg.duterte@communixinc.com', '2025-07-17 19:45:03', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 15:08:02'),
 (39, 'cxi11647', 'ALEXANDER RAY OLAES', 'SLT ALEX', '$2y$10$drhplWGrgo0Gz7nbnRXV.OcYwpieFAkaKROp/xrH2Hj5hNxnyEItW', 'a.olaes@communixinc.com', '2025-07-17 19:45:22', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 15:08:02'),
 (40, 'cxi11652', 'ANGKIKO, MIGUEL JEAN', 'SLT MIGS', '$2y$10$QfoRP/1fsDr2jyaTZTSQfORiDix1fHi..f4KK9p.lzU38sk7oWv7S', 'miguel.angkiko@communixinc.com', '2025-07-17 19:45:49', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 15:08:02'),
-(41, 'cxi11664', 'IVERSON LOMAT', 'SLT IVER', '$2y$10$ju/wgHSL1tQJeM4/weg5nuX3oGwKhBSOg3fcGjRZUIlzELPwtPeXi', 'iverson.lomat@communixinc.com', '2025-07-17 19:46:06', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 15:08:02'),
+(41, 'cxi11664', 'IVERSON LOMAT', 'SLT IVER', '$2y$10$ju/wgHSL1tQJeM4/weg5nuX3oGwKhBSOg3fcGjRZUIlzELPwtPeXi', 'iverson.lomat@communixinc.com', '2025-07-17 19:46:06', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-25 18:06:10'),
 (42, 'cxi11812', 'CHRISTIAN MONTOYA', 'SLT CIAN', '$2y$10$jyCYyY.UBtHPSBlKONCrpeZ15N4u0VHQw20/LxV0q6fxvqpuAa2cy', 'c.montoya@communixinc.com', '2025-07-17 19:46:35', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 15:08:02'),
 (56, 'CXI12100', 'MONEDA ROLANDO', 'SLT OLAN', '$2y$10$JpoID58r9ghFzquMZLVXHOzd9v.NuKZLu3el1aarMZmZ9U2leJpQS', 'R.moneda@communixinc.com', '2025-07-24 17:08:38', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 17:08:38'),
 (57, 'CXI00732', 'APRIL BARRAMEDA', 'SOM PHAY', '$2y$10$inCw3t1pr0JEyWUYHOxpYONz28ucTCEPyZeacQvVFJFfPIGlbXE3i', 'phay.barrameda@communixinc.com', '2025-07-25 01:55:13', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-25 01:56:13');
@@ -806,7 +812,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `absenteeism`
 --
 ALTER TABLE `absenteeism`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `employees`
@@ -830,7 +836,7 @@ ALTER TABLE `operations_managers`
 -- AUTO_INCREMENT for table `tardiness`
 --
 ALTER TABLE `tardiness`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `users`

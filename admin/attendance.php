@@ -47,7 +47,7 @@ if (isset($_GET['send_email'])) {
             // Here you would implement your email sending logic
             // For now, we'll just update the record to mark as sent
             
-            $updateStmt = $pdo->prepare("UPDATE $table SET email_sent = 1, email_sent_at = NOW() WHERE id = ?");
+            $updateStmt = $pdo->prepare("UPDATE $table SET email_sent = 1, email_sent_at = CONVERT_TZ(NOW(), 'SYSTEM', 'Asia/Manila') WHERE id = ?");
             $updateStmt->execute([$id]);
             
             $_SESSION['success'] = "Email sent successfully!";

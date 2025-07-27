@@ -2,6 +2,10 @@
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/functions.php';
 
+if (!isLoggedIn() || !isAdmin()) {
+    redirect(BASE_URL);
+}
+
 header('Content-Type: application/json');
 
 $employeeId = isset($_GET['employee_id']) ? trim($_GET['employee_id']) : '';

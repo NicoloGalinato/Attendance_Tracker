@@ -214,36 +214,38 @@ renderSidebar('attendance');
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="employee_id" class="block text-sm font-medium text-gray-300 mb-2">Employee ID</label>
-                        <input type="text" id="employee_id" name="employee_id" 
-                               class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
-                               value="<?= $record ? htmlspecialchars($record['employee_id']) : '' ?>" required
-                               onchange="fetchEmployeeDetails(this.value)">
+                        <input type="text" id="employee_id" name="employee_id" style="text-transform: uppercase;"
+                            class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                            value="<?= $record ? htmlspecialchars($record['employee_id']) : '' ?>" required
+                            onchange="fetchEmployeeDetails(this.value)"
+                            autocomplete="off">
+                        <div id="employeeSearchResults" class="hidden absolute z-10 mt-1 w-full max-w-md bg-gray-800 border border-gray-700 rounded-lg shadow-lg"></div>
                     </div>
                     
                     <div>
                         <label for="full_name" class="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
-                        <input type="text" id="full_name" name="full_name" readonly
+                        <input type="text" id="full_name" name="full_name" style="text-transform: uppercase;" readonly
                                class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-400" 
                                value="<?= $record ? htmlspecialchars($record['full_name']) : '' ?>">
                     </div>
                     
                     <div>
                         <label for="department" class="block text-sm font-medium text-gray-300 mb-2">Department</label>
-                        <input type="text" id="department" name="department" readonly
+                        <input type="text" id="department" name="department" style="text-transform: uppercase;" readonly
                                class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-400" 
                                value="<?= $record ? htmlspecialchars($record['department']) : '' ?>">
                     </div>
                     
                     <div>
                         <label for="supervisor" class="block text-sm font-medium text-gray-300 mb-2">Supervisor</label>
-                        <input type="text" id="supervisor" name="supervisor" readonly
+                        <input type="text" id="supervisor" name="supervisor" style="text-transform: uppercase;" readonly
                                class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-400" 
                                value="<?= $record ? htmlspecialchars($record['supervisor']) : '' ?>">
                     </div>
                     
                     <div>
                         <label for="operation_manager" class="block text-sm font-medium text-gray-300 mb-2">Operations Manager</label>
-                        <input type="text" id="operation_manager" name="operation_manager" readonly
+                        <input type="text" id="operation_manager" name="operation_manager" style="text-transform: uppercase;" readonly
                                class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-400" 
                                value="<?= $record ? htmlspecialchars($record['operation_manager']) : '' ?>">
                     </div>
@@ -258,37 +260,37 @@ renderSidebar('attendance');
                     <?php if ($type === 'absenteeism'): ?>
                         <div>
                             <label for="date_of_absent" class="block text-sm font-medium text-gray-300 mb-2">Date of Absence</label>
-                            <input type="date" id="date_of_absent" name="date_of_absent"
+                            <input type="date" id="date_of_absent" name="date_of_absent" style="text-transform: uppercase;"
                                    class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
                                    value="<?= $record ? htmlspecialchars($record['date_of_absent']) : '' ?>" required>
                         </div>
                         
                         <div>
                             <label for="follow_call_in_procedure" class="block text-sm font-medium text-gray-300 mb-2">Followed Call-in Procedure?</label>
-                            <select id="follow_call_in_procedure" name="follow_call_in_procedure"
+                            <select id="follow_call_in_procedure" name="follow_call_in_procedure" style="text-transform: uppercase;"
                                     class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" required>
-                                <option value="Yes" <?= $record && $record['follow_call_in_procedure'] === 'Yes' ? 'selected' : '' ?>>Yes</option>
-                                <option value="No" <?= $record && $record['follow_call_in_procedure'] === 'No' ? 'selected' : '' ?>>No</option>
+                                <option value="YES" <?= $record && $record['follow_call_in_procedure'] === 'YES' ? 'selected' : '' ?>>YES</option>
+                                <option value="NO" <?= $record && $record['follow_call_in_procedure'] === 'NO' ? 'selected' : '' ?>>NO</option>
                             </select>
                         </div>
                         
                         <div>
                             <label for="sanction" class="block text-sm font-medium text-gray-300 mb-2">Sanction</label>
-                            <input type="text" id="sanction" name="sanction"
+                            <input type="text" id="sanction" name="sanction" style="text-transform: uppercase;"
                                    class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
                                    value="<?= $record ? htmlspecialchars($record['sanction']) : '' ?>">
                         </div>
                         
                         <div>
                             <label for="reason" class="block text-sm font-medium text-gray-300 mb-2">Reason</label>
-                            <textarea id="reason" name="reason"
+                            <textarea id="reason" name="reason" style="text-transform: uppercase;"
                                       class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
                                       required><?= $record ? htmlspecialchars($record['reason']) : '' ?></textarea>
                         </div>
                         
                         <div>
                             <label for="coverage" class="block text-sm font-medium text-gray-300 mb-2">Coverage</label>
-                            <input type="text" id="coverage" name="coverage"
+                            <input type="text" id="coverage" name="coverage" style="text-transform: uppercase;"
                                    class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
                                    value="<?= $record ? htmlspecialchars($record['coverage']) : '' ?>">
                         </div>
@@ -297,6 +299,7 @@ renderSidebar('attendance');
                             <label for="coverage_type" class="block text-sm font-medium text-gray-300 mb-2">Coverage Type</label>
                             <select id="coverage_type" name="coverage_type"
                                     class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" required>
+                                <option value="PENDING" <?= $record && $record['coverage_type'] === 'PENDING' ? 'selected' : '' ?>>PENDING</option>
                                 <option value="DSOT" <?= $record && $record['coverage_type'] === 'DSOT' ? 'selected' : '' ?>>DSOT</option>
                                 <option value="RDOT" <?= $record && $record['coverage_type'] === 'RDOT' ? 'selected' : '' ?>>RDOT</option>
                                 <option value="AGENT MODE" <?= $record && $record['coverage_type'] === 'AGENT MODE' ? 'selected' : '' ?>>AGENT MODE</option>
@@ -305,21 +308,21 @@ renderSidebar('attendance');
                         
                         <div>
                             <label for="shift" class="block text-sm font-medium text-gray-300 mb-2">Shift</label>
-                            <input type="text" id="shift" name="shift"
+                            <input type="text" id="shift" name="shift" style="text-transform: uppercase;"
                                    class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
                                    value="<?= $record ? htmlspecialchars($record['shift']) : '' ?>" required>
                         </div>
                         
                         <div>
                             <label for="ir_form" class="block text-sm font-medium text-gray-300 mb-2">IR Form</label>
-                            <input type="text" id="ir_form" name="ir_form"
+                            <input type="text" id="ir_form" name="ir_form" style="text-transform: uppercase;"
                                    class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
                                    value="<?= $record ? htmlspecialchars($record['ir_form']) : '' ?>">
                         </div>
                     <?php else: ?>
                         <div>
                             <label for="date_of_incident" class="block text-sm font-medium text-gray-300 mb-2">Date of Incident</label>
-                            <input type="date" id="date_of_incident" name="date_of_incident"
+                            <input type="date" id="date_of_incident" name="date_of_incident" style="text-transform: uppercase;"
                                    class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
                                    value="<?= $record ? htmlspecialchars($record['date_of_incident']) : '' ?>" required>
                         </div>
@@ -328,28 +331,28 @@ renderSidebar('attendance');
                             <label for="type" class="block text-sm font-medium text-gray-300 mb-2">Type</label>
                             <select id="type" name="type"
                                     class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" required>
-                                <option value="Late" <?= $record && $record['type'] === 'Late' ? 'selected' : '' ?>>Late</option>
-                                <option value="Undertime" <?= $record && $record['type'] === 'Undertime' ? 'selected' : '' ?>>Undertime</option>
+                                <option value="LATE" <?= $record && $record['type'] === 'LATE' ? 'selected' : '' ?>>LATE</option>
+                                <option value="UNDERTIME" <?= $record && $record['type'] === 'UNDERTIME' ? 'selected' : '' ?>>UNDERTIME</option>
                             </select>
                         </div>
                         
                         <div>
                             <label for="minutes_late" class="block text-sm font-medium text-gray-300 mb-2">Minutes Late/Undertime</label>
-                            <input type="number" id="minutes_late" name="minutes_late"
+                            <input type="number" id="minutes_late" name="minutes_late" style="text-transform: uppercase;"
                                    class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
                                    value="<?= $record ? htmlspecialchars($record['minutes_late']) : '' ?>" required>
                         </div>
                         
                         <div>
                             <label for="shift" class="block text-sm font-medium text-gray-300 mb-2">Shift</label>
-                            <input type="text" id="shift" name="shift"
+                            <input type="text" id="shift" name="shift" style="text-transform: uppercase;"
                                    class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
                                    value="<?= $record ? htmlspecialchars($record['shift']) : '' ?>" required>
                         </div>
                         
                         <div>
                             <label for="ir_form" class="block text-sm font-medium text-gray-300 mb-2">IR Form</label>
-                            <input type="text" id="ir_form" name="ir_form"
+                            <input type="text" id="ir_form" name="ir_form" style="text-transform: uppercase;"
                                    class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
                                    value="<?= $record ? htmlspecialchars($record['ir_form']) : '' ?>">
                         </div>
@@ -370,6 +373,67 @@ renderSidebar('attendance');
 </div>
 
 <script>
+    function searchEmployees(query) {
+    if (query.length < 2) {
+        document.getElementById('employeeSearchResults').classList.add('hidden');
+        return;
+    }
+
+    fetch('../api/search_employees.php?query=' + encodeURIComponent(query))
+        .then(response => response.json())
+        .then(data => {
+            const resultsContainer = document.getElementById('employeeSearchResults');
+            resultsContainer.innerHTML = '';
+            
+            if (data.success && data.employees.length > 0) {
+                data.employees.forEach(employee => {
+                    const item = document.createElement('div');
+                    item.className = 'px-4 py-2 hover:bg-gray-700 cursor-pointer border-b border-gray-700';
+                    item.innerHTML = `
+                        <div class="font-medium text-gray-200">${employee.employee_id}</div>
+                        <div class="text-sm text-gray-400">${employee.full_name}</div>
+                    `;
+                    item.addEventListener('click', () => {
+                        document.getElementById('employee_id').value = employee.employee_id;
+                        fetchEmployeeDetails(employee.employee_id);
+                        resultsContainer.classList.add('hidden');
+                    });
+                    resultsContainer.appendChild(item);
+                });
+                resultsContainer.classList.remove('hidden');
+            } else {
+                const item = document.createElement('div');
+                item.className = 'px-4 py-2 text-gray-400';
+                item.textContent = 'No employees found';
+                resultsContainer.appendChild(item);
+                resultsContainer.classList.remove('hidden');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
+// Add event listener for search
+document.getElementById('employee_id').addEventListener('input', function() {
+    searchEmployees(this.value);
+});
+
+// Hide results when clicking outside
+document.addEventListener('click', function(e) {
+    if (!document.getElementById('employee_id').contains(e.target) && 
+        !document.getElementById('employeeSearchResults').contains(e.target)) {
+        document.getElementById('employeeSearchResults').classList.add('hidden');
+    }
+});
+
+// Auto-fill employee details if editing
+document.addEventListener('DOMContentLoaded', function() {
+    <?php if ($record): ?>
+        fetchEmployeeDetails('<?= $record['employee_id'] ?>');
+    <?php endif; ?>
+});
+
 function fetchEmployeeDetails(employeeId) {
     if (!employeeId) return;
     
@@ -382,14 +446,6 @@ function fetchEmployeeDetails(employeeId) {
                 document.getElementById('supervisor').value = data.employee.supervisor;
                 document.getElementById('operation_manager').value = data.employee.operation_manager;
                 document.getElementById('email').value = data.employee.email;
-            } else {
-                alert('Employee not found');
-                document.getElementById('employee_id').value = '';
-                document.getElementById('full_name').value = '';
-                document.getElementById('department').value = '';
-                document.getElementById('supervisor').value = '';
-                document.getElementById('operation_manager').value = '';
-                document.getElementById('email').value = '';
             }
         })
         .catch(error => {
