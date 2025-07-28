@@ -87,7 +87,7 @@ try {
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">SLT</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Fullname</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Email</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Role</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider" style="display: none;">Role</th>
                     <?php else: ?>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">CXI ID</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Fullname</th>
@@ -130,7 +130,7 @@ try {
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['slt_email']) ?></div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-6 py-4 whitespace-nowrap" style="display: none;">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['role'] === 'admin' ? 'bg-primary-100 text-primary-800' : 'bg-green-100 text-green-800' ?>" style="text-transform: uppercase;">
                                     <?= ucfirst($record['role']) ?>
                                 </span>

@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1:3306
--- Generation Time: Jul 27, 2025 at 03:15 PM
--- Server version: 10.11.10-MariaDB
--- PHP Version: 7.2.34
+-- Host: 127.0.0.1
+-- Generation Time: Jul 28, 2025 at 07:46 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `u865665685_cxi_database`
+-- Database: `auth_system`
 --
 
 -- --------------------------------------------------------
@@ -59,7 +59,8 @@ INSERT INTO `absenteeism` (`id`, `month`, `employee_id`, `full_name`, `departmen
 (15, 'Jul 2025', 'CXI01059', 'MARCELINO, MICHELLE', 'AUTOBOOKING', 'AREVALO PO, MARK FRANCES', 'Christopher Paller', 'marcelinomichelle1@gmail.com', '2025-07-26', 'No', 'ABSENCE / NCNS / CWD', 'NCNS', 'ARGOSO, ALFREDO ODRONIA', 'DSOT', '5:00 AM - 2:00 PM', 'NO NEED', '11:30 AM', 'SLT NICO', '2025-07-26 03:30:25', 0, NULL),
 (16, 'Jul 2025', 'CXI11684', 'BELOSTRINO, JEROME PAGUYO', 'BK-EMEA', 'BAILLO, CRISTINE', 'Fred Bier', 'Jerome.Belostrino@corpay.com', '2025-07-26', 'Yes', 'ABSENCE - VIBER 9:39 AM JULY 26, 2025', 'DUE TO EXPERIENCING SEVERE HEADACHE AND FLU SYMPTOMS', 'RUBI, MYLYN CAROLLA', 'DSOT', '2:00 PM - 11:00 PM', 'PENDING / JULY 28 2:00 PM', '11:31 AM', 'SLT NICO', '2025-07-26 03:31:43', 0, NULL),
 (17, 'Jul 2025', 'CXI11595', 'SANCHEZ, ABIGAIL BUENCONSEJO', 'AMERICAN AIRLINES', 'CONCEPCION, CHERRY MAY', 'Benedict Mendoza', 'abiece076@gmail.com', '2025-07-26', 'Yes', 'ABSENCE / CWD - VIBER 7:22 AM JULY 26, 2025', 'DUE TO FAMILY MATTER THAT STILL NEEDS HER PRESENCE', 'CUNANAN, JO ANDREA SABENIA', 'RDOT', '12:00 PM - 9:00 PM', 'PENDING / JULY 27 12:00 PM', '11:32 AM', 'SLT NICO', '2025-07-26 03:32:16', 1, NULL),
-(18, 'Jul 2025', 'CXI00160', 'LAZARO, ALLIYAH CAMILLE DIZON', 'CREWREZ / AIR', 'CXI MNGT', 'Fred Bier', 'acdlazaro@gmail.com', '2025-07-26', 'No', 'ABSENCE / NCNS / CWD (LATE ADVISED) - VIBER 5:54 AM JULY 26, 2025', 'DUE TO FEVER AND SORE THROAT', '-', '-', '7:00 AM - 7:00 PM', 'YES - NICO', '11:57 AM', 'SLT NICO', '2025-07-26 03:36:20', 1, NULL);
+(18, 'Jul 2025', 'CXI00160', 'LAZARO, ALLIYAH CAMILLE DIZON', 'CREWREZ / AIR', 'CXI MNGT', 'Fred Bier', 'acdlazaro@gmail.com', '2025-07-26', 'No', 'ABSENCE / NCNS / CWD (LATE ADVISED) - VIBER 5:54 AM JULY 26, 2025', 'DUE TO FEVER AND SORE THROAT', '-', '-', '7:00 AM - 7:00 PM', 'YES - NICO', '11:57 AM', 'SLT NICO', '2025-07-26 03:36:20', 1, NULL),
+(21, 'Jul 2025', 'CXI11792', 'SALDIVIA, ABRAHAM NEBRES', 'TQAM', 'CXI MNGT', 'Kiko Barrameda', 'Ansaldivia913@gmail.com', '2025-07-26', 'Yes', 'NCNS', 'ncns', 'ALEX', 'TRAINEE', '7:00 PM - 4:00 AM', 'PENDING', '11:48 PM', 'SLT NICO', '2025-07-27 23:48:50', 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -704,7 +705,7 @@ CREATE TABLE `tardiness` (
   `operation_manager` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
   `date_of_incident` date NOT NULL,
-  `type` enum('Late','Undertime') NOT NULL,
+  `types` enum('Late','Undertime') NOT NULL,
   `minutes_late` int(11) NOT NULL,
   `shift` varchar(50) NOT NULL,
   `ir_form` varchar(100) DEFAULT NULL,
@@ -716,6 +717,14 @@ CREATE TABLE `tardiness` (
   `email_sent_at` varchar(20) DEFAULT NULL,
   `expires_at` datetime GENERATED ALWAYS AS (`created_at` + interval 1 month) STORED
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tardiness`
+--
+
+INSERT INTO `tardiness` (`id`, `month`, `employee_id`, `full_name`, `department`, `supervisor`, `operation_manager`, `email`, `date_of_incident`, `types`, `minutes_late`, `shift`, `ir_form`, `accumulation_count`, `timestamp`, `sub_name`, `created_at`, `email_sent`, `email_sent_at`) VALUES
+(6, 'Jul 2025', 'CXI11448', 'CERTEZA, NOVELYN LANUZO', 'QA SUP', 'CXI MNGT', 'Abbes Saldivia', 'noviecerteza@hotmail.com', '2025-07-26', 'Late', 4, '7:00 PM - 4:00 AM', 'for accumulation', 1, '11:40 PM', 'SLT NICO', '2025-07-27 23:40:31', 0, NULL),
+(10, 'Jul 2025', 'CXI11792', 'SALDIVIA, ABRAHAM NEBRES', 'TQAM', 'CXI MNGT', 'Kiko Barrameda', 'Ansaldivia913@gmail.com', '2025-07-26', 'Late', 45, '7:00 PM - 4:00 AM', 'FOR IR', 1, '1:02 AM', 'SLT NICO', '2025-07-27 23:55:46', 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -745,7 +754,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `fullname`, `sub_name`, `password`, `slt_email`, `created_at`, `login_attempts`, `last_failed_login`, `locked_until`, `role`, `is_active`, `last_activity`, `last_modified`) VALUES
-(1, 'cxi11899', 'GALINATO, NICO', 'SLT NICO', '$2y$10$Nq1m.u1mc22CgjCYuRzHp.16IMLEc5PvKtFeZpPt0ej7V9xhIghc6', 'nicolo.galinato@communixinc.com', '2025-07-17 15:24:12', 0, NULL, NULL, 'admin', 1, '2025-07-27 15:09:49', '2025-07-27 15:09:49'),
+(1, 'cxi11899', 'GALINATO, NICO', 'SLT NICO', '$2y$10$Nq1m.u1mc22CgjCYuRzHp.16IMLEc5PvKtFeZpPt0ej7V9xhIghc6', 'nicolo.galinato@communixinc.com', '2025-07-17 15:24:12', 0, NULL, NULL, 'admin', 1, '2025-07-28 05:41:06', '2025-07-28 05:41:06'),
 (37, 'cxi00525', 'JC TORRES', 'SLT JC', '$2y$10$fSnVChxO1EvhBhXFPkl/HOGC.uxik2kHay6cvlOKwkaIgXju.ASqS', 'juan.torres@communixinc.com', '2025-07-17 19:44:34', 0, NULL, NULL, 'admin', 1, '2025-07-26 15:18:39', '2025-07-26 15:18:39'),
 (38, 'cxi00730', 'RG DUTERTE', 'SLT RG', '$2y$10$4Tnf9CRtLqS4fvFM2Otjme8zCSX6bbtUDiSgNVQ8IGUgo/VBZ4gqe', 'rg.duterte@communixinc.com', '2025-07-17 19:45:03', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 15:08:02'),
 (39, 'cxi11647', 'ALEXANDER RAY OLAES', 'SLT ALEX', '$2y$10$drhplWGrgo0Gz7nbnRXV.OcYwpieFAkaKROp/xrH2Hj5hNxnyEItW', 'a.olaes@communixinc.com', '2025-07-17 19:45:22', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 15:08:02'),
@@ -753,7 +762,7 @@ INSERT INTO `users` (`id`, `username`, `fullname`, `sub_name`, `password`, `slt_
 (41, 'cxi11664', 'IVERSON LOMAT', 'SLT IVER', '$2y$10$ju/wgHSL1tQJeM4/weg5nuX3oGwKhBSOg3fcGjRZUIlzELPwtPeXi', 'iverson.lomat@communixinc.com', '2025-07-17 19:46:06', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-25 18:06:10'),
 (42, 'cxi11812', 'CHRISTIAN MONTOYA', 'SLT CIAN', '$2y$10$jyCYyY.UBtHPSBlKONCrpeZ15N4u0VHQw20/LxV0q6fxvqpuAa2cy', 'c.montoya@communixinc.com', '2025-07-17 19:46:35', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 15:08:02'),
 (56, 'CXI12100', 'MONEDA ROLANDO', 'SLT OLAN', '$2y$10$JpoID58r9ghFzquMZLVXHOzd9v.NuKZLu3el1aarMZmZ9U2leJpQS', 'R.moneda@communixinc.com', '2025-07-24 17:08:38', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 17:08:38'),
-(57, 'CXI00732', 'APRIL BARRAMEDA', 'SOM PHAY', '$2y$10$inCw3t1pr0JEyWUYHOxpYONz28ucTCEPyZeacQvVFJFfPIGlbXE3i', 'phay.barrameda@communixinc.com', '2025-07-25 01:55:13', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-25 01:56:13');
+(57, 'CXI00732', 'APRIL BARRAMEDA', 'SOM PHAY', '$2y$10$inCw3t1pr0JEyWUYHOxpYONz28ucTCEPyZeacQvVFJFfPIGlbXE3i', 'phay.barrameda@communixinc.com', '2025-07-25 01:55:13', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-27 17:06:08');
 
 --
 -- Indexes for dumped tables
@@ -808,7 +817,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `absenteeism`
 --
 ALTER TABLE `absenteeism`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `employees`
@@ -832,7 +841,7 @@ ALTER TABLE `operations_managers`
 -- AUTO_INCREMENT for table `tardiness`
 --
 ALTER TABLE `tardiness`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `users`
