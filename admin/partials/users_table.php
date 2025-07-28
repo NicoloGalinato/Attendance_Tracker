@@ -147,7 +147,7 @@ try {
                                 <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['department']) ?></div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['email']) ?></div>
+                                <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['email'] ?? '') ?></div>
                             </td>
                         <?php endif; ?>
                         
