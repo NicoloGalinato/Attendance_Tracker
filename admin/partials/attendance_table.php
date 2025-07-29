@@ -144,9 +144,13 @@ try {
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <?php if (!$record['email_sent']): ?>
-                                <a href="attendance.php?send_email=<?= $record['id'] ?>&type=<?= $type ?>" title="Send Email" class="text-blue-500 hover:text-blue-400 mr-3">
+                                <a href="send_email.php?send_email=<?= $record['id'] ?>&type=<?= $type ?>" title="Send Email" class="text-blue-500 hover:text-blue-400 mr-3">
                                     <i class="fas fa-envelope"></i>
                                 </a>
+                            <?php else: ?>
+                                <span title="Email sent on <?= date('M d, Y g:i A', strtotime($record['email_sent_at'])) ?>" class="text-green-500 mr-3">
+                                    <i class="fas fa-check-circle"></i>
+                                </span>
                             <?php endif; ?>
                             <a href="attendance_form.php?id=<?= $record['id'] ?>&type=<?= $type ?>" title="Edit record" class="text-primary-500 hover:text-primary-400 mr-3">
                                 <i class="fas fa-edit"></i>
