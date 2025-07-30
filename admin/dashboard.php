@@ -8,18 +8,14 @@ if (!isLoggedIn() || !isAdmin()) {
 
 updateLastActivity();
 
-// Get user count
-try {
-    $stmt = $pdo->query("SELECT COUNT(*) as count FROM users");
-    $userCount = $stmt->fetch()['count'];
-} catch (PDOException $e) {
-    $userCount = 0;
-}
 
 // Get statistics
 $stats = [
+    
     'pending_emails' => 0,
     'pending_ir' => 0,
+    'uncovered_shift' => 0, 
+    'pending_coverage' => 0, 
     'absent_today' => 0,
     'absent_week' => 0,
     'absent_month' => 0,
@@ -31,6 +27,7 @@ $stats = [
 ];
 
 try {
+
     // Pending emails (not sent)
     $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE email_sent = 0");
     $stats['pending_emails'] += $stmt->fetchColumn();
@@ -39,17 +36,30 @@ try {
     $stats['pending_emails'] += $stmt->fetchColumn();
     
     // Pending IR forms
-    $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE ir_form = '' OR ir_form IS NULL");
+    $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE ir_form != 'YES' AND ir_form != 'NO NEED'");
     $stats['pending_ir'] += $stmt->fetchColumn();
     
-    $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE ir_form = '' OR ir_form IS NULL");
+    $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE ir_form != 'YES' AND ir_form != 'FOR ACCUMULATION'");
     $stats['pending_ir'] += $stmt->fetchColumn();
-    
+
+    // Pending Coverage
+    $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE coverage = 'PENDING'");
+    $stats['pending_coverage'] += $stmt->fetchColumn();
+
+    $todayDate = date('Y-m-d');
+
+    // Pending Uncovered Shift
+    $todayDate = date('Y-m-d');
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM absenteeism WHERE coverage = 'UNCOVERED' AND date_of_absent = ?");
+    $stmt->execute([$todayDate]);
+    $stats['uncovered_shift'] += $stmt->fetchColumn();
+
     // Absenteeism stats
     $today = date('Y-m-d');
     $weekStart = date('Y-m-d', strtotime('monday this week'));
     $monthStart = date('Y-m-01');
     $yearStart = date('Y-01-01');
+
     
     // Today
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM absenteeism WHERE date_of_absent = ?");
@@ -100,10 +110,17 @@ try {
 $chartData = [
     'months' => [],
     'absenteeism' => [],
-    'tardiness' => []
+    'tardiness' => [],
+    'absenteeism_percentage' => [], // New array for absenteeism percentages
+    'tardiness_percentage' => []    // New array for tardiness percentages
 ];
 
 try {
+    // Get total number of active agents for percentage calculation
+    $stmt = $pdo->query("SELECT COUNT(*) FROM employees WHERE is_active = 1");
+    $totalActiveAgents = $stmt->fetchColumn();
+    $totalActiveAgents = max($totalActiveAgents, 1); // Ensure we don't divide by zero
+
     for ($i = 11; $i >= 0; $i--) {
         $month = date('Y-m', strtotime("-$i months"));
         $startDate = date('Y-m-01', strtotime($month));
@@ -114,12 +131,16 @@ try {
         // Absenteeism
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM absenteeism WHERE date_of_absent BETWEEN ? AND ?");
         $stmt->execute([$startDate, $endDate]);
-        $chartData['absenteeism'][] = $stmt->fetchColumn();
+        $absentCount = $stmt->fetchColumn();
+        $chartData['absenteeism'][] = $absentCount;
+        $chartData['absenteeism_percentage'][] = round(($absentCount / $totalActiveAgents) * 100, 2);
         
         // Tardiness
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM tardiness WHERE date_of_incident BETWEEN ? AND ?");
         $stmt->execute([$startDate, $endDate]);
-        $chartData['tardiness'][] = $stmt->fetchColumn();
+        $tardyCount = $stmt->fetchColumn();
+        $chartData['tardiness'][] = $tardyCount;
+        $chartData['tardiness_percentage'][] = round(($tardyCount / $totalActiveAgents) * 100, 2);
     }
 } catch (PDOException $e) {
     // If there's an error, we'll just use empty arrays
@@ -152,8 +173,8 @@ renderSidebar('dashboard');
                         <p class="text-3xl font-bold mt-2"><?= $stats['pending_emails'] ?></p>
                         <p class="text-xs text-gray-400 mt-1">Emails not yet sent</p>
                     </div>
-                    <div class="bg-yellow-500/20 p-3 rounded-full">
-                        <i class="fas fa-envelope text-yellow-500 text-xl"></i>
+                    <div class="bg-primary-500/20 p-3 rounded-full">
+                        <i class="fas fa-envelope text-primary-500 text-xl"></i>
                     </div>
                 </div>
             </div>
@@ -166,36 +187,36 @@ renderSidebar('dashboard');
                         <p class="text-3xl font-bold mt-2"><?= $stats['pending_ir'] ?></p>
                         <p class="text-xs text-gray-400 mt-1">Forms not yet submitted</p>
                     </div>
+                    <div class="bg-yellow-500/20 p-3 rounded-full">
+                        <i class="fas fa-file-alt text-yellow-500 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Coverage -->
+            <div class="bg-gray-800 rounded-xl border border-gray-700 p-6 shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-gray-400 text-sm font-medium">Pending Coverage</h3>
+                        <p class="text-3xl font-bold mt-2"><?= $stats['pending_coverage'] ?></p>
+                        <p class="text-xs text-gray-400 mt-1">Shift not yet covered</p>
+                    </div>
+                    <div class="bg-orange-500/20 p-3 rounded-full">
+                        <i class="fas fa-clock text-orange-500 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Uncovered shift -->
+            <div class="bg-gray-800 rounded-xl border border-gray-700 p-6 shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-gray-400 text-sm font-medium">Uncovered Shift</h3>
+                        <p class="text-3xl font-bold mt-2"><?= $stats['uncovered_shift'] ?></p>
+                        <p class="text-xs text-gray-400 mt-1">Today's uncovered shift</p>
+                    </div>
                     <div class="bg-red-500/20 p-3 rounded-full">
-                        <i class="fas fa-file-alt text-red-500 text-xl"></i>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Total Users -->
-            <div class="bg-gray-800 rounded-xl border border-gray-700 p-6 shadow">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-gray-400 text-sm font-medium">Total Users</h3>
-                        <p class="text-3xl font-bold mt-2"><?= $userCount ?></p>
-                        <p class="text-xs text-gray-400 mt-1">System users</p>
-                    </div>
-                    <div class="bg-primary-500/20 p-3 rounded-full">
-                        <i class="fas fa-users text-primary-500 text-xl"></i>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Your Role -->
-            <div class="bg-gray-800 rounded-xl border border-gray-700 p-6 shadow">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-gray-400 text-sm font-medium">Your Role</h3>
-                        <p class="text-3xl font-bold mt-2">Admin</p>
-                        <p class="text-xs text-gray-400 mt-1">System access</p>
-                    </div>
-                    <div class="bg-green-500/20 p-3 rounded-full">
-                        <i class="fas fa-shield-alt text-green-500 text-xl"></i>
+                        <i class="fas fa-book text-red-500 text-xl"></i>
                     </div>
                 </div>
             </div>
@@ -397,7 +418,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Combined Chart
+    // Combined Chart - updated to properly show percentages
     const combinedCtx = document.getElementById('combinedChart').getContext('2d');
     const combinedChart = new Chart(combinedCtx, {
         type: 'line',
@@ -405,22 +426,44 @@ document.addEventListener('DOMContentLoaded', function() {
             labels: <?= json_encode($chartData['months']) ?>,
             datasets: [
                 {
-                    label: 'Absenteeism',
+                    label: 'Absenteeism (Count)',
                     data: <?= json_encode($chartData['absenteeism']) ?>,
                     borderColor: 'rgba(239, 68, 68, 1)',
                     backgroundColor: 'rgba(239, 68, 68, 0.1)',
                     borderWidth: 2,
                     tension: 0.3,
-                    fill: true
+                    fill: true,
+                    yAxisID: 'y-count'
                 },
                 {
-                    label: 'Tardiness',
+                    label: 'Tardiness (Count)',
                     data: <?= json_encode($chartData['tardiness']) ?>,
                     borderColor: 'rgba(234, 179, 8, 1)',
                     backgroundColor: 'rgba(234, 179, 8, 0.1)',
                     borderWidth: 2,
                     tension: 0.3,
-                    fill: true
+                    fill: true,
+                    yAxisID: 'y-count'
+                },
+                {
+                    label: 'Absenteeism %',
+                    data: <?= json_encode($chartData['absenteeism_percentage']) ?>,
+                    borderColor: 'rgba(239, 68, 68, 0.7)',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    yAxisID: 'y-percentage'
+                },
+                {
+                    label: 'Tardiness %',
+                    data: <?= json_encode($chartData['tardiness_percentage']) ?>,
+                    borderColor: 'rgba(234, 179, 8, 0.7)',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    yAxisID: 'y-percentage'
                 }
             ]
         },
@@ -432,14 +475,47 @@ document.addEventListener('DOMContentLoaded', function() {
                 intersect: false,
             },
             scales: {
-                y: {
+                'y-count': {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Count',
+                        color: '#9CA3AF'
+                    },
                     beginAtZero: true,
                     grid: {
                         color: 'rgba(55, 65, 81, 0.5)'
                     },
                     ticks: {
-                        color: '#9CA3AF'
+                        color: '#9CA3AF',
+                        precision: 0
                     }
+                },
+                'y-percentage': {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Percentage (%)',
+                        color: '#9CA3AF'
+                    },
+                    beginAtZero: true,
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                    ticks: {
+                        color: '#9CA3AF',
+                        callback: function(value) {
+                            return value + '%';
+                        },
+                        maxTicksLimit: 6
+                    },
+                    // Remove the fixed min/max to let it scale automatically
+                    // min: 0,
+                    // max: 100
                 },
                 x: {
                     grid: {
@@ -453,12 +529,31 @@ document.addEventListener('DOMContentLoaded', function() {
             plugins: {
                 legend: {
                     labels: {
-                        color: '#9CA3AF'
+                        color: '#9CA3AF',
+                        usePointStyle: true,
+                        pointStyle: 'line',
+                        padding: 20
                     }
                 },
                 tooltip: {
                     mode: 'index',
-                    intersect: false
+                    intersect: false,
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.datasetIndex < 2) {
+                                // Count datasets
+                                label += context.raw;
+                            } else {
+                                // Percentage datasets
+                                label += context.raw.toFixed(1) + '% of agents';
+                            }
+                            return label;
+                        }
+                    }
                 }
             }
         }
