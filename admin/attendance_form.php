@@ -44,19 +44,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
                 'month' => $currentMonth,
                 'employee_id' => $employeeId,
-                'full_name' => $employee['full_name'],
-                'department' => $employee['department'],
-                'supervisor' => $employee['supervisor'],
-                'operation_manager' => $employee['operation_manager'],
+                'full_name' => strtoupper($employee['full_name']),
+                'department' => strtoupper($employee['department']),
+                'supervisor' => strtoupper($employee['supervisor']),
+                'operation_manager' => strtoupper($employee['operation_manager']),
                 'email' => $employee['email'],
-                'date_of_absent' => sanitizeInput($_POST['date_of_absent']),
-                'follow_call_in_procedure' => sanitizeInput($_POST['follow_call_in_procedure']),
-                'sanction' => sanitizeInput($_POST['sanction']),
-                'reason' => sanitizeInput($_POST['reason']),
-                'coverage' => sanitizeInput($_POST['coverage']),
-                'coverage_type' => sanitizeInput($_POST['coverage_type']),
-                'shift' => sanitizeInput($_POST['shift']),
-                'ir_form' => sanitizeInput($_POST['ir_form']),
+                'date_of_absent' => strtoupper(sanitizeInput($_POST['date_of_absent'])),
+                'follow_call_in_procedure' => strtoupper(sanitizeInput($_POST['follow_call_in_procedure'])),
+                'sanction' => strtoupper(sanitizeInput($_POST['sanction'])),
+                'reason' => strtoupper(sanitizeInput($_POST['reason'])),
+                'coverage' => strtoupper(sanitizeInput($_POST['coverage'])),
+                'coverage_type' => strtoupper(sanitizeInput($_POST['coverage_type'])),
+                'shift' => strtoupper(sanitizeInput($_POST['shift'])),
+                'ir_form' => strtoupper(sanitizeInput($_POST['ir_form'])),
                 'timestamp' => $currentTime,
                 'sub_name' => $sub_name
             ];
@@ -107,16 +107,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
                 'month' => $currentMonth,
                 'employee_id' => $employeeId,
-                'full_name' => $employee['full_name'],
-                'department' => $employee['department'],
-                'supervisor' => $employee['supervisor'],
-                'operation_manager' => $employee['operation_manager'],
+                'full_name' => strtoupper($employee['full_name']),
+                'department' => strtoupper($employee['department']),
+                'supervisor' => strtoupper($employee['supervisor']),
+                'operation_manager' => strtoupper($employee['operation_manager']),
                 'email' => $employee['email'],
-                'date_of_incident' => sanitizeInput($_POST['date_of_incident']),
-                'types' => sanitizeInput($_POST['types']),
+                'date_of_incident' => strtoupper(sanitizeInput($_POST['date_of_incident'])),
+                'types' => strtoupper(sanitizeInput($_POST['types'])),
                 'minutes_late' => (int)$_POST['minutes_late'],
-                'shift' => sanitizeInput($_POST['shift']),
-                'ir_form' => sanitizeInput($_POST['ir_form']),
+                'shift' => strtoupper(sanitizeInput($_POST['shift'])),
+                'time_in' => strtoupper(sanitizeInput($_POST['time_in'])),
+                'ir_form' => strtoupper(sanitizeInput($_POST['ir_form'])),
                 'timestamp' => $currentTime,
                 'sub_name' => $sub_name
             ];
@@ -135,6 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     types = :types,
                     minutes_late = :minutes_late,
                     shift = :shift,
+                    time_in = :time_in,
                     ir_form = :ir_form,
                     timestamp = :timestamp,
                     sub_name = :sub_name
@@ -148,10 +150,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Insert new record
                 $stmt = $pdo->prepare("INSERT INTO tardiness 
                     (month, employee_id, full_name, department, supervisor, operation_manager, email, 
-                    date_of_incident, types, minutes_late, shift, ir_form, timestamp, sub_name)
+                    date_of_incident, types, minutes_late, shift, time_in, ir_form, timestamp, sub_name)
                     VALUES 
                     (:month, :employee_id, :full_name, :department, :supervisor, :operation_manager, :email, 
-                    :date_of_incident, :types, :minutes_late, :shift, :ir_form, :timestamp, :sub_name)");
+                    :date_of_incident, :types, :minutes_late, :shift, :time_in, :ir_form, :timestamp, :sub_name)");
                 
                 $stmt->execute($data);
                 
@@ -267,18 +269,20 @@ renderSidebar('attendance');
                         
                         <div>
                             <label for="follow_call_in_procedure" class="block text-sm font-medium text-gray-300 mb-2">Followed Call-in Procedure?</label>
-                            <select id="follow_call_in_procedure" name="follow_call_in_procedure" style="text-transform: uppercase;"
-                                    class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" required>
-                                <option value="YES" <?= $record && $record['follow_call_in_procedure'] === 'YES' ? 'selected' : '' ?>>YES</option>
-                                <option value="NO" <?= $record && $record['follow_call_in_procedure'] === 'NO' ? 'selected' : '' ?>>NO</option>
-                            </select>
+                            <input type="text" id="follow_call_in_procedure" name="follow_call_in_procedure" style="text-transform: uppercase;"
+                                   class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                                   value="<?= $record ? htmlspecialchars($record['follow_call_in_procedure']) : '' ?>">
                         </div>
                         
                         <div>
                             <label for="sanction" class="block text-sm font-medium text-gray-300 mb-2">Sanction</label>
-                            <input type="text" id="sanction" name="sanction" style="text-transform: uppercase;"
-                                   class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
-                                   value="<?= $record ? htmlspecialchars($record['sanction']) : '' ?>">
+                            <select id="sanction" name="sanction" style="text-transform: uppercase;"
+                                    class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" required>
+                                <option value="ABSENCE" <?= $record && $record['sanction'] === 'ABSENCE' ? 'selected' : '' ?>>ABSENCE</option>
+                                <option value="ABSENCE / CWD" <?= $record && $record['sanction'] === 'ABSENCE / CWD' ? 'selected' : '' ?>>ABSENCE / CWD</option>
+                                <option value="ABSENCE / NCNS" <?= $record && $record['sanction'] === 'ABSENCE / NCNS' ? 'selected' : '' ?>>ABSENCE / NCNS</option>
+                                <option value="ABSENCE / NCNS / CWD" <?= $record && $record['sanction'] === 'ABSENCE / NCNS / CWD' ? 'selected' : '' ?>>ABSENCE / NCNS / CWD</option>
+                            </select>
                         </div>
                         
                         <div>
@@ -352,6 +356,12 @@ renderSidebar('attendance');
                             <input type="text" id="shift" name="shift" style="text-transform: uppercase;"
                                    class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
                                    value="<?= $record ? htmlspecialchars($record['shift']) : '' ?>" required>
+                        </div>
+                        <div>
+                            <label for="time_in" class="block text-sm font-medium text-gray-300 mb-2">Time In</label>
+                            <input type="text" id="time_in" name="time_in" style="text-transform: uppercase;"
+                                   class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                                   value="<?= $record ? htmlspecialchars($record['time_in']) : '' ?>" required>
                         </div>
                         
                         <div>
