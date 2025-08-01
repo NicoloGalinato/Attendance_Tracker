@@ -87,6 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute($data);
                 
                 $_SESSION['success'] = "Absenteeism record updated successfully!";
+                logActivity("Updated absenteeism of {$employee['full_name']}", $id, 'absenteeism');
             } else {
                 // Insert new record
                 $stmt = $pdo->prepare("INSERT INTO absenteeism 
@@ -101,6 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute($data);
                 
                 $_SESSION['success'] = "Absenteeism record added successfully!";
+                logActivity("Created absenteeism of {$employee['full_name']}", $id, 'absenteeism');
             }
         } else {
             // Tardiness form
@@ -146,6 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute($data);
                 
                 $_SESSION['success'] = "Tardiness record updated successfully!";
+                logActivity("Updated tardiness of {$employee['full_name']}", $id, 'tardiness');
             } else {
                 // Insert new record
                 $stmt = $pdo->prepare("INSERT INTO tardiness 
@@ -158,6 +161,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute($data);
                 
                 $_SESSION['success'] = "Tardiness record added successfully!";
+                logActivity("Created tardiness of {$employee['full_name']}", $id, 'tardiness');
+                // After successful insert/update
+                $action = $id > 0 ? 'updated' : 'created';
+                $recordId = $id > 0 ? $id : $pdo->lastInsertId();
             }
         }
         

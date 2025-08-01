@@ -167,4 +167,97 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<script>
+function showHistoryModal(recordId, recordType) {
+    const modal = document.getElementById('historyModal');
+    const loader = `
+        <div class="relative">
+            <div class="absolute -left-2.5 top-0 h-5 w-5 rounded-full bg-gray-500 border-4 border-gray-800"></div>
+            <div class="ml-4">
+                <p class="text-sm text-gray-400">Loading history...</p>
+            </div>
+        </div>
+    `;
+    document.getElementById('historyTableBody').innerHTML = loader;
+    modal.classList.remove('hidden');
+    
+    fetch(`get_history.php?record_id=${recordId}&type=${recordType}`)
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = '';
+            
+            if (data.length > 0) {
+                data.forEach(activity => {
+                    const initials = activity.sub_name.split(' ').map(n => n[0]).join('').toUpperCase();
+                    const item = `
+                        <div class="flex items-start mb-6">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
+                                ${initials.substring(0, 2)}
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-base font-semibold text-gray-100">${activity.sub_name}</h4>
+                                <p class="text-sm text-gray-400">${activity.activity_description}</p>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute -left-2.5 top-0 h-5 w-5 rounded-full bg-blue-600 border-4 border-gray-800"></div>
+                            <div class="ml-4">
+                                <p class="text-sm text-gray-400">${new Date(activity.activity_time).toLocaleString('en-US', { 
+                                    month: 'short', 
+                                    day: 'numeric', 
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })}</p>
+                            </div>
+                        </div>
+                    `;
+                    tbody.insertAdjacentHTML('beforeend', item);
+                });
+            } else {
+                tbody.innerHTML = `
+                    <div class="relative">
+                        <div class="absolute -left-2.5 top-0 h-5 w-5 rounded-full bg-gray-500 border-4 border-gray-800"></div>
+                        <div class="ml-4">
+                            <p class="text-sm text-gray-400">No history found for this record</p>
+                        </div>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = `
+                <div class="relative">
+                    <div class="absolute -left-2.5 top-0 h-5 w-5 rounded-full bg-red-600 border-4 border-gray-800"></div>
+                    <div class="ml-4">
+                        <p class="text-sm text-red-400">Error loading history: ${error.message}</p>
+                    </div>
+                </div>
+            `;
+        });
+}
+
+function closeHistoryModal() {
+    document.getElementById('historyModal').classList.add('hidden');
+}
+
+// Close modal when clicking outside or pressing Escape
+document.addEventListener('click', function(e) {
+    if (e.target === document.getElementById('historyModal')) {
+        closeHistoryModal();
+    }
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && !document.getElementById('historyModal').classList.contains('hidden')) {
+        closeHistoryModal();
+    }
+});
+</script>
 <?php renderFooter(); ?>

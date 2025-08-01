@@ -35,4 +35,31 @@ function updateLastActivity() {
     }
 }
 
+function logActivity($description, $recordId = null, $recordType = null) {
+    global $pdo;
+    
+    if (isset($_SESSION['user_id'])) {
+        // Get the user's sub_name if not already in session
+        if (!isset($_SESSION['sub_name'])) {
+            $stmt = $pdo->prepare("SELECT sub_name FROM users WHERE id = ?");
+            $stmt->execute([$_SESSION['user_id']]);
+            $user = $stmt->fetch();
+            $_SESSION['sub_name'] = $user['sub_name'] ?? 'System';
+        }
+
+        $stmt = $pdo->prepare("
+            INSERT INTO activity_history 
+            (user_id, sub_name, activity_description, record_id, record_type) 
+            VALUES (?, ?, ?, ?, ?)
+        ");
+        $stmt->execute([
+            $_SESSION['user_id'], 
+            $_SESSION['sub_name'], 
+            $description,
+            $recordId,
+            $recordType
+        ]);
+    }
+}
+
 ob_end_flush();

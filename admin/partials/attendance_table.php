@@ -53,6 +53,7 @@ try {
 }
 ?>
 
+
 <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow">
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-700">
@@ -159,6 +160,9 @@ try {
                             <a href="attendance_form.php?id=<?= $record['id'] ?>&type=<?= $type ?>" title="Edit record" class="text-primary-500 hover:text-primary-400 mr-3">
                                 <i class="fas fa-edit"></i>
                             </a>
+                            <a href="#" onclick="event.preventDefault(); showHistoryModal(<?= $record['id'] ?>, '<?= $type ?>')" title="View History" class="text-purple-500 hover:text-purple-400 mr-3">
+                                <i class="fas fa-history"></i>
+                            </a>
                             <a href="attendance.php?delete=<?= $record['id'] ?>&type=<?= $type ?>" class="text-red-500 hover:text-red-400" title="Delete record" onclick="return confirm('Are you sure you want to delete this record?')">
                                 <i class="fas fa-trash"></i>
                             </a>
@@ -207,3 +211,32 @@ try {
     </div>
 </div>
 <?php endif; ?>
+
+<div id="historyModal" class="hidden fixed inset-0 bg-gray-900/80 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 w-11/12 md:w-3/4 lg:w-1/2">
+        <div class="bg-gray-800 rounded-lg shadow-xl overflow-hidden border border-gray-700">
+            <!-- Modal Header -->
+            <div class="bg-gray-700 px-6 py-4 border-b border-gray-600">
+                <h3 class="text-lg font-semibold text-gray-100">Assignment History</h3>
+            </div>
+            
+            <!-- Modal Content -->
+            <div class="p-6">
+                <!-- Timeline Container with Scroll -->
+                <div class="border-l-2 border-gray-600 pl-6 pb-6 max-h-[500px] overflow-y-auto">
+                    <!-- Scrollable History Items -->
+                    <div id="historyTableBody" class="space-y-6">
+                        <!-- History data will be loaded here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="bg-gray-700 px-6 py-4 border-t border-gray-600 flex justify-end">
+                <button onclick="closeHistoryModal()" class="px-4 py-2 bg-gray-600 text-gray-100 rounded-md hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
