@@ -12,7 +12,7 @@ header('Content-Type: application/json');
 try {
     // Create DateTime object for threshold in UTC
     $threshold = new DateTime('now', new DateTimeZone(DB_TIMEZONE));
-    $threshold->modify('-100 seconds');
+    $threshold->modify('-300 seconds');
     
     $stmt = $pdo->prepare("SELECT id FROM users WHERE last_activity IS NOT NULL AND last_activity > ?");
     $stmt->execute([$threshold->format('Y-m-d H:i:s')]);
