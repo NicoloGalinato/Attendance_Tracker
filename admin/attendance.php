@@ -92,13 +92,49 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
 
         <?php renderAlert(); ?>
         
-        <div class="mb-6">
+        <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Search Input -->
             <div class="relative flex-grow">
                 <input type="text" id="searchInput" 
-                       class="w-full pl-10 pr-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
-                       placeholder="Search by employee ID or name...">
+                    class="w-full pl-10 pr-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                    placeholder="Search by employee ID or name..."
+                    value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
                 <div class="absolute left-3 top-2.5 text-gray-400">
                     <i class="fas fa-search"></i>
+                </div>
+            </div>
+            
+            <!-- Date Range Filter -->
+            <div class="flex gap-2">
+                <div class="relative flex-grow">
+                    <input type="date" id="dateFrom" 
+                        class="w-full px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200"
+                        value="<?= isset($_GET['from']) ? htmlspecialchars($_GET['from']) : '' ?>">
+                </div>
+                <div class="relative flex-grow">
+                    <input type="date" id="dateTo" 
+                        class="w-full px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200"
+                        value="<?= isset($_GET['to']) ? htmlspecialchars($_GET['to']) : '' ?>">
+                </div>
+            </div>
+            
+            <!-- Department Filter -->
+            <div class="relative flex-grow">
+                <select id="departmentFilter" 
+                        class="w-full px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200 appearance-none">
+                    <option value="">All Departments</option>
+                    <?php
+                    // Get unique departments from both tables
+                    $departments = [];
+                    $stmt = $pdo->query("SELECT DISTINCT department FROM absenteeism UNION SELECT DISTINCT department FROM tardiness ORDER BY department");
+                    while ($row = $stmt->fetch()) {
+                        $selected = (isset($_GET['dept']) && $_GET['dept'] === $row['department']) ? 'selected' : '';
+                        echo '<option value="'.htmlspecialchars($row['department']).'" '.$selected.'>'.htmlspecialchars($row['department']).'</option>';
+                    }
+                    ?>
+                </select>
+                <div class="absolute right-3 top-2.5 text-gray-400 pointer-events-none">
+                    <i class="fas fa-chevron-down"></i>
                 </div>
             </div>
         </div>
@@ -110,61 +146,111 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchInput');
-    let searchTimeout;
-    const urlParams = new URLSearchParams(window.location.search);
-    const currentTab = urlParams.get('tab') || 'absenteeism';
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const dateFrom = document.getElementById('dateFrom');
+        const dateTo = document.getElementById('dateTo');
+        const departmentFilter = document.getElementById('departmentFilter');
+        let searchTimeout;
+        
+        // Get current URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentTab = urlParams.get('tab') || 'absenteeism';
 
-    function loadAttendance(search = '', page = 1) {
-        const formData = new FormData();
-        formData.append('search', search);
-        formData.append('page', page);
-        formData.append('type', currentTab);
+        function loadAttendance() {
+            const formData = new FormData();
+            formData.append('search', searchInput.value);
+            formData.append('page', 1); // Always reset to page 1 when filtering
+            formData.append('type', currentTab);
+            formData.append('date_from', dateFrom.value);
+            formData.append('date_to', dateTo.value);
+            formData.append('department', departmentFilter.value);
 
-        fetch('partials/attendance_table.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('attendanceTableContainer').innerHTML = data;
-            
-            document.querySelectorAll('.pagination-link').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const page = this.getAttribute('data-page');
-                    loadAttendance(searchInput.value, page);
-                    history.pushState(null, '', `?tab=${currentTab}&page=${page}${searchInput.value ? '&search=' + encodeURIComponent(searchInput.value) : ''}`);
+            fetch('partials/attendance_table.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('attendanceTableContainer').innerHTML = data;
+                
+                // Update pagination links
+                document.querySelectorAll('.pagination-link').forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const page = this.getAttribute('data-page');
+                        updateUrlAndReload(page);
+                    });
                 });
             });
+        }
+
+        function updateUrlAndReload(page = 1) {
+            const params = new URLSearchParams();
+            params.set('tab', currentTab);
+            if (searchInput.value) params.set('search', searchInput.value);
+            if (page > 1) params.set('page', page);
+            if (dateFrom.value) params.set('from', dateFrom.value);
+            if (dateTo.value) params.set('to', dateTo.value);
+            if (departmentFilter.value) params.set('dept', departmentFilter.value);
+            
+            // Update URL without reloading
+            history.pushState(null, '', '?' + params.toString());
+            
+            // Reload data with new page
+            const formData = new FormData();
+            formData.append('search', searchInput.value);
+            formData.append('page', page);
+            formData.append('type', currentTab);
+            formData.append('date_from', dateFrom.value);
+            formData.append('date_to', dateTo.value);
+            formData.append('department', departmentFilter.value);
+
+            fetch('partials/attendance_table.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('attendanceTableContainer').innerHTML = data;
+                
+                document.querySelectorAll('.pagination-link').forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const newPage = this.getAttribute('data-page');
+                        updateUrlAndReload(newPage);
+                    });
+                });
+            });
+        }
+
+        function handleFilterChange() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                updateUrlAndReload();
+            }, 300);
+        }
+
+        // Event listeners
+        searchInput.addEventListener('input', handleFilterChange);
+        dateFrom.addEventListener('change', handleFilterChange);
+        dateTo.addEventListener('change', handleFilterChange);
+        departmentFilter.addEventListener('change', handleFilterChange);
+
+        // Handle browser back/forward
+        window.addEventListener('popstate', function() {
+            const params = new URLSearchParams(window.location.search);
+            searchInput.value = params.get('search') || '';
+            dateFrom.value = params.get('from') || '';
+            dateTo.value = params.get('to') || '';
+            departmentFilter.value = params.get('dept') || '';
+            
+            loadAttendance();
         });
-    }
 
-    searchInput.addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            loadAttendance(this.value);
-            history.pushState(null, '', `?tab=${currentTab}${this.value ? '&search=' + encodeURIComponent(this.value) : ''}`);
-        }, 300);
+        // Initial load
+        loadAttendance();
     });
-
-    window.addEventListener('popstate', function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const searchParam = urlParams.get('search') || '';
-        const pageParam = urlParams.get('page') || 1;
-        const tabParam = urlParams.get('tab') || 'absenteeism';
-        
-        searchInput.value = searchParam;
-        loadAttendance(searchParam, pageParam);
-    });
-
-    const initialSearch = urlParams.get('search') || '';
-    const initialPage = urlParams.get('page') || 1;
-    
-    if (initialSearch) searchInput.value = initialSearch;
-    loadAttendance(initialSearch, initialPage);
-});
 </script>
 
 <script>

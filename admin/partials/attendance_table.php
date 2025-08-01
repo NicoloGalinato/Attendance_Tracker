@@ -5,24 +5,44 @@ require_once __DIR__ . '/../../includes/functions.php';
 $search = isset($_POST['search']) ? trim($_POST['search']) : (isset($_GET['search']) ? trim($_GET['search']) : '');
 $page = isset($_POST['page']) ? (int)$_POST['page'] : (isset($_GET['page']) ? (int)$_GET['page'] : 1);
 $type = isset($_POST['type']) ? $_POST['type'] : (isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism');
-$page = max($page, 1);
+$dateFrom = isset($_POST['date_from']) ? $_POST['date_from'] : (isset($_GET['from']) ? $_GET['from'] : '');
+$dateTo = isset($_POST['date_to']) ? $_POST['date_to'] : (isset($_GET['to']) ? $_GET['to'] : '');
+$department = isset($_POST['department']) ? $_POST['department'] : (isset($_GET['dept']) ? $_GET['dept'] : '');
 
+$page = max($page, 1);
 $table = ($type === 'tardiness') ? 'tardiness' : 'absenteeism';
 $perPage = 10;
-$searchQuery = '';
+$whereClauses = [];
 $params = [];
 
 if (!empty($search)) {
-    $searchQuery = "WHERE (employee_id LIKE :search OR full_name LIKE :search)";
+    $whereClauses[] = "(employee_id LIKE :search OR full_name LIKE :search)";
     $params[':search'] = "%$search%";
 }
 
+if (!empty($dateFrom)) {
+    $dateField = ($type === 'tardiness') ? 'date_of_incident' : 'date_of_absent';
+    $whereClauses[] = "$dateField >= :date_from";
+    $params[':date_from'] = $dateFrom;
+}
+
+if (!empty($dateTo)) {
+    $dateField = ($type === 'tardiness') ? 'date_of_incident' : 'date_of_absent';
+    $whereClauses[] = "$dateField <= :date_to";
+    $params[':date_to'] = $dateTo;
+}
+
+if (!empty($department)) {
+    $whereClauses[] = "department = :department";
+    $params[':department'] = $department;
+}
+
+$searchQuery = empty($whereClauses) ? '' : 'WHERE ' . implode(' AND ', $whereClauses);
+
 try {
     $countStmt = $pdo->prepare("SELECT COUNT(*) FROM $table $searchQuery");
-    if (!empty($search)) {
-        foreach ($params as $key => $value) {
-            $countStmt->bindValue($key, $value);
-        }
+    foreach ($params as $key => $value) {
+        $countStmt->bindValue($key, $value);
     }
     $countStmt->execute();
     $totalRecords = $countStmt->fetchColumn();
@@ -38,10 +58,8 @@ try {
     $query = "SELECT * FROM $table $searchQuery ORDER BY created_at DESC LIMIT :limit OFFSET :offset";
     $stmt = $pdo->prepare($query);
     
-    if (!empty($search)) {
-        foreach ($params as $key => $value) {
-            $stmt->bindValue($key, $value);
-        }
+    foreach ($params as $key => $value) {
+        $stmt->bindValue($key, $value);
     }
     
     $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
@@ -52,7 +70,6 @@ try {
     $records = [];
 }
 ?>
-
 
 <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow">
     <div class="overflow-x-auto">
