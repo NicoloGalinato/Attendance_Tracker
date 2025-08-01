@@ -111,8 +111,8 @@ $chartData = [
     'months' => [],
     'absenteeism' => [],
     'tardiness' => [],
-    'absenteeism_percentage' => [], // New array for absenteeism percentages
-    'tardiness_percentage' => []    // New array for tardiness percentages
+    'absenteeism_percentage' => [],
+    'tardiness_percentage' => []
 ];
 
 try {
@@ -121,12 +121,22 @@ try {
     $totalActiveAgents = $stmt->fetchColumn();
     $totalActiveAgents = max($totalActiveAgents, 1); // Ensure we don't divide by zero
 
+    // Get the first day of the current month
+    $currentDate = new DateTime('first day of this month');
+    
     for ($i = 11; $i >= 0; $i--) {
-        $month = date('Y-m', strtotime("-$i months"));
-        $startDate = date('Y-m-01', strtotime($month));
-        $endDate = date('Y-m-t', strtotime($month));
+        // Create a copy of the current date
+        $monthDate = clone $currentDate;
         
-        $chartData['months'][] = date('M Y', strtotime($month));
+        // Subtract the appropriate number of months
+        $monthDate->sub(new DateInterval("P{$i}M"));
+        
+        // Get the month info
+        $month = $monthDate->format('Y-m');
+        $startDate = $monthDate->format('Y-m-01');
+        $endDate = $monthDate->format('Y-m-t'); // Last day of month
+        
+        $chartData['months'][] = $monthDate->format('M Y');
         
         // Absenteeism
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM absenteeism WHERE date_of_absent BETWEEN ? AND ?");
@@ -143,7 +153,8 @@ try {
         $chartData['tardiness_percentage'][] = round(($tardyCount / $totalActiveAgents) * 100, 2);
     }
 } catch (PDOException $e) {
-    // If there's an error, we'll just use empty arrays
+    // Log error if needed
+    error_log("Database error in dashboard chart data: " . $e->getMessage());
 }
 
 require_once '../components/layout.php';

@@ -281,7 +281,9 @@ renderSidebar('attendance');
                                 <option value="ABSENCE" <?= $record && $record['sanction'] === 'ABSENCE' ? 'selected' : '' ?>>ABSENCE</option>
                                 <option value="ABSENCE / CWD" <?= $record && $record['sanction'] === 'ABSENCE / CWD' ? 'selected' : '' ?>>ABSENCE / CWD</option>
                                 <option value="ABSENCE / NCNS" <?= $record && $record['sanction'] === 'ABSENCE / NCNS' ? 'selected' : '' ?>>ABSENCE / NCNS</option>
+                                <option value="ABSENCE / NCNS (LATE ADVISE)" <?= $record && $record['sanction'] === 'ABSENCE / NCNS (LATE ADVISE)' ? 'selected' : '' ?>>ABSENCE / NCNS (LATE ADVISE)</option>
                                 <option value="ABSENCE / NCNS / CWD" <?= $record && $record['sanction'] === 'ABSENCE / NCNS / CWD' ? 'selected' : '' ?>>ABSENCE / NCNS / CWD</option>
+                                <option value="ABSENCE / NCNS / CWD (LATE ADVISE)" <?= $record && $record['sanction'] === 'ABSENCE / NCNS / CWD (LATE ADVISE)' ? 'selected' : '' ?>>ABSENCE / NCNS / CWD (LATE ADVISE)</option>
                             </select>
                         </div>
                         

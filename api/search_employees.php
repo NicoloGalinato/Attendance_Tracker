@@ -14,7 +14,8 @@ $query = isset($_GET['query']) ? trim($_GET['query']) : '';
 try {
     if (strlen($query) >= 2) {
         $stmt = $pdo->prepare("SELECT employee_id, full_name FROM employees 
-                              WHERE employee_id LIKE :query OR full_name LIKE :query 
+                              WHERE (employee_id LIKE :query OR full_name LIKE :query) 
+                              AND is_active = '1' 
                               LIMIT 10");
         $stmt->execute([':query' => "%$query%"]);
         $employees = $stmt->fetchAll();

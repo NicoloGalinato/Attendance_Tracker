@@ -16,20 +16,61 @@ if (isset($_GET['send_email']) && isset($_GET['type'])) {
     }
     
     try {
-        // Get the record from database
+        // Get the record from Employee for details
         $stmt = $pdo->prepare("SELECT * FROM $type WHERE id = ?");
         $stmt->execute([$id]);
         $record = $stmt->fetch();
 
-        // Get the record from database
+        if (!$record) {
+            die('Record not found');
+        }
+
+        // Get the record from users for esignature
         $stmt = $pdo->prepare("SELECT * FROM users WHERE sub_name = ?");
         $stmt->execute([$record['sub_name']]);
         $record2 = $stmt->fetch();
         
-        if (!$record) {
-            die('Record not found');
-        }
+        // Get the record from users full_name to separate the first name format
+        $stmt = $pdo->prepare("
+            SELECT 
+                CONCAT(
+                    UPPER(SUBSTRING(TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(full_name, ',', -1), ' ', 2)), 1, 1)),
+                    LOWER(SUBSTRING(TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(full_name, ',', -1), ' ', 2)), 2))
+                ) AS first_name 
+            FROM $type 
+            WHERE full_name = ?;
+        ");
+        $stmt->execute([$record['full_name']]);
+        $record3 = $stmt->fetch();
         
+        // Get the record from management for email to
+        $stmt = $pdo->prepare("SELECT * FROM management WHERE fullname = ?");
+        $stmt->execute([$record['supervisor']]);
+        $record4 = $stmt->fetch();
+        
+        // Get the record from management for email to
+        $stmt = $pdo->prepare("SELECT * FROM operations_managers WHERE fullname = ?");
+        $stmt->execute([$record['operation_manager']]);
+        $record5 = $stmt->fetch();
+        
+        // Validate all required email addresses
+        $requiredEmails = array(
+            'Agent' => isset($record['email']) ? $record['email'] : null,
+            'Operation Manager' => isset($record5['email']) ? $record5['email'] : null
+        );
+        
+        // Supervisor email is optional
+        $supervisorEmail = isset($record4['email']) ? $record4['email'] : null;
+        
+        foreach ($requiredEmails as $role => $email) {
+            if (empty($email)) {
+                die("Email address for $role is missing");
+            }
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                die("Invalid email format for $role: $email");
+            }
+        }
+
         // Create PHPMailer instance
         $mail = new PHPMailer(true);
         
@@ -37,15 +78,37 @@ if (isset($_GET['send_email']) && isset($_GET['type'])) {
         $mail->isSMTP();
         $mail->Host = 'smtp-relay.brevo.com';
         $mail->SMTPAuth = true;
-        $mail->Username = '93613c002@smtp-brevo.com'; // Replace with your Brevo email
-        $mail->Password = '67qpgPsHfhTnx2NM'; // Replace with your Brevo SMTP password
+        $mail->Username = '93a5f1001@smtp-brevo.com'; // Replace with your Brevo email
+        $mail->Password = 'RYMLcrAb9KJNTHsg'; // Replace with your Brevo SMTP password
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
         
         // Sender and recipient
-        $mail->setFrom('nicolo.galinato@communixinc.com', 'CXI Service Level Management'); // Reply-to
-        $mail->addAddress($record['email']); // To
-        $mail->addCC('nicolo.galinato@communixinc.com'); // CC
+        $mail->setFrom('cxi-slm@communixinc.com', 'CXI Service Level Management');
+        
+        // Add validated email addresses
+        $mail->addAddress($record['email']); // To Agent
+        if (!empty($record4['email']) && filter_var($record4['email'], FILTER_VALIDATE_EMAIL)) {
+            $mail->addAddress($record4['email']); // To Supervisor
+        }
+        $mail->addAddress($record5['email']); // To Operation Manager
+        
+        // Default cc for the bosses
+        $ccEmails = [
+            'kiko.barrameda@communixinc.com',
+            'phay.barrameda@communixinc.com',
+            'cxi-slt@communixinc.com',
+            'cxi-slm@communixinc.com',
+            'ken.munoz@communixinc.com',
+            'humanresources@communixinc.com',
+            'cxi-hr@communixinc.com'
+        ];
+
+        foreach ($ccEmails as $ccEmail) {
+            if (filter_var($ccEmail, FILTER_VALIDATE_EMAIL)) {
+                $mail->addCC($ccEmail);
+            }
+        }
         
         
         // Email content
@@ -55,7 +118,7 @@ if (isset($_GET['send_email']) && isset($_GET['type'])) {
             $body = "
             <html>
             <body>
-                <p>Dear " . htmlspecialchars($record['full_name']) . ",</p>
+                <p>Dear " . htmlspecialchars($record3['first_name']) . ",</p>
                 
                 <p>I hope this email finds you well. This is to keep track of the attendance infractions incurred.
                 Please find the details below:</p>
@@ -111,7 +174,7 @@ if (isset($_GET['send_email']) && isset($_GET['type'])) {
             $body = "
             <html>
             <body>
-                <p>Dear " . htmlspecialchars($record['full_name']) . ",</p>
+                <p>Dear " . htmlspecialchars($record3['first_name']) . ",</p>
                 
                 <p>I hope this email finds you well. This is to keep track of the attendance infractions incurred. Please find the details below:</p>
                 
@@ -172,7 +235,7 @@ if (isset($_GET['send_email']) && isset($_GET['type'])) {
         $mail->send();
         
         // Update record to mark email as sent
-        $updateStmt = $pdo->prepare("UPDATE $type SET email_sent = 1, email_sent_at = NOW() WHERE id = ?");
+        $updateStmt = $pdo->prepare("SET time_zone = '+08:00'; UPDATE $type SET email_sent = 1, email_sent_at = NOW() WHERE id = ?");
         $updateStmt->execute([$id]);
         
         // Redirect back with success message

@@ -1,9 +1,9 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.2
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jul 28, 2025 at 11:10 PM
+-- Generation Time: Aug 01, 2025 at 02:36 AM
 -- Server version: 10.11.10-MariaDB
 -- PHP Version: 7.2.34
 
@@ -37,8 +37,8 @@ CREATE TABLE `absenteeism` (
   `operation_manager` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
   `date_of_absent` date NOT NULL,
-  `follow_call_in_procedure` enum('Yes','No') NOT NULL,
-  `sanction` text DEFAULT NULL,
+  `follow_call_in_procedure` varchar(100) NOT NULL,
+  `sanction` enum('ABSENCE','ABSENCE / CWD','ABSENCE / NCNS','ABSENCE / NCNS (LATE ADVISE)','ABSENCE / NCNS / CWD','ABSENCE / NCNS / CWD (LATE ADVISE)') DEFAULT NULL,
   `reason` text NOT NULL,
   `coverage` varchar(100) DEFAULT NULL,
   `coverage_type` enum('-','NO NEED','TRAINEE','BACK UP','PENDING','DSOT','RDOT','AGENT MODE') NOT NULL,
@@ -56,9 +56,10 @@ CREATE TABLE `absenteeism` (
 --
 
 INSERT INTO `absenteeism` (`id`, `month`, `employee_id`, `full_name`, `department`, `supervisor`, `operation_manager`, `email`, `date_of_absent`, `follow_call_in_procedure`, `sanction`, `reason`, `coverage`, `coverage_type`, `shift`, `ir_form`, `timestamp`, `sub_name`, `created_at`, `email_sent`, `email_sent_at`) VALUES
-(15, 'Jul 2025', 'CXI01059', 'MARCELINO, MICHELLE', 'AUTOBOOKING', 'AREVALO PO, MARK FRANCES', 'Christopher Paller', 'marcelinomichelle1@gmail.com', '2025-07-26', 'No', 'ABSENCE / NCNS / CWD', 'NCNS', 'ARGOSO, ALFREDO ODRONIA', 'DSOT', '5:00 AM - 2:00 PM', 'NO NEED', '11:30 AM', 'SLT NICO', '2025-07-26 03:30:25', 0, NULL),
-(16, 'Jul 2025', 'CXI11684', 'BELOSTRINO, JEROME PAGUYO', 'BK-EMEA', 'BAILLO, CRISTINE', 'Fred Bier', 'Jerome.Belostrino@corpay.com', '2025-07-26', 'Yes', 'ABSENCE - VIBER 9:39 AM JULY 26, 2025', 'DUE TO EXPERIENCING SEVERE HEADACHE AND FLU SYMPTOMS', 'RUBI, MYLYN CAROLLA', 'DSOT', '2:00 PM - 11:00 PM', 'PENDING / JULY 28 2:00 PM', '11:31 AM', 'SLT NICO', '2025-07-26 03:31:43', 0, NULL),
-(22, 'Jul 2025', 'CXI00790', 'SAMBERI, DANILO ALBISO', 'CLC - RESERVATIONS', 'PARIL, MARWIN', 'Benedict Mendoza', 'danilosamberi2002@gmail.com', '2025-07-29', 'No', 'ABSENCE / NCNS / CWD (LATE ADVISED) - VIBER 11:55: PM JULY 28, 2025', 'DUE TO FEVER AND HEADACHE', 'PENDING', 'PENDING', '11:00 PM - 8:00 AM', 'for ir', '4:28 AM', 'SLT NICO', '2025-07-28 20:28:15', 0, NULL);
+(35, 'Aug 2025', 'CXI11448', 'CERTEZA, NOVELYN LANUZO', 'QA SUP', 'CXI MNGT', 'ABBES SALDIVIA', 'noviecerteza@hotmail.com', '2025-08-01', 'YES - VIBER 10:50 PM JULY 31, 2025', 'ABSENCE', 'THIS IS A TEST EMAIL', 'N/A', 'NO NEED', '4:00 AM - 1:00 PM', 'PENDING / AUG 2, 4:00 AM', '5:04 AM', 'SLT JC', '2025-07-31 21:03:03', 1, '2025-08-01 05:38:23'),
+(37, 'Aug 2025', 'CXI00699', 'BAILLO, MARY HAIL QUIRANTE', 'FOLIO CHASERS', 'CXI MNGT', 'CHRISTOPHER PALLER', 'baillomhae@gmail.com', '2025-08-01', 'YES - VIBER 4:27 PM AUG 1, 2025', 'ABSENCE / CWD', 'THIS IS  A TEST EMAIL. PLEASE DISREGARD', 'N/A', 'NO NEED', '9:00 PM - 6:00 AM', 'PENDING / AUG 2, 9:00 PM', '5:20 AM', 'SLT NICO', '2025-07-31 21:20:45', 1, '2025-08-01 05:40:15'),
+(38, 'Aug 2025', 'CXI11597', 'MAESTRE, SIDNEY MANALANG', 'AMERICAN AIRLINES', 'LATORENO, ABEJUN', 'BENEDICT MENDOZA', 'maestresidney8@gmail.com', '2025-08-01', 'YES - VIBER 9:47 PM JULY 29, 2025', 'ABSENCE / NCNS / CWD (LATE ADVISE)', 'TESTING TRACKER PROGRAM', 'UNCOVERED', 'PENDING', '4:00 AM - 1:00 PM', 'PENDING / JUL 30, 4:00 AM', '6:56 AM', 'SLT CIAN', '2025-07-31 21:58:32', 1, '2025-08-01 05:58:44'),
+(39, 'Aug 2025', 'CXI11330', 'MORADAS, JAYZIN CASTRO', 'QA SPECIALIST', 'PAMULAR, ERNISON', 'ABBES SALDIVIA', 'moradasjayzin3@gmail.com', '2025-08-02', 'YES - VIBER 8:47 PM AUG 1, 2025', 'ABSENCE', 'TEST EMAIL. PLEASE DISREGARD', 'PENDING', 'NO NEED', '9:00 PM - 6:00 AM', 'YES', '6:58 AM', 'SLT JC', '2025-07-31 22:02:45', 1, '2025-08-01 06:03:15');
 
 -- --------------------------------------------------------
 
@@ -85,7 +86,7 @@ CREATE TABLE `employees` (
 
 INSERT INTO `employees` (`id`, `employee_id`, `full_name`, `department`, `supervisor`, `operation_manager`, `email`, `created_at`, `updated_at`, `is_active`) VALUES
 (4193, 'CXI11792', 'SALDIVIA, ABRAHAM NEBRES', 'TQAM', 'CXI MNGT', 'Kiko Barrameda', 'Ansaldivia913@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
-(4194, 'CXI11448', 'CERTEZA, NOVELYN LANUZO', 'QA SUP', 'CXI MNGT', 'Abbes Saldivia', 'noviecerteza@hotmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
+(4194, 'CXI11448', 'CERTEZA, NOVELYN LANUZO', 'QA SUP', 'CXI MNGT', 'Abbes Saldivia', 'noviecerteza@hotmail.com', '2025-07-24 01:14:15', '2025-07-31 21:39:33', 1),
 (4195, 'CXI12091', 'PAMULAR, ERNISON B', 'QA SUP', 'CXI MNGT', 'Abbes Saldivia', NULL, '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4196, 'CXI11979', 'GUTIERREZ, BRANDON', 'TRAINING OFFICER', 'CXI MNGT', 'Abbes Saldivia', 'donibadoni17@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4197, 'CXI00525', 'TORRES, JUAN CARLO PABLO', 'SLT', 'CXI MNGT', 'Phay Barrameda', 'juancarlotorres06@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
@@ -95,7 +96,7 @@ INSERT INTO `employees` (`id`, `employee_id`, `full_name`, `department`, `superv
 (4201, 'CXI11664', 'LOMAT, IVERSON', 'SLT', 'TORRES, JUAN CARLO', 'Phay Barrameda', 'iversonlomat03@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4202, 'CXI11812', 'MONTOYA, CHRISTIAN', 'SLT', 'TORRES, JUAN CARLO', 'Phay Barrameda', 'cian.montoya09@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4203, 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'Phay Barrameda', 'nicologalinato80@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
-(4204, 'CXI12100', 'Rolando Moneda Jr.', 'SLT', 'TORRES, JUAN CARLO', 'Phay Barrameda', NULL, '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
+(4204, 'CXI12100', 'Rolando Moneda Jr.', 'SLT', 'TORRES, JUAN CARLO', 'Phay Barrameda', 'monedaroland@gmail.com', '2025-07-24 01:14:15', '2025-07-31 22:06:23', 1),
 (4205, 'CXI11383', 'NUEZ, RAINE JASMYN', 'FB / UAT', 'CXI MNGT', 'Charisse Rivera', 'rainenuez@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4206, 'CXI11204', 'PAGUIA, AL CHRISTIAN AMIT', 'QA SPECIALIST', 'CERTEZA, NOVELYN', 'Abbes Saldivia', 'alchristian.paguia22@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4207, 'CXI00716', 'DELA CRUZ, LEO ZACHARY', 'MAI - FB', 'NUEZ, RAINE JASMYN', 'Charisse Rivera', 'zach18delacruz@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
@@ -243,7 +244,7 @@ INSERT INTO `employees` (`id`, `employee_id`, `full_name`, `department`, `superv
 (4349, 'CXI00988', 'CALIMBAHIN, JUSTINE JEANETH DE LOS SANTOS', 'EZY/HAGR TRAINEE', 'LAZARO, ALLIYAH CAMILLE', 'Fred Bier', 'justinejeaneth9@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4350, 'CXI11682', 'OLAES, RENALD JASPER', 'EZY/HAGR TRAINEE', 'LAZARO, ALLIYAH CAMILLE', 'Fred Bier', 'olaesrenaldjasper@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4351, 'CXI11849', 'ORTEGA, JUSTIN HENRY', 'CREWREZ RECON', 'CHAVES, JEHLIAN ALIJAH', 'Fred Bier', 'justinhenryortega6@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
-(4352, 'CXI11447', 'CASIPONG, MARK LESTER BERNAL', 'CREWREZ RECON', 'CHAVES, JEHLIAN ALIJAH', 'Fred Bier', 'marklestercasipong550@gmail.com', '2025-07-24 01:14:15', '2025-07-24 13:16:59', 1),
+(4352, 'CXI11447', 'CASIPONG, MARK LESTER BERNAL', 'CREWREZ RECON', 'CHAVES, JEHLIAN ALIJAH', 'Fred Bier', 'marklestercasipong550@gmail.com', '2025-07-24 01:14:15', '2025-07-30 20:56:22', 1),
 (4353, 'CXI11662', 'LACAR, ERCIE', 'CREWREZ RECON', 'CHAVES, JEHLIAN ALIJAH', 'Fred Bier', 'ercielacar78@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4354, 'CXI01101', 'GULAYLAY, EZEKIEL ARON GONZALES', 'CREWREZ RECON', 'CHAVES, JEHLIAN ALIJAH', 'Fred Bier', 'kieru.5285@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4355, 'CXI11458', 'WATANABE, JOHN CHRISTIAN', 'CREWREZ RECON', 'CHAVES, JEHLIAN ALIJAH', 'Fred Bier', 'jcwata13@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
@@ -257,8 +258,8 @@ INSERT INTO `employees` (`id`, `employee_id`, `full_name`, `department`, `superv
 (4363, 'CXI11555', 'BARBUCO, JHAEROM', 'EZY/HAGR', 'LAZARO, ALLIYAH CAMILLE', 'Fred Bier', 'jerombarbuco123@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4364, 'CXI11722', 'NODADO, VANGIE', 'EZY/HAGR', 'LAZARO, ALLIYAH CAMILLE', 'Fred Bier', 'vangienodado@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4365, 'CXI11719', 'TAY, BELLE JOY', 'EZY/HAGR', 'LAZARO, ALLIYAH CAMILLE', 'Fred Bier', 'bellejoyt@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
-(4366, 'CXI11675', 'ROSETE, KELVIN ABALON', 'BLOCKERS', 'CXI MNGT', 'Fred Bier', NULL, '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
-(4367, 'CXI00931', 'REYLES, NICOLE ANN KLEIN VALENTOS', 'QA SPECIALIST', 'PAMULAR, ERNISON', 'Abbes Saldivia', 'nicolereyles8@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
+(4366, 'CXI11675', 'ROSETE, KELVIN ABALON', 'BLOCKERS', 'CXI MNGT', 'Fred Bier', 'k.rosete@communixinc.com', '2025-07-24 01:14:15', '2025-07-31 21:25:07', 1),
+(4367, 'CXI00931', 'REYLES, NICOLE ANN KLEIN VALENTOS', 'QA SPECIALIST', 'CXI MNGT', 'Abbes Saldivia', 'nicolereyles8@gmail.com', '2025-07-24 01:14:15', '2025-07-31 21:48:59', 1),
 (4368, 'CXI01080', 'DACQUEL, ARTHUR BERNARDEZ', 'BK-US', 'ROSETE, KELVIN', 'Fred Bier', '143.yeen@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4369, 'CXI11680', 'DIAZ, NIMFA ANGELA CORPUZ', 'BK-US', 'ROSETE, KELVIN', 'Fred Bier', 'nimfaangelacorpuz@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4370, 'CXI11805', 'VERANO. ERWIN', 'BK-US', 'ROSETE, KELVIN', 'Fred Bier', 'erwinverano00@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
@@ -275,17 +276,17 @@ INSERT INTO `employees` (`id`, `employee_id`, `full_name`, `department`, `superv
 (4381, 'CXI12016', 'SONSONA, VERLYN KAY', 'BK-US', 'ROSETE, KELVIN', 'Fred Bier', NULL, '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4382, 'CXI12018', 'RABADON, CHARISSE', 'BK-US', 'ROSETE, KELVIN', 'Fred Bier', NULL, '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4383, 'CXI12012', 'ROSALES, ROMMEL', 'BK-APAC', 'ROSETE, KELVIN', 'Fred Bier', NULL, '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
-(4384, 'CXI11802', 'AMADOR, AURABELLE A.', 'BK-APAC', 'ROSETE, KELVIN', 'Fred Bier', 'TBA', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
+(4384, 'CXI11802', 'AMADOR, AURABELLE A.', 'BK-APAC', 'ROSETE, KELVIN', 'Fred Bier', 'amadorbelle78@gmail.com', '2025-07-24 01:14:15', '2025-07-31 21:07:00', 1),
 (4385, 'CXI11446', 'INOCENCIO, LYNIEL ROSE', 'BK-APAC', 'ROSETE, KELVIN', 'Fred Bier', 'Inocenciorose014@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4386, 'CXI11291', 'LEYESA, ROSEMARIE BRAZIL', 'BK-EMEA', 'BAILLO, CRISTINE', 'Fred Bier', 'rosemarieleyesa@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4387, 'CXI11287', 'JAURIGUE, AILEEN ABRATIQUE', 'BK-EMEA', 'BAILLO, CRISTINE', 'Fred Bier', 'jannsie25@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4388, 'CXI11811', 'CAPARAS, ARLENE JOCSON', 'BK-EMEA', 'BAILLO, CRISTINE', 'Fred Bier', 'arlenejcaparas@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
-(4389, 'CXI00712', 'BAILLO, CRISTINE QUIRANTE', 'BLOCKERS', 'CXI MNGT', 'Fred Bier', 'Cristinebaillo@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
+(4389, 'CXI00712', 'BAILLO, CRISTINE QUIRANTE', 'BLOCKERS', 'CXI MNGT', 'Fred Bier', 'Cristinebaillo@gmail.com', '2025-07-24 01:14:15', '2025-07-31 21:39:53', 1),
 (4390, 'CXI11649', 'FADRI, ERICKA FHEA FETALINO', 'BK-US', 'BAILLO, CRISTINE', 'Fred Bier', 'erickafheafadri@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4391, 'CXI11250', 'LLANERA, OLIVIA', 'BK-US', 'BAILLO, CRISTINE', 'Fred Bier', 'llaneraolive@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4392, 'CXI11800', 'ESTACIO, CYREL JANE CELESTE', 'BK-US', 'BAILLO, CRISTINE', 'Fred Bier', 'cyreljaneestacio23@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4393, 'CXI00935', 'CORPUZ, MARITES BERNAL', 'BK-EMEA', 'BAILLO, CRISTINE', 'Fred Bier', 'thekla23corpuz@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
-(4394, 'CXI11684', 'BELOSTRINO, JEROME PAGUYO', 'BK-EMEA', 'BAILLO, CRISTINE', 'Fred Bier', 'Jerome.Belostrino@corpay.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
+(4394, 'CXI11684', 'BELOSTRINO, JEROME PAGUYO', 'BK-EMEA', 'BAILLO, CRISTINE', 'Fred Bier', 'jbelostrino032@gmail.com', '2025-07-24 01:14:15', '2025-07-28 23:47:54', 1),
 (4395, 'CXI11855', 'DUMAAN, LEILA KYLA', 'BK-EMEA', 'BAILLO, CRISTINE', 'Fred Bier', 'Kyladumaan@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4396, 'CXI11978', 'MATEO, CRIZTINE', 'BK-EMEA', 'BAILLO, CRISTINE', 'Fred Bier', 'criztinemateo08@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4397, 'CXI12013', 'ANULACION, IVY', 'BK-EMEA', 'BAILLO, CRISTINE', 'Fred Bier', 'ivyanulacion337@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
@@ -458,7 +459,7 @@ INSERT INTO `employees` (`id`, `employee_id`, `full_name`, `department`, `superv
 (4563, 'ADMIN_4', 'DE LEON, KRIZZIA MAE BINCAL', 'ADMIN', 'VALENCIA, MARTIN RAY', 'Benedict Mendoza', '', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4564, 'CXI00818', 'SAPNO, MARIE LINA', 'FOLIO CHASERS', 'CXI MNGT', 'Christopher Paller', 'marielinasapno@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4565, 'CXI00699', 'BAILLO, MARY HAIL QUIRANTE', 'FOLIO CHASERS', 'CXI MNGT', 'Christopher Paller', 'baillomhae@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
-(4566, 'CXI11385', 'NEPOMUCENO, ARVIN AVILA', 'FOLIO CHASERS', 'CXI MNGT', 'Christopher Paller', 'arvinnepomuceno567@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
+(4566, 'CXI11385', 'NEPOMUCENO, ARVIN AVILA', 'FOLIO CHASERS', 'CXI MNGT', 'Christopher Paller', 'arvinnepomuceno567@gmail.com', '2025-07-24 01:14:15', '2025-07-31 06:06:07', 0),
 (4567, 'CXI11804', 'CABASAG JERICO BIONO', 'ATLAS BILLING', 'NEPOMUCENO, ARVIN', 'Christopher Paller', 'cabasagjerico7@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4568, 'CXI11443', 'QUIBOQUIBO, YESHA LAMONTE', 'ATLAS BILLING', 'NEPOMUCENO, ARVIN', 'Christopher Paller', 'yeshaquiboquibo3@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4569, 'CXI11799', 'LADRERA, RHENDIO', 'ATLAS BILLING', 'NEPOMUCENO, ARVIN', 'Christopher Paller', 'rhendioladrera3@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
@@ -500,15 +501,15 @@ INSERT INTO `employees` (`id`, `employee_id`, `full_name`, `department`, `superv
 (4605, 'CXI00862', 'SOROSORO, EDNETH JOHN HERRADURA', 'BNSF', 'CXI MNGT', 'Christopher Paller', 'edneth.1996@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4606, 'CXI01053', 'FULLO, VERONICA SAMONTEZA', 'QA SPECIALIST', 'CERTEZA, NOVELYN', 'Abbes Saldivia', 'veronicafayefullo@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4607, 'CXI00899', 'RODRIGUEZ ALPHA BLESS', 'QA SPECIALIST', 'CERTEZA, NOVELYN', 'Abbes Saldivia', 'alpha.reenar16@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
-(4608, 'CXI12077', 'SICO, GRACE NICOLE D.', 'BNSF', 'ICALIA, EZEKIEL', 'Christopher Paller', '', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
+(4608, 'CXI12077', 'SICO, GRACE NICOLE D.', 'BNSF', 'ICALIA, EZEKIEL', 'Christopher Paller', '', '2025-07-24 01:14:15', '2025-07-30 14:52:29', 1),
 (4609, 'CXI12078', 'BOLANTE, ALYSSA JANE', 'BNSF', 'ICALIA, EZEKIEL', 'Christopher Paller', '', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4610, 'CXI00690', 'INDONG, EVELYN', 'BNSF - ON', 'ICALIA, EZEKIEL', 'Christopher Paller', 'evelynlianza022103@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4611, 'CXI00691', 'MASIGLA, ROSSFEL', 'BNSF - ON', 'ICALIA, EZEKIEL', 'Christopher Paller', 'masiglaofhel3@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4612, 'CXI11407', 'PINO, RACHELLE', 'BNSF - ON', 'ICALIA, EZEKIEL', 'Christopher Paller', 'rachellepino213@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4613, 'CXI11998', 'MADERA, ANGELO', 'BNSF', 'ICALIA, EZEKIEL', 'Christopher Paller', 'angelo.madera13@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4614, 'CXI12003', 'ESCOSA, JEANY', 'BNSF', 'ICALIA, EZEKIEL', 'Christopher Paller', 'soheilaflare@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
-(4615, 'CXI11873', 'MANALO, JAN DARREN', 'BNSF', 'ICALIA, EZEKIEL', 'Christopher Paller', '', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
-(4616, 'CXI11784', 'BULASAG, SHIENA CODICO', 'BNSF', 'ICALIA, EZEKIEL', 'Christopher Paller', '', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
+(4615, 'CXI11873', 'MANALO, JAN DARREN', 'BNSF', 'ICALIA, EZEKIEL', 'Christopher Paller', 'jdmlardizabal@gmail.com', '2025-07-24 01:14:15', '2025-07-28 23:49:16', 1),
+(4616, 'CXI11784', 'BULASAG, SHIENA CODICO', 'BNSF', 'ICALIA, EZEKIEL', 'Christopher Paller', 'bulasagshiena@gmail.com', '2025-07-24 01:14:15', '2025-07-28 23:49:45', 1),
 (4617, 'CXI11821', 'DILOY, AMORSOLO R.', 'BNSF', 'ICALIA, EZEKIEL', 'Christopher Paller', 'ardiloy122187@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4618, 'CXI11618', 'AMBOS, MARK JOSUA D', 'BNSF', 'ICALIA, EZEKIEL', 'Christopher Paller', 'mjambos10@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4619, 'CXI11871', 'SATO, PRINCE ALPHARD', 'BNSF', 'ICALIA, EZEKIEL', 'Christopher Paller', '', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
@@ -619,7 +620,7 @@ INSERT INTO `employees` (`id`, `employee_id`, `full_name`, `department`, `superv
 (4724, 'CXI11184', 'ESPARAGOZA, JERICHO', 'AB CALLBACK TEAM', 'CORRAL, GREGON', 'Christopher Paller', 'JERICHOESPARAGOZA7@GMAIL.COM', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4725, 'CXI01045', 'BERSAMIN, LEONARD MACAPAGAL', 'AB CALLBACK TEAM', 'CORRAL, GREGON', 'Christopher Paller', 'leobersamin@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4726, 'CXI00916', 'HERRERA, IRENE CRUZ', 'AUTOBOOKING - ON', 'CORRAL, GREGON', 'Christopher Paller', 'ireneirene0924@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
-(4727, 'CXI00199', 'MAMATE, ROALD DEGALA', 'AUTOBOOKING', 'CXI MNGT', 'Christopher Paller', 'x15rowaldodmx@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
+(4727, 'CXI00199', 'MAMATE, ROALD DEGALA', 'AUTOBOOKING', 'CXI MNGT', 'Christopher Paller', 'x15rowaldodmx@gmail.com', '2025-07-24 01:14:15', '2025-07-31 06:06:27', 0),
 (4728, 'CXI11869', 'ABOLA, MARGARITA ANN', 'AUTOBOOKING', 'CORRAL, GREGON', 'Christopher Paller', 'margarettee.yyy@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4729, 'CXI11776', 'GUARIÑO, RAIN', 'AUTOBOOKING', 'CRUZ, KIM CARLO', 'Christopher Paller', 'kainos102820@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4730, 'CXI11619', 'RIBLE, CASPER KENT D.', 'AUTOBOOKING', 'ABILES, CHARLZ DANEVER', 'Christopher Paller', 'casperkentrible@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
@@ -641,7 +642,10 @@ INSERT INTO `employees` (`id`, `employee_id`, `full_name`, `department`, `superv
 (4746, 'CXI11948', 'OCAMPO, KYLA', 'CLC MANAGED', 'SAYAS, FE', 'Christopher Paller', 'kylaaocampo17@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4747, 'CXI11951', 'POJAS, ROJE MAE', 'CLC MANAGED', 'SAYAS, FE', 'Christopher Paller', 'pojasrojemae@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4748, 'CXI11952', 'GOROSPE, JASON LEMUEL', 'CLC MANAGED', 'SAYAS, FE', 'Christopher Paller', 'zlienyuri@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
-(4749, 'CXI11950', 'SICATIN, KRISHA', 'CLC MANAGED', 'SAYAS, FE', 'Christopher Paller', 'khrishaannes@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1);
+(4749, 'CXI11950', 'SICATIN, KRISHA', 'CLC MANAGED', 'SAYAS, FE', 'Christopher Paller', 'khrishaannes@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
+(4753, 'CXI00004', 'MENDOZA, BENEDICT PATASIN', 'OPErations manager', 'CXI MNGT', 'Phay Barrameda', 'benox24@gmail.com', '2025-07-31 04:44:55', '2025-07-31 04:44:55', 1),
+(4754, 'CXI00008', 'RIVERA, CHARISE CALDERON', 'OPErations manager', 'CXI MNGT', 'Phay Barrameda', 'chariserivera09@gmail.com', '2025-07-31 04:45:22', '2025-07-31 21:39:22', 1),
+(4755, 'CXI00141', 'BIER, FREDRIECH VAUGHN LACONSAY', 'OPErations manager', 'CXI MNGT', 'Kiko Barrameda', 'reddbiery@gmail.com', '2025-07-31 04:45:54', '2025-07-31 04:45:54', 1);
 
 -- --------------------------------------------------------
 
@@ -666,61 +670,44 @@ CREATE TABLE `management` (
 --
 
 INSERT INTO `management` (`id`, `cxi_id`, `fullname`, `department`, `email`, `role`, `created_at`, `is_active`, `last_activity`) VALUES
-(1, 'CXI11792', 'SALDIVIA, ABRAHAM NEBRES', 'TQAM', 'sample@gmail.com', 'TQM', '2025-07-28 12:18:51', 1, NULL),
-(2, 'CXI11448', 'CERTEZA, NOVELYN LANUZO', 'QA SUP', NULL, 'QA SUP', '2025-07-28 12:18:51', 1, NULL),
-(3, 'CXI12091', 'PAMULAR, ERNISON B', 'QA SUP', NULL, 'QA SUP', '2025-07-28 12:18:51', 1, NULL),
-(4, 'CXI11383', 'NUEZ, RAINE JASMYN', 'FB / UAT', NULL, 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
-(5, 'CXI11204', 'PAGUIA, AL CHRISTIAN AMIT', 'QA SPECIALIST', NULL, 'QA', '2025-07-28 12:18:51', 1, NULL),
-(6, 'CXI00823', 'CADSAWAN, JOHANNA MORALES', 'QA SPECIALIST', NULL, 'QA', '2025-07-28 12:18:51', 1, NULL),
-(7, 'CXI01065', 'MAGNO, CHERISSE', 'MAI - ECAMPUS - DI', NULL, 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
-(8, 'CXI00006', 'MIRALLES, JEBONNIE ADONIS', 'SOURCING - AIRLINES', NULL, 'TLT', '2025-07-28 12:18:51', 1, NULL),
-(9, 'CXI00279', 'MOPIA, PATRICK BERNARDO', 'GROUPS', NULL, 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
-(10, 'CXI00357', 'JAEN, ALBERT DOMENS', 'QA SPECIALIST', NULL, 'QA', '2025-07-28 12:18:51', 1, NULL),
-(11, 'CXI00370', 'NAPIERE, MINETTE ESPENIDA', 'SINGLES', NULL, 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
-(12, 'CXI00308', 'PICAZO, CHRISTIAN KING BALANQUIT', 'QA SPECIALIST', NULL, 'QA', '2025-07-28 12:18:51', 1, NULL),
-(13, 'CXI00467', 'BAGACAY, ROGELIO BIATO', 'SINGLES', NULL, 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
-(14, 'CXI00450', 'VIDOR, EUGENE', 'AA BILLING', NULL, 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
-(15, 'CXI11330', 'MORADAS, JAYZIN CASTRO', 'QA SPECIALIST', NULL, 'QA', '2025-07-28 12:18:51', 1, NULL),
-(16, 'CXI11193', 'FRANCISCO, JONALYN', 'AA BILLING', NULL, 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
-(17, 'CXI11653', 'YENKO, ANNA LIZA BAYSA', 'CREWREZ / REPORTS', NULL, 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
-(18, 'CXI00160', 'LAZARO, ALLIYAH CAMILLE DIZON', 'CREWREZ / AIR', NULL, 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
-(19, 'CXI00816', 'CHAVES, JEHLIAN ALIJAH BAYOT', 'LEGACY / RECON', NULL, 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
-(20, 'CXI11523', 'TIMING, YBRAHIM ORDIALES', 'QA SPECIALIST', NULL, 'QA', '2025-07-28 12:18:51', 1, NULL),
-(21, 'CXI11675', 'ROSETE, KELVIN ABALON', 'BLOCKERS', NULL, 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
-(22, 'CXI00931', 'REYLES, NICOLE ANN KLEIN VALENTOS', 'QA SPECIALIST', NULL, 'QA', '2025-07-28 12:18:51', 1, NULL),
-(23, 'CXI00712', 'BAILLO, CRISTINE QUIRANTE', 'BLOCKERS', NULL, 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
-(24, 'CXI00922', 'NACIONAL, REIGNALYN RUBIO', 'BLOCKERS', NULL, 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
-(25, 'CXI00361', 'CONCEPCION, CHERRY MAY CATEDRILLA', 'AMERICAN AIRLINES', NULL, 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
-(26, 'CXI11590', 'LATORENO, ABEJUN LASALA', 'AMERICAN AIRLINES', NULL, 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
-(27, 'CXI01038', 'VIDA, RAVIEL ERNEST LOPEZ', 'QA SPECIALIST', NULL, 'QA', '2025-07-28 12:18:51', 1, NULL),
-(28, 'CXI00347', 'GALLENO, GENREV ZION BOLO', 'APAC', NULL, 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
-(29, 'CXI11233', 'PONTAWE, ALVIN', 'US CREW', NULL, 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
-(30, 'CXI11219', 'PIDOT, LAWRENCE TABALNO', 'QA SPECIALIST', NULL, 'QA', '2025-07-28 12:18:51', 1, NULL),
-(31, 'CXI00045', 'PARIL, MARWIN ARGA', 'CLC EMERGENCY', NULL, 'TLT', '2025-07-28 12:18:51', 1, NULL),
-(32, 'CXI11142', 'CALMA, RUSSEL JAY CRUZ', 'CLC EMERGENCY', NULL, 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
-(33, 'CXI00020', 'ARANZANSO, BESSIE MENDOZA', 'CLC EMERGENCY', NULL, 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
-(34, 'CXI11188', 'CARALDE, KENNY ROBERT DELA CRUZ', 'QA SPECIALIST', NULL, 'QA', '2025-07-28 12:18:51', 1, NULL),
-(35, 'CXI00014', 'AGUIBITIN, ERVIN JOHN REYES', 'HOTELS', NULL, 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
-(36, 'CXI11303', 'MARILLA, MARY ANN ADVINCULA', 'QA SPECIALIST', NULL, 'QA', '2025-07-28 12:18:51', 1, NULL),
-(37, 'CXI01030', 'SANCHEZ, ALTHEA MABEL BUENCONSEJO', 'ALE ADMIN', NULL, 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
-(38, 'CXI01039', 'VALENCIA, MARTIN RAY MIRANDA', 'ALE ADMIN', NULL, 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
-(39, 'CXI00818', 'SAPNO, MARIE LINA', 'FOLIO CHASERS', NULL, 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
-(40, 'CXI00699', 'BAILLO, MARY HAIL QUIRANTE', 'FOLIO CHASERS', NULL, 'TLT', '2025-07-28 12:18:51', 1, NULL),
-(41, 'CXI11385', 'NEPOMUCENO, ARVIN AVILA', 'FOLIO CHASERS', NULL, 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
-(42, 'CXI00529', 'ICALIA, EZEKIEL', 'BNSF', NULL, 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
-(43, 'CXI11421', 'SEVILLA, ANN CLAUDETTE', 'AUTOBOOKING', NULL, 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
-(44, 'CXI01095', 'ABILES, CHARLZ DANEVER GUIBIJAR', 'AUTOBOOKING', NULL, 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
-(45, 'CXI11180', 'PACSON, ARYANNA', 'BNSF', NULL, 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
-(46, 'CXI12060', 'CORRAL, GREGON', 'AUTOBOOKING', NULL, 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
-(47, 'CXI12057', 'CRUZ, KIM CARLO', 'AUTOBOOKING', NULL, 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
-(48, 'CXI11483', 'AREVALO PO, MARK FRANCES', 'AUTOBOOKING', NULL, 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
-(49, 'CXI00862', 'SOROSORO, EDNETH JOHN HERRADURA', 'BNSF', NULL, 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
-(50, 'CXI01053', 'FULLO, VERONICA SAMONTEZA', 'QA SPECIALIST', NULL, 'QA', '2025-07-28 12:18:51', 1, NULL),
-(51, 'CXI00899', 'RODRIGUEZ ALPHA BLESS', 'QA SPECIALIST', NULL, 'QA', '2025-07-28 12:18:51', 1, NULL),
-(52, 'CXI00199', 'MAMATE, ROALD DEGALA', 'AUTOBOOKING', NULL, 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
-(53, 'CXI01054', 'SAYAS, FE', 'CLC MANAGED', NULL, 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
-(54, 'CXI11186', 'YABUT, ANGELIKA GADIL', 'QA SPECIALIST', NULL, 'QA', '2025-07-28 12:18:51', 1, NULL),
-(55, 'CXI01003', 'CASILAGAN, CHRISTIAN GARCIA', 'QA SPECIALIST', NULL, 'QA', '2025-07-28 12:18:51', 1, NULL);
+(4, 'CXI11383', 'NUEZ, RAINE JASMYN', 'FB / UAT', 'r.nuez@communixinc.com', 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
+(7, 'CXI01065', 'MAGNO, CHERISSE', 'MAI - ECAMPUS - DI', 'cmagno@communixinc.com', 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
+(8, 'CXI00006', 'MIRALLES, JEBONNIE ADONIS', 'SOURCING - AIRLINES', 'jebonnie.miralles@communixinc.com', 'TLT', '2025-07-28 12:18:51', 1, NULL),
+(9, 'CXI00279', 'MOPIA, PATRICK', 'GROUPS', 'patrick.mopia@communixinc.com', 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
+(11, 'CXI00370', 'NAPIERE, MINETTE', 'SINGLES', 'minette.napiere@communixinc.com', 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
+(13, 'CXI00467', 'BAGACAY, ROGELIO', 'SINGLES', 'rogie.bagacay@communixinc.com', 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
+(14, 'CXI00450', 'VIDOR, EUGENE', 'AA BILLING', 'eugene.viador@communixinc.com', 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
+(16, 'CXI11193', 'FRANCISCO, JONALYN', 'AA BILLING', 'jonalyn.francisco@communixinc.com', 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
+(17, 'CXI11653', 'YENKO, ANNA LIZA', 'CREWREZ / REPORTS', 'a.yenko@communixinc.com', 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
+(18, 'CXI00160', 'LAZARO, ALLIYAH CAMILLE', 'CREWREZ / AIR', 'alliyah.lazaro@communixinc.com', 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
+(19, 'CXI00816', 'CHAVES, JEHLIAN ALIJAH', 'LEGACY / RECON', 'jehlian.chaves@communixinc.com', 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
+(21, 'CXI11675', 'ROSETE, KELVIN', 'BLOCKERS', 'k.rosete@communixinc.com', 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
+(23, 'CXI00712', 'BAILLO, CRISTINE', 'BLOCKERS', 'christine.baillo@communixinc.com', 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
+(24, 'CXI00922', 'NACIONAL, REIGNALYN', 'BLOCKERS', 'reignalyn.nacional@communixinc.com', 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
+(25, 'CXI00361', 'CONCEPCION, CHERRY MAY', 'AMERICAN AIRLINES', 'cherry.concepcion@communixinc.com', 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
+(26, 'CXI11590', 'LATORENO, ABEJUN', 'AMERICAN AIRLINES', 'abejun.latoreno@communixinc.com', 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
+(28, 'CXI00347', 'GALLENO, GENREV ZION', 'APAC', 'zion.galleno@communixinc.com', 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
+(29, 'CXI11233', 'PONTAWE, ALVIN', 'US CREW', 'a.pontawe@communixinc.com', 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
+(31, 'CXI00045', 'PARIL, MARWIN', 'CLC EMERGENCY', 'marwin.paril@communixinc.com', 'TLT', '2025-07-28 12:18:51', 1, NULL),
+(32, 'CXI11142', 'CALMA, RUSSEL JAY', 'CLC EMERGENCY', 'russel.calma@communixinc.com', 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
+(33, 'CXI00020', 'ARANZANSO, BESSIE MENDOZA', 'CLC EMERGENCY', 'baranzanso@communixinc.com', 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
+(35, 'CXI00014', 'AGUIBITIN, ERVIN JOHN', 'HOTELS', 'baranzanso@communixinc.com', 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
+(37, 'CXI01030', 'SANCHEZ, ALTHEA MABEL', 'ALE ADMIN', 'althea.sanchez@communixinc.com', 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
+(38, 'CXI01039', 'VALENCIA, MARTIN RAY', 'ALE ADMIN', 'mrvalencia@communixinc.com', 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
+(39, 'CXI00818', 'SAPNO, MARIE LINA', 'FOLIO CHASERS', NULL, 'SME / TL', '2025-07-28 12:18:51', 0, NULL),
+(40, 'CXI00699', 'BAILLO, MARY HAIL', 'FOLIO CHASERS', 'mary.baillo@communixinc.com', 'TLT', '2025-07-28 12:18:51', 1, NULL),
+(41, 'CXI11385', 'NEPOMUCENO, ARVIN AVILA', 'FOLIO CHASERS', NULL, 'SME / TL', '2025-07-28 12:18:51', 0, NULL),
+(42, 'CXI00529', 'ICALIA, EZEKIEL', 'BNSF', 'kiel.icalia@communixinc.com', 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
+(43, 'CXI11421', 'SEVILLA, ANN CLAUDETTE', 'AUTOBOOKING', 'asevilla@communixinc.com', 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
+(44, 'CXI01095', 'ABILES, CHARLZ DANEVER', 'AUTOBOOKING', 'charlz.abiles@communixinc.com', 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
+(45, 'CXI11180', 'PACSON, ARYANNA', 'BNSF', 'aryanna.pacson@communixinc.com', 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
+(46, 'CXI12060', 'CORRAL, GREGON', 'AUTOBOOKING', 'gregon.corral@communixinc.com', 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
+(47, 'CXI12057', 'CRUZ, KIM CARLO', 'AUTOBOOKING', 'kimcarlo.cruz@communixinc.com', 'TL / SUP', '2025-07-28 12:18:51', 1, NULL),
+(48, 'CXI11483', 'AREVALO PO, MARK FRANCES', 'AUTOBOOKING', 'm.arevalo@communixinc.com', 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
+(49, 'CXI00862', 'SOROSORO, EDNETH JOHN', 'BNSF', 'edneth.sorosoro@communixinc.com', 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
+(52, 'CXI00199', 'MAMATE, ROALD DEGALA', 'AUTOBOOKING', NULL, 'TL / SUP', '2025-07-28 12:18:51', 0, NULL),
+(53, 'CXI01054', 'SAYAS, FE', 'CLC MANAGED', 'fsayas@communixinc.com', 'SME / TL', '2025-07-28 12:18:51', 1, NULL),
+(56, 'cxi00525', 'TORRES, JUAN CARLO', 'SLT', 'juan.torres@communixinc.com', '', '2025-07-31 20:11:21', 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -743,11 +730,12 @@ CREATE TABLE `operations_managers` (
 --
 
 INSERT INTO `operations_managers` (`id`, `cxi_id`, `fullname`, `department`, `email`, `is_active`, `created_at`) VALUES
-(7, 'CXI00004', 'MENDOZA, BENEDICT PATASIN', 'operations manager', 'bmendoza@communixinc.com', 1, '2025-07-24 11:16:52'),
-(8, 'CXI00008', 'RIVERA, CHARISE CALDERON', 'operations manager', 'crivera@communixinc.com', 1, '2025-07-24 11:17:29'),
-(9, 'CXI11768', 'PALLER, CHRISTOPHER SAYAS', 'operations manager', 'cl.paller@communixinc.com', 1, '2025-07-24 11:19:06'),
-(10, 'CXI00141', 'BIER, FREDRIECH VAUGHN LACONSAY', 'operations manager', 'fred.bier@communixinc.com', 1, '2025-07-24 11:19:32'),
-(11, 'CXI00732', 'PHAY BARRAMEDA', 'operations manager', 'phay.barrameda@communixinc.com', 1, '2025-07-24 11:21:07');
+(7, 'CXI00004', 'BENEDICT MENDOZA', 'operations manager', 'bmendoza@communixinc.com', 1, '2025-07-24 11:16:52'),
+(8, 'CXI00008', 'CHARISSE RIVERA', 'operations manager', 'crivera@communixinc.com', 1, '2025-07-24 11:17:29'),
+(9, 'CXI11768', 'CHRISTOPHER PALLER', 'operations manager', 'cl.paller@communixinc.com', 1, '2025-07-24 11:19:06'),
+(10, 'CXI00141', 'FRED BIER', 'operations manager', 'fred.bier@communixinc.com', 1, '2025-07-24 11:19:32'),
+(11, 'CXI00732', 'PHAY BARRAMEDA', 'operations manager', 'phay.barrameda@communixinc.com', 1, '2025-07-24 11:21:07'),
+(12, 'CXI11792', 'ABBES SALDIVIA', 'TQAM', 'abraham.saldivia@communixinc.com', 1, '2025-07-29 00:14:39');
 
 -- --------------------------------------------------------
 
@@ -768,6 +756,7 @@ CREATE TABLE `tardiness` (
   `types` enum('Late','Undertime') NOT NULL,
   `minutes_late` int(11) NOT NULL,
   `shift` varchar(50) NOT NULL,
+  `time_in` varchar(50) NOT NULL,
   `ir_form` varchar(100) DEFAULT NULL,
   `accumulation_count` int(11) DEFAULT 1,
   `timestamp` varchar(20) DEFAULT NULL,
@@ -782,10 +771,10 @@ CREATE TABLE `tardiness` (
 -- Dumping data for table `tardiness`
 --
 
-INSERT INTO `tardiness` (`id`, `month`, `employee_id`, `full_name`, `department`, `supervisor`, `operation_manager`, `email`, `date_of_incident`, `types`, `minutes_late`, `shift`, `ir_form`, `accumulation_count`, `timestamp`, `sub_name`, `created_at`, `email_sent`, `email_sent_at`) VALUES
-(14, 'Jul 2025', 'CXI11457', 'BAUTISTA, SHARMAINE NICOLE', 'CREWREZ', 'YENKO, ANNA LIZA', 'Fred Bier', 'sharmainenicole.bautista@gmail.com', '2025-07-28', 'Late', 12, '7:00 PM - 4:00 AM', 'for accumulation', 1, '11:43 PM', 'SLT NICO', '2025-07-28 15:43:00', 0, NULL),
-(15, 'Jul 2025', 'CXI00525', 'TORRES, JUAN CARLO PABLO', 'SLT', 'CXI MNGT', 'Phay Barrameda', 'juancarlotorres06@gmail.com', '2025-07-28', 'Late', 5, '7:00 PM - 4:00 AM', 'for accumulation', 1, '11:47 PM', 'SLT NICO', '2025-07-28 15:47:28', 0, NULL),
-(16, 'Jul 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'Phay Barrameda', 'nicologalinato80@gmail.com', '2025-07-29', 'Late', 15, '3:30 AM - 1:00 PM', 'For accumulation', 1, '6:32 AM', 'SLT NICO', '2025-07-28 22:32:05', 0, NULL);
+INSERT INTO `tardiness` (`id`, `month`, `employee_id`, `full_name`, `department`, `supervisor`, `operation_manager`, `email`, `date_of_incident`, `types`, `minutes_late`, `shift`, `time_in`, `ir_form`, `accumulation_count`, `timestamp`, `sub_name`, `created_at`, `email_sent`, `email_sent_at`) VALUES
+(19, 'Aug 2025', 'CXI11812', 'MONTOYA, CHRISTIAN', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'cian.montoya09@gmail.com', '2025-08-01', 'Late', 1, '8:00 AM - 8:00 PM', '8:01 AM', 'NO', 1, '4:18 AM', 'SLT CIAN', '2025-07-31 20:18:28', 1, '2025-08-01 04:18:34'),
+(21, 'Aug 2025', 'CXI11802', 'AMADOR, AURABELLE A.', 'BK-APAC', 'ROSETE, KELVIN', 'FRED BIER', 'amadorbelle78@gmail.com', '2025-08-01', 'Late', 15, '4:00 AM - 1:00 PM', '4:15 AM', 'FOR ACCUMULATION', 1, '5:55 AM', 'SLT OLAN', '2025-07-31 21:08:58', 1, '2025-08-01 05:32:31'),
+(24, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-01', 'Late', 14, '4:00 AM - 1:00 PM', '4:14 AM', 'FOR ACCUMULATION', 1, '8:59 AM', 'SLT NICO', '2025-08-01 00:59:55', 1, '2025-08-01 09:37:06');
 
 -- --------------------------------------------------------
 
@@ -815,15 +804,15 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `fullname`, `sub_name`, `password`, `slt_email`, `created_at`, `login_attempts`, `last_failed_login`, `locked_until`, `role`, `is_active`, `last_activity`, `last_modified`) VALUES
-(1, 'cxi11899', 'GALINATO, NICO', 'SLT NICO', '$2y$10$Nq1m.u1mc22CgjCYuRzHp.16IMLEc5PvKtFeZpPt0ej7V9xhIghc6', 'nicolo.galinato@communixinc.com', '2025-07-17 15:24:12', 0, NULL, NULL, 'admin', 1, '2025-07-28 22:33:15', '2025-07-28 22:33:15'),
-(37, 'cxi00525', 'JC TORRES', 'SLT JC', '$2y$10$fSnVChxO1EvhBhXFPkl/HOGC.uxik2kHay6cvlOKwkaIgXju.ASqS', 'juan.torres@communixinc.com', '2025-07-17 19:44:34', 0, NULL, NULL, 'admin', 1, '2025-07-28 20:38:52', '2025-07-28 20:38:52'),
+(1, 'cxi11899', 'GALINATO, NICO', 'SLT NICO', '$2y$10$Nq1m.u1mc22CgjCYuRzHp.16IMLEc5PvKtFeZpPt0ej7V9xhIghc6', 'nicolo.galinato@communixinc.com', '2025-07-17 15:24:12', 0, NULL, NULL, 'admin', 1, '2025-08-01 02:01:20', '2025-08-01 02:01:20'),
+(37, 'cxi00525', 'JC TORRES', 'SLT JC', '$2y$10$fSnVChxO1EvhBhXFPkl/HOGC.uxik2kHay6cvlOKwkaIgXju.ASqS', 'juan.torres@communixinc.com', '2025-07-17 19:44:34', 0, NULL, NULL, 'admin', 1, '2025-07-31 22:58:58', '2025-07-31 22:58:58'),
 (38, 'cxi00730', 'RG DUTERTE', 'SLT RG', '$2y$10$4Tnf9CRtLqS4fvFM2Otjme8zCSX6bbtUDiSgNVQ8IGUgo/VBZ4gqe', 'rg.duterte@communixinc.com', '2025-07-17 19:45:03', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 15:08:02'),
-(39, 'cxi11647', 'ALEXANDER RAY OLAES', 'SLT ALEX', '$2y$10$drhplWGrgo0Gz7nbnRXV.OcYwpieFAkaKROp/xrH2Hj5hNxnyEItW', 'a.olaes@communixinc.com', '2025-07-17 19:45:22', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 15:08:02'),
-(40, 'cxi11652', 'ANGKIKO, MIGUEL JEAN', 'SLT MIGS', '$2y$10$QfoRP/1fsDr2jyaTZTSQfORiDix1fHi..f4KK9p.lzU38sk7oWv7S', 'miguel.angkiko@communixinc.com', '2025-07-17 19:45:49', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 15:08:02'),
+(39, 'cxi11647', 'ALEXANDER RAY OLAES', 'SLT ALEX', '$2y$10$drhplWGrgo0Gz7nbnRXV.OcYwpieFAkaKROp/xrH2Hj5hNxnyEItW', 'a.olaes@communixinc.com', '2025-07-17 19:45:22', 0, NULL, NULL, 'admin', 1, '2025-07-31 21:32:31', '2025-07-31 21:32:31'),
+(40, 'cxi11652', 'ANGKIKO, MIGUEL JEAN', 'SLT MIGS', '$2y$10$QfoRP/1fsDr2jyaTZTSQfORiDix1fHi..f4KK9p.lzU38sk7oWv7S', 'miguel.angkiko@communixinc.com', '2025-07-17 19:45:49', 0, NULL, NULL, 'admin', 1, '2025-07-31 04:45:56', '2025-07-31 04:45:56'),
 (41, 'cxi11664', 'IVERSON LOMAT', 'SLT IVER', '$2y$10$ju/wgHSL1tQJeM4/weg5nuX3oGwKhBSOg3fcGjRZUIlzELPwtPeXi', 'iverson.lomat@communixinc.com', '2025-07-17 19:46:06', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-25 18:06:10'),
-(42, 'cxi11812', 'CHRISTIAN MONTOYA', 'SLT CIAN', '$2y$10$jyCYyY.UBtHPSBlKONCrpeZ15N4u0VHQw20/LxV0q6fxvqpuAa2cy', 'c.montoya@communixinc.com', '2025-07-17 19:46:35', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 15:08:02'),
-(56, 'CXI12100', 'MONEDA ROLANDO', 'SLT OLAN', '$2y$10$JpoID58r9ghFzquMZLVXHOzd9v.NuKZLu3el1aarMZmZ9U2leJpQS', 'R.moneda@communixinc.com', '2025-07-24 17:08:38', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 17:08:38'),
-(57, 'CXI00732', 'APRIL BARRAMEDA', 'SOM PHAY', '$2y$10$inCw3t1pr0JEyWUYHOxpYONz28ucTCEPyZeacQvVFJFfPIGlbXE3i', 'phay.barrameda@communixinc.com', '2025-07-25 01:55:13', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-27 17:06:08');
+(42, 'cxi11812', 'CHRISTIAN MONTOYA', 'SLT CIAN', '$2y$10$jyCYyY.UBtHPSBlKONCrpeZ15N4u0VHQw20/LxV0q6fxvqpuAa2cy', 'c.montoya@communixinc.com', '2025-07-17 19:46:35', 0, NULL, NULL, 'admin', 1, '2025-08-01 01:50:55', '2025-08-01 01:50:55'),
+(56, 'CXI12100', 'MONEDA ROLANDO', 'SLT OLAN', '$2y$10$pA3QgpdDpkdcPWQgkwqSx.kQMPgBdDbraAH58LMs6aa3cHGL7KAfO', 'R.moneda@communixinc.com', '2025-07-24 17:08:38', 0, NULL, NULL, 'admin', 1, '2025-07-31 22:56:27', '2025-07-31 22:56:27'),
+(57, 'CXI00732', 'APRIL BARRAMEDA', 'SOM PHAY', '$2y$10$Cy7ETXkpH2aU/S0NVUtPKeoO/2JmzNjl4Cl078HLmj4bsGflW1Jf2', 'phay.barrameda@communixinc.com', '2025-07-25 01:55:13', 0, NULL, NULL, 'admin', 1, '2025-07-30 02:52:30', '2025-07-30 02:52:30');
 
 --
 -- Indexes for dumped tables
@@ -877,31 +866,31 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `absenteeism`
 --
 ALTER TABLE `absenteeism`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT for table `employees`
 --
 ALTER TABLE `employees`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4752;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4757;
 
 --
 -- AUTO_INCREMENT for table `management`
 --
 ALTER TABLE `management`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 
 --
 -- AUTO_INCREMENT for table `operations_managers`
 --
 ALTER TABLE `operations_managers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `tardiness`
 --
 ALTER TABLE `tardiness`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `users`
