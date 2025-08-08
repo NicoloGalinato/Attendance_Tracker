@@ -1,65 +1,31 @@
 <?php
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/functions.php';
+
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
+header("Cache-Control: max-age=5"); // 5 second browser cache
+header("X-Accel-Expires: 5"); // For Nginx servers
 
-// Database Configuration
-$db_host = "localhost";
-$db_user = "u865665685_cxi_database";
-$db_pass = "Wea_dayaday05";
-$db_name = "u865665685_cxi_database";
+// Get the requested data type (absenteeism or tardiness)
+$type = isset($_GET['type']) ? $_GET['type'] : 'absenteeism';
 
-// Connect to MySQL
-$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
-
-if ($conn->connect_error) {
-    die(json_encode(["error" => "Connection failed: " . $conn->connect_error]));
+try {
+    if ($type === 'absenteeism') {
+        $stmt = $pdo->prepare("SELECT * FROM absenteeism ORDER BY created_at ASC");
+        $stmt->execute();
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } elseif ($type === 'tardiness') {
+        $stmt = $pdo->prepare("SELECT * FROM tardiness ORDER BY created_at ASC");
+        $stmt->execute();
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        throw new Exception("Invalid data type requested");
+    }
+    
+    echo json_encode(['success' => true, 'data' => $data]);
+} catch (PDOException $e) {
+    echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()]);
+} catch (Exception $e) {
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
-
-// Sanitize input and set defaults
-$allowed_tables = ['absenteeism', 'tardiness']; // Allowed tables
-$table = $conn->real_escape_string($_GET['table'] ?? 'absenteeism');
-$mode = $_GET['mode'] ?? 'incremental';
-$limit = min((int)($_GET['limit'] ?? 100), 500);
-$lastId = max((int)($_GET['last_id'] ?? 0), 0);
-$lastUpdate = $conn->real_escape_string($_GET['last_update'] ?? '');
-
-// Validate table name
-if (!in_array($table, $allowed_tables)) {
-    die(json_encode(["error" => "Invalid table specified"]));
-}
-
-// Fetch data
-$query = "SELECT * FROM $table WHERE id > ?";
-if (!empty($lastUpdate)) {
-    $query .= " OR created_at >= ?";
-}
-$query .= " LIMIT ?";
-
-$stmt = $conn->prepare($query);
-if ($stmt === false) {
-    die(json_encode(["error" => "Prepare failed: " . $conn->error]));
-}
-
-if (!empty($lastUpdate)) {
-    $stmt->bind_param("isi", $lastId, $lastUpdate, $limit);
-} else {
-    $stmt->bind_param("ii", $lastId, $limit);
-}
-
-$stmt->execute();
-$result = $stmt->get_result();
-
-$data = [];
-while ($row = $result->fetch_assoc()) {
-    $data[] = $row;
-}
-
-echo json_encode([
-    'mode' => $mode,
-    'data' => $data,
-    'last_update' => $lastUpdate
-]);
-
-$stmt->close();
-$conn->close();
 ?>

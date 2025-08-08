@@ -52,8 +52,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'date_of_absent' => strtoupper(sanitizeInput($_POST['date_of_absent'])),
                 'follow_call_in_procedure' => strtoupper(sanitizeInput($_POST['follow_call_in_procedure'])),
                 'sanction' => strtoupper(sanitizeInput($_POST['sanction'])),
-                'reason' => strtoupper(sanitizeInput($_POST['reason'])),
-                'coverage' => strtoupper(sanitizeInput($_POST['coverage'])),
+                'reason' => strtoupper($_POST['reason']),
+                'coverage' => strtoupper($_POST['coverage']),
                 'coverage_type' => strtoupper(sanitizeInput($_POST['coverage_type'])),
                 'shift' => strtoupper(sanitizeInput($_POST['shift'])),
                 'ir_form' => strtoupper(sanitizeInput($_POST['ir_form'])),
@@ -96,13 +96,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     shift, ir_form, timestamp, sub_name)
                     VALUES 
                     (:month, :employee_id, :full_name, :department, :supervisor, :operation_manager, :email, 
-                    :date_of_absent, :follow_call_in_procedure, :sanction, :reason, :coverage, :coverage_type, 
+                    :date_of_absent, :follow_call_in_procedure, :sanction, :reason, :coverage, :coverage_type,
                     :shift, :ir_form, :timestamp, :sub_name)");
                 
                 $stmt->execute($data);
+                $recordId = $pdo->lastInsertId();
                 
                 $_SESSION['success'] = "Absenteeism record added successfully!";
-                logActivity("Created absenteeism of {$employee['full_name']}", $id, 'absenteeism');
+                logActivity("Created absenteeism record for {$data['full_name']}", $recordId, 'absenteeism');
+                
+                // After successful insert/update
+                $action = $id > 0 ? 'updated' : 'created';
+                $recordId = $id > 0 ? $id : $pdo->lastInsertId();
+                logActivity("$action absenteeism record for {$data['full_name']}", $recordId, 'absenteeism');
             }
         } else {
             // Tardiness form
@@ -159,12 +165,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     :date_of_incident, :types, :minutes_late, :shift, :time_in, :ir_form, :timestamp, :sub_name)");
                 
                 $stmt->execute($data);
+                $recordId = $pdo->lastInsertId();
                 
                 $_SESSION['success'] = "Tardiness record added successfully!";
-                logActivity("Created tardiness of {$employee['full_name']}", $id, 'tardiness');
+                 logActivity("Created tardiness record for {$data['full_name']}", $recordId, 'tardiness');
                 // After successful insert/update
                 $action = $id > 0 ? 'updated' : 'created';
                 $recordId = $id > 0 ? $id : $pdo->lastInsertId();
+                logActivity("$action tardiness record for {$data['full_name']}", $recordId, 'tardiness');
             }
         }
         
@@ -298,14 +306,13 @@ renderSidebar('attendance');
                             <label for="reason" class="block text-sm font-medium text-gray-300 mb-2">Reason</label>
                             <textarea id="reason" name="reason" style="text-transform: uppercase;"
                                       class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
-                                      required><?= $record ? htmlspecialchars($record['reason']) : '' ?></textarea>
+                                      required><?= $record ? $record['reason'] : '' ?></textarea>
                         </div>
-                        
                         <div>
                             <label for="coverage" class="block text-sm font-medium text-gray-300 mb-2">Coverage</label>
-                            <input type="text" id="coverage" name="coverage" style="text-transform: uppercase;"
-                                   class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
-                                   value="<?= $record ? htmlspecialchars($record['coverage']) : '' ?>">
+                            <textarea id="coverage" name="coverage" style="text-transform: uppercase;"
+                                      class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                                      required><?= $record ? $record['coverage'] : '' ?></textarea>
                         </div>
                         
                         <div>

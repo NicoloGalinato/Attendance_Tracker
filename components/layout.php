@@ -98,7 +98,7 @@ function renderSidebar($activePage = 'dashboard') {
                     <i class="sidebar-icon fas fa-tachometer-alt mr-3"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="attendance.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === '#' ? 'active' : '' ?>">
+                <a href="attendance.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'attendance' ? 'active' : '' ?>">
                     <i class="sidebar-icon fas fa-chart-line mr-3"></i>
                     <span>Tracker</span>
                 </a>
@@ -124,7 +124,6 @@ function renderFooter() {
         </div>
     </footer>
     <script src="../assets/js/script.js"></script>
-    <script src="../assets/js/prompt.js"></script>
     <script>
         // Toggle sidebar on mobile
         document.getElementById('sidebarToggle').addEventListener('click', function() {

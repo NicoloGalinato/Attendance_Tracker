@@ -21,7 +21,6 @@ $_SESSION['captcha_code'] = $captchaText;
 // Add text to image
 $textColor = imagecolorallocate($image, 0, 0, 0);
 $fonts = [
-    __DIR__ . '/arial.ttf',
     __DIR__ . '/times.otf',
     // Add more fonts if available
 ];

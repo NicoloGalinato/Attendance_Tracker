@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Aug 01, 2025 at 02:36 AM
+-- Generation Time: Aug 08, 2025 at 09:56 PM
 -- Server version: 10.11.10-MariaDB
 -- PHP Version: 7.2.34
 
@@ -35,7 +35,7 @@ CREATE TABLE `absenteeism` (
   `department` varchar(100) NOT NULL,
   `supervisor` varchar(100) NOT NULL,
   `operation_manager` varchar(100) NOT NULL,
-  `email` varchar(100) NOT NULL,
+  `email` varchar(100) DEFAULT NULL,
   `date_of_absent` date NOT NULL,
   `follow_call_in_procedure` varchar(100) NOT NULL,
   `sanction` enum('ABSENCE','ABSENCE / CWD','ABSENCE / NCNS','ABSENCE / NCNS (LATE ADVISE)','ABSENCE / NCNS / CWD','ABSENCE / NCNS / CWD (LATE ADVISE)') DEFAULT NULL,
@@ -56,10 +56,250 @@ CREATE TABLE `absenteeism` (
 --
 
 INSERT INTO `absenteeism` (`id`, `month`, `employee_id`, `full_name`, `department`, `supervisor`, `operation_manager`, `email`, `date_of_absent`, `follow_call_in_procedure`, `sanction`, `reason`, `coverage`, `coverage_type`, `shift`, `ir_form`, `timestamp`, `sub_name`, `created_at`, `email_sent`, `email_sent_at`) VALUES
-(35, 'Aug 2025', 'CXI11448', 'CERTEZA, NOVELYN LANUZO', 'QA SUP', 'CXI MNGT', 'ABBES SALDIVIA', 'noviecerteza@hotmail.com', '2025-08-01', 'YES - VIBER 10:50 PM JULY 31, 2025', 'ABSENCE', 'THIS IS A TEST EMAIL', 'N/A', 'NO NEED', '4:00 AM - 1:00 PM', 'PENDING / AUG 2, 4:00 AM', '5:04 AM', 'SLT JC', '2025-07-31 21:03:03', 1, '2025-08-01 05:38:23'),
-(37, 'Aug 2025', 'CXI00699', 'BAILLO, MARY HAIL QUIRANTE', 'FOLIO CHASERS', 'CXI MNGT', 'CHRISTOPHER PALLER', 'baillomhae@gmail.com', '2025-08-01', 'YES - VIBER 4:27 PM AUG 1, 2025', 'ABSENCE / CWD', 'THIS IS  A TEST EMAIL. PLEASE DISREGARD', 'N/A', 'NO NEED', '9:00 PM - 6:00 AM', 'PENDING / AUG 2, 9:00 PM', '5:20 AM', 'SLT NICO', '2025-07-31 21:20:45', 1, '2025-08-01 05:40:15'),
-(38, 'Aug 2025', 'CXI11597', 'MAESTRE, SIDNEY MANALANG', 'AMERICAN AIRLINES', 'LATORENO, ABEJUN', 'BENEDICT MENDOZA', 'maestresidney8@gmail.com', '2025-08-01', 'YES - VIBER 9:47 PM JULY 29, 2025', 'ABSENCE / NCNS / CWD (LATE ADVISE)', 'TESTING TRACKER PROGRAM', 'UNCOVERED', 'PENDING', '4:00 AM - 1:00 PM', 'PENDING / JUL 30, 4:00 AM', '6:56 AM', 'SLT CIAN', '2025-07-31 21:58:32', 1, '2025-08-01 05:58:44'),
-(39, 'Aug 2025', 'CXI11330', 'MORADAS, JAYZIN CASTRO', 'QA SPECIALIST', 'PAMULAR, ERNISON', 'ABBES SALDIVIA', 'moradasjayzin3@gmail.com', '2025-08-02', 'YES - VIBER 8:47 PM AUG 1, 2025', 'ABSENCE', 'TEST EMAIL. PLEASE DISREGARD', 'PENDING', 'NO NEED', '9:00 PM - 6:00 AM', 'YES', '6:58 AM', 'SLT JC', '2025-07-31 22:02:45', 1, '2025-08-01 06:03:15');
+(72, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-08', 'NO', 'ABSENCE / NCNS / CWD', 'NCNS', 'N/A', 'NO NEED', '7:00 PM - 4:00 AM', 'FOR IR', '3:56 PM', 'SLT NICO', '2025-08-08 07:56:46', 0, NULL),
+(73, 'Aug 2025', 'CXI11647', 'OLAES, ALEXANDER RAY', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'alexander.olaes2002@gmail.com', '2025-08-06', 'NO', 'ABSENCE / NCNS', 'NCNS', 'N/A', 'NO NEED', '7:00 PM - 4:00 AM', 'FOR IR', '3:57 PM', 'SLT NICO', '2025-08-08 07:57:36', 0, NULL),
+(74, 'Aug 2025', 'CXI11597', 'MAESTRE, SIDNEY MANALANG', 'AMERICAN AIRLINES', 'LATORENO, ABEJUN', 'BENEDICT MENDOZA', 'maestresidney8@gmail.com', '2025-08-05', 'NO', 'ABSENCE / NCNS / CWD', 'NCNS', 'NO NEED', 'NO NEED', '7:00 PM - 4:00 AM', 'YES', '4:22 PM', 'SLT NICO', '2025-08-08 07:58:08', 0, NULL),
+(75, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-09', 'YES - VIBER 5:48 PM JULY 30, 2025', 'ABSENCE / CWD', 'ASD', 'ASD', 'TRAINEE', '4:00 AM - 1:00 PM', 'PENDING', '2:39 AM', 'SLT NICO', '2025-08-08 18:39:45', 0, NULL),
+(76, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-09', 'NO', 'ABSENCE', 'ASD', 'ASD', 'TRAINEE', 'ASD', 'PENDING', '2:40 AM', 'SLT NICO', '2025-08-08 18:40:02', 0, NULL),
+(77, 'Aug 2025', 'CXI11845', 'MONINIO, BEJAY', 'AA BILLING DB', 'VIDOR, EUGENE', 'CHARISSE RIVERA', 'moninio.bejay@gmail.com', '2025-08-09', '1', 'ABSENCE', '1', '1', '-', '1', '1', '2:43 AM', 'SLT NICO', '2025-08-08 18:43:40', 0, NULL),
+(78, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-09', 'Q', 'ABSENCE', 'Q', 'PENDING', 'PENDING', 'Q', 'Q', '3:13 AM', 'SLT NICO', '2025-08-08 18:43:53', 0, NULL),
+(79, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-09', 'Q', 'ABSENCE', 'Q', 'Q', '-', 'Q', 'Q', '2:44 AM', 'SLT NICO', '2025-08-08 18:44:06', 0, NULL),
+(80, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-09', 'Q', 'ABSENCE', 'Q', 'Q', '-', 'Q', 'Q', '2:44 AM', 'SLT NICO', '2025-08-08 18:44:17', 0, NULL),
+(81, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-09', 'Q', 'ABSENCE', 'Q', 'Q', '-', 'Q', 'Q', '2:44 AM', 'SLT NICO', '2025-08-08 18:44:28', 0, NULL),
+(82, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-09', 'Q', 'ABSENCE', 'Q', 'UNCOVERED', '-', 'Q', 'Q', '3:18 AM', 'SLT NICO', '2025-08-08 18:44:39', 0, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `activity_history`
+--
+
+CREATE TABLE `activity_history` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `sub_name` varchar(255) NOT NULL,
+  `activity_description` text NOT NULL,
+  `activity_time` timestamp NULL DEFAULT current_timestamp(),
+  `record_id` int(11) DEFAULT NULL,
+  `record_type` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `activity_history`
+--
+
+INSERT INTO `activity_history` (`id`, `user_id`, `sub_name`, `activity_description`, `activity_time`, `record_id`, `record_type`) VALUES
+(254, 1, 'SLT NICO', 'Created absenteeism record for GALINATO, NICO', '2025-08-06 10:10:56', 49, 'absenteeism'),
+(255, 1, 'SLT NICO', 'created absenteeism record for GALINATO, NICO', '2025-08-06 10:10:56', 254, 'absenteeism'),
+(256, 1, 'SLT NICO', 'Created tardiness record for GALINATO, NICO', '2025-08-06 10:11:30', 117, 'tardiness'),
+(257, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-06 10:11:30', 256, 'tardiness'),
+(258, 1, 'SLT NICO', 'Created absenteeism record for GALINATO, NICO', '2025-08-06 10:31:18', 50, 'absenteeism'),
+(259, 1, 'SLT NICO', 'created absenteeism record for GALINATO, NICO', '2025-08-06 10:31:18', 258, 'absenteeism'),
+(260, 1, 'SLT NICO', 'Created tardiness record for GALINATO, NICO', '2025-08-06 11:09:56', 118, 'tardiness'),
+(261, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-06 11:09:56', 260, 'tardiness'),
+(262, 1, 'SLT NICO', 'Updated absenteeism of GALINATO, NICO', '2025-08-06 11:57:11', 50, 'absenteeism'),
+(263, 1, 'SLT NICO', 'Created tardiness record for GALINATO, NICO', '2025-08-06 11:59:26', 119, 'tardiness'),
+(264, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-06 11:59:26', 263, 'tardiness'),
+(265, 1, 'SLT NICO', 'Created tardiness record for GALINATO, NICO', '2025-08-06 12:02:27', 120, 'tardiness'),
+(266, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-06 12:02:27', 265, 'tardiness'),
+(267, 1, 'SLT NICO', 'Created absenteeism record for GALINATO, NICO', '2025-08-06 12:03:52', 51, 'absenteeism'),
+(268, 1, 'SLT NICO', 'created absenteeism record for GALINATO, NICO', '2025-08-06 12:03:52', 267, 'absenteeism'),
+(269, 1, 'SLT NICO', 'Updated absenteeism of GALINATO, NICO', '2025-08-06 12:05:11', 51, 'absenteeism'),
+(270, 1, 'SLT NICO', 'Updated absenteeism of GALINATO, NICO', '2025-08-06 12:07:42', 51, 'absenteeism'),
+(271, 1, 'SLT NICO', 'Updated absenteeism of GALINATO, NICO', '2025-08-06 12:09:39', 51, 'absenteeism'),
+(272, 1, 'SLT NICO', 'Updated absenteeism of GALINATO, NICO', '2025-08-06 12:10:55', 51, 'absenteeism'),
+(273, 1, 'SLT NICO', 'Updated absenteeism of GALINATO, NICO', '2025-08-06 12:13:24', 51, 'absenteeism'),
+(274, 1, 'SLT NICO', 'Updated absenteeism of GALINATO, NICO', '2025-08-06 12:13:45', 51, 'absenteeism'),
+(275, 1, 'SLT NICO', 'Updated absenteeism of GALINATO, NICO', '2025-08-06 12:15:07', 51, 'absenteeism'),
+(276, 1, 'SLT NICO', 'Updated absenteeism of GALINATO, NICO', '2025-08-06 12:16:34', 51, 'absenteeism'),
+(277, 1, 'SLT NICO', 'Updated absenteeism of GALINATO, NICO', '2025-08-06 12:17:12', 51, 'absenteeism'),
+(278, 1, 'SLT NICO', 'Updated absenteeism of GALINATO, NICO', '2025-08-06 12:17:44', 51, 'absenteeism'),
+(279, 1, 'SLT NICO', 'Updated absenteeism of GALINATO, NICO', '2025-08-06 12:18:28', 51, 'absenteeism'),
+(280, 1, 'SLT NICO', 'Updated absenteeism of GALINATO, NICO', '2025-08-06 12:18:47', 51, 'absenteeism'),
+(281, 1, 'SLT NICO', 'Created tardiness record for GALINATO, NICO', '2025-08-06 12:20:03', 121, 'tardiness'),
+(282, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-06 12:20:03', 281, 'tardiness'),
+(283, 1, 'SLT NICO', 'Sent email: \'TARDINESS - GALINATO, NICO - Aug 06, 2025\' to GALINATO, NICO', '2025-08-06 12:24:35', 121, 'tardiness'),
+(284, 1, 'SLT NICO', 'Created tardiness record for OLAES, ALEXANDER RAY', '2025-08-06 12:34:53', 122, 'tardiness'),
+(285, 1, 'SLT NICO', 'created tardiness record for OLAES, ALEXANDER RAY', '2025-08-06 12:34:53', 284, 'tardiness'),
+(286, 1, 'SLT NICO', 'Created tardiness record for SANTOS, LALAINE', '2025-08-06 12:37:11', 123, 'tardiness'),
+(287, 1, 'SLT NICO', 'created tardiness record for SANTOS, LALAINE', '2025-08-06 12:37:11', 286, 'tardiness'),
+(288, 1, 'SLT NICO', 'Created tardiness record for GALINATO, NICO', '2025-08-06 12:41:01', 124, 'tardiness'),
+(289, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-06 12:41:01', 288, 'tardiness'),
+(290, 1, 'SLT NICO', 'Created tardiness record for BAUTISTA, SHARMAINE NICOLE', '2025-08-06 12:46:00', 125, 'tardiness'),
+(291, 1, 'SLT NICO', 'created tardiness record for BAUTISTA, SHARMAINE NICOLE', '2025-08-06 12:46:00', 290, 'tardiness'),
+(292, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-06 12:47:59', 124, 'tardiness'),
+(293, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-06 12:49:11', 124, 'tardiness'),
+(294, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-06 12:49:47', 124, 'tardiness'),
+(295, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-06 12:49:58', 124, 'tardiness'),
+(296, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-06 12:51:04', 124, 'tardiness'),
+(297, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-06 12:52:39', 124, 'tardiness'),
+(298, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-06 12:53:24', 124, 'tardiness'),
+(299, 1, 'SLT NICO', 'Created tardiness record for GALINATO, NICO', '2025-08-06 12:53:56', 126, 'tardiness'),
+(300, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-06 12:53:56', 299, 'tardiness'),
+(301, 1, 'SLT NICO', 'Created tardiness record for SANTOS, LALAINE', '2025-08-06 12:54:15', 127, 'tardiness'),
+(302, 1, 'SLT NICO', 'created tardiness record for SANTOS, LALAINE', '2025-08-06 12:54:15', 301, 'tardiness'),
+(303, 1, 'SLT NICO', 'Created tardiness record for OLAES, ALEXANDER RAY', '2025-08-06 12:54:35', 128, 'tardiness'),
+(304, 1, 'SLT NICO', 'created tardiness record for OLAES, ALEXANDER RAY', '2025-08-06 12:54:35', 303, 'tardiness'),
+(305, 42, 'SLT CIAN', 'Created tardiness record for MONTOYA, CHRISTIAN', '2025-08-06 12:54:49', 129, 'tardiness'),
+(306, 42, 'SLT CIAN', 'created tardiness record for MONTOYA, CHRISTIAN', '2025-08-06 12:54:49', 305, 'tardiness'),
+(307, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-06 12:55:18', 126, 'tardiness'),
+(308, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-06 12:55:23', 124, 'tardiness'),
+(309, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-06 12:55:27', 120, 'tardiness'),
+(310, 42, 'SLT CIAN', 'Updated tardiness of MONTOYA, CHRISTIAN', '2025-08-06 12:55:32', 129, 'tardiness'),
+(311, 1, 'SLT NICO', 'Updated tardiness of MONTOYA, CHRISTIAN', '2025-08-06 13:02:12', 129, 'tardiness'),
+(312, 1, 'SLT NICO', 'Created tardiness record for GALINATO, NICO', '2025-08-07 04:26:30', 130, 'tardiness'),
+(313, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-07 04:26:30', 312, 'tardiness'),
+(314, 1, 'SLT NICO', 'Created tardiness record for GALINATO, NICO', '2025-08-07 04:26:59', 131, 'tardiness'),
+(315, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-07 04:26:59', 314, 'tardiness'),
+(316, 1, 'SLT NICO', 'Updated absenteeism of GALINATO, NICO', '2025-08-07 05:06:50', 51, 'absenteeism'),
+(317, 1, 'SLT NICO', 'Updated absenteeism of GALINATO, NICO', '2025-08-07 05:07:14', 51, 'absenteeism'),
+(318, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-07 18:32:51', 124, 'tardiness'),
+(319, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-07 18:32:59', 120, 'tardiness'),
+(320, 1, 'SLT NICO', 'Created tardiness record for GALINATO, NICO', '2025-08-07 18:33:21', 132, 'tardiness'),
+(321, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-07 18:33:21', 320, 'tardiness'),
+(322, 1, 'SLT NICO', 'Created tardiness record for GALINATO, NICO', '2025-08-07 18:34:02', 133, 'tardiness'),
+(323, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-07 18:34:02', 322, 'tardiness'),
+(324, 1, 'SLT NICO', 'Created tardiness record for GALINATO, NICO', '2025-08-07 18:34:53', 134, 'tardiness'),
+(325, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-07 18:34:53', 324, 'tardiness'),
+(326, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-07 18:35:16', 134, 'tardiness'),
+(327, 1, 'SLT NICO', 'Created tardiness record for GALINATO, NICO', '2025-08-07 18:35:51', 135, 'tardiness'),
+(328, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-07 18:35:51', 327, 'tardiness'),
+(329, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-07 18:36:18', 135, 'tardiness'),
+(330, 1, 'SLT NICO', 'Created tardiness record for GALINATO, NICO', '2025-08-07 18:38:23', 136, 'tardiness'),
+(331, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-07 18:38:23', 330, 'tardiness'),
+(332, 1, 'SLT NICO', 'Created tardiness record for GALINATO, NICO', '2025-08-07 18:39:51', 137, 'tardiness'),
+(333, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-07 18:39:51', 332, 'tardiness'),
+(334, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-07 18:44:01', 137, 'tardiness'),
+(335, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-07 18:44:16', 137, 'tardiness'),
+(336, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-07 18:44:37', 120, 'tardiness'),
+(337, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-07 18:44:44', 124, 'tardiness'),
+(338, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-07 18:45:10', 132, 'tardiness'),
+(339, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-07 18:45:16', 135, 'tardiness'),
+(340, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-07 18:45:21', 136, 'tardiness'),
+(341, 1, 'SLT NICO', 'Created tardiness record for GALINATO, NICO', '2025-08-07 18:45:37', 138, 'tardiness'),
+(342, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-07 18:45:37', 341, 'tardiness'),
+(343, 1, 'SLT NICO', 'Created tardiness record for GALINATO, NICO', '2025-08-07 18:46:02', 139, 'tardiness'),
+(344, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-07 18:46:02', 343, 'tardiness'),
+(345, 1, 'SLT NICO', 'Created tardiness record for BERNAL, JOHN IVAN', '2025-08-07 18:46:38', 140, 'tardiness'),
+(346, 1, 'SLT NICO', 'created tardiness record for BERNAL, JOHN IVAN', '2025-08-07 18:46:38', 345, 'tardiness'),
+(347, 1, 'SLT NICO', 'Created tardiness record for BERNAL, JOHN IVAN', '2025-08-07 18:47:02', 141, 'tardiness'),
+(348, 1, 'SLT NICO', 'created tardiness record for BERNAL, JOHN IVAN', '2025-08-07 18:47:02', 347, 'tardiness'),
+(349, 1, 'SLT NICO', 'Created tardiness record for BERNAL, JOHN IVAN', '2025-08-07 18:47:18', 142, 'tardiness'),
+(350, 1, 'SLT NICO', 'created tardiness record for BERNAL, JOHN IVAN', '2025-08-07 18:47:18', 349, 'tardiness'),
+(351, 1, 'SLT NICO', 'Updated tardiness of BERNAL, JOHN IVAN', '2025-08-08 05:26:03', 140, 'tardiness'),
+(352, 1, 'SLT NICO', 'Created tardiness record for BERNAL, JOHN IVAN', '2025-08-08 05:26:37', 143, 'tardiness'),
+(353, 1, 'SLT NICO', 'created tardiness record for BERNAL, JOHN IVAN', '2025-08-08 05:26:37', 352, 'tardiness'),
+(354, 1, 'SLT NICO', 'Created tardiness record for BERNAL, JOHN IVAN', '2025-08-08 05:26:56', 144, 'tardiness'),
+(355, 1, 'SLT NICO', 'created tardiness record for BERNAL, JOHN IVAN', '2025-08-08 05:26:56', 354, 'tardiness'),
+(356, 1, 'SLT NICO', 'Created tardiness record for BERNAL, JOHN IVAN', '2025-08-08 05:27:14', 145, 'tardiness'),
+(357, 1, 'SLT NICO', 'created tardiness record for BERNAL, JOHN IVAN', '2025-08-08 05:27:14', 356, 'tardiness'),
+(358, 1, 'SLT NICO', 'Updated tardiness of BERNAL, JOHN IVAN', '2025-08-08 05:27:49', 144, 'tardiness'),
+(359, 1, 'SLT NICO', 'Updated tardiness of BERNAL, JOHN IVAN', '2025-08-08 05:27:53', 143, 'tardiness'),
+(360, 1, 'SLT NICO', 'Created tardiness record for BERNAL, JOHN IVAN', '2025-08-08 05:28:12', 146, 'tardiness'),
+(361, 1, 'SLT NICO', 'created tardiness record for BERNAL, JOHN IVAN', '2025-08-08 05:28:12', 360, 'tardiness'),
+(362, 1, 'SLT NICO', 'Updated absenteeism of GALINATO, NICO', '2025-08-08 09:52:35', 51, 'absenteeism'),
+(363, 1, 'SLT NICO', 'Updated absenteeism of GALINATO, NICO', '2025-08-08 10:52:19', 51, 'absenteeism'),
+(364, 1, 'SLT NICO', 'Updated absenteeism of GALINATO, NICO', '2025-08-08 11:00:58', 51, 'absenteeism'),
+(365, 1, 'SLT NICO', 'Created absenteeism record for ORAYA, IRENE', '2025-08-08 11:38:10', 52, 'absenteeism'),
+(366, 1, 'SLT NICO', 'created absenteeism record for ORAYA, IRENE', '2025-08-08 11:38:10', 365, 'absenteeism'),
+(367, 1, 'SLT NICO', 'Created absenteeism record for FAJARDO, JOHN RONALD', '2025-08-08 11:47:29', 53, 'absenteeism'),
+(368, 1, 'SLT NICO', 'created absenteeism record for FAJARDO, JOHN RONALD', '2025-08-08 11:47:29', 367, 'absenteeism'),
+(369, 1, 'SLT NICO', 'Created absenteeism record for RAMOS, JOHN PAUL', '2025-08-08 11:48:11', 54, 'absenteeism'),
+(370, 1, 'SLT NICO', 'created absenteeism record for RAMOS, JOHN PAUL', '2025-08-08 11:48:11', 369, 'absenteeism'),
+(371, 1, 'SLT NICO', 'Created absenteeism record for FAUSTINO, AIRIEL', '2025-08-08 11:49:12', 55, 'absenteeism'),
+(372, 1, 'SLT NICO', 'created absenteeism record for FAUSTINO, AIRIEL', '2025-08-08 11:49:12', 371, 'absenteeism'),
+(373, 1, 'SLT NICO', 'Updated absenteeism of FAUSTINO, AIRIEL', '2025-08-08 11:49:29', 55, 'absenteeism'),
+(374, 1, 'SLT NICO', 'Updated absenteeism of FAUSTINO, AIRIEL', '2025-08-08 11:49:43', 55, 'absenteeism'),
+(375, 1, 'SLT NICO', 'Created absenteeism record for DIAZ, NIMFA ANGELA CORPUZ', '2025-08-08 11:50:39', 56, 'absenteeism'),
+(376, 1, 'SLT NICO', 'created absenteeism record for DIAZ, NIMFA ANGELA CORPUZ', '2025-08-08 11:50:39', 375, 'absenteeism'),
+(377, 1, 'SLT NICO', 'Created absenteeism record for ALLEQUIR, ROSALYN', '2025-08-08 11:51:49', 57, 'absenteeism'),
+(378, 1, 'SLT NICO', 'created absenteeism record for ALLEQUIR, ROSALYN', '2025-08-08 11:51:49', 377, 'absenteeism'),
+(379, 1, 'SLT NICO', 'Created absenteeism record for CONCEPCION, CHERRY MAY CATEDRILLA', '2025-08-08 11:53:03', 58, 'absenteeism'),
+(380, 1, 'SLT NICO', 'created absenteeism record for CONCEPCION, CHERRY MAY CATEDRILLA', '2025-08-08 11:53:03', 379, 'absenteeism'),
+(381, 1, 'SLT NICO', 'Updated absenteeism of ORAYA, IRENE', '2025-08-08 11:57:46', 52, 'absenteeism'),
+(382, 1, 'SLT NICO', 'Updated absenteeism of DIAZ, NIMFA ANGELA CORPUZ', '2025-08-08 12:04:21', 56, 'absenteeism'),
+(383, 1, 'SLT NICO', 'Updated absenteeism of DIAZ, NIMFA ANGELA CORPUZ', '2025-08-08 12:17:25', 56, 'absenteeism'),
+(384, 1, 'SLT NICO', 'Updated absenteeism of FAUSTINO, AIRIEL', '2025-08-08 12:19:34', 55, 'absenteeism'),
+(385, 1, 'SLT NICO', 'Updated absenteeism of CONCEPCION, CHERRY MAY CATEDRILLA', '2025-08-08 12:19:55', 58, 'absenteeism'),
+(386, 1, 'SLT NICO', 'Updated absenteeism of CONCEPCION, CHERRY MAY CATEDRILLA', '2025-08-08 12:21:06', 58, 'absenteeism'),
+(387, 1, 'SLT NICO', 'Updated absenteeism of FAUSTINO, AIRIEL', '2025-08-08 12:22:43', 55, 'absenteeism'),
+(388, 1, 'SLT NICO', 'Updated absenteeism of FAUSTINO, AIRIEL', '2025-08-08 12:24:17', 55, 'absenteeism'),
+(389, 1, 'SLT NICO', 'Updated absenteeism of CONCEPCION, CHERRY MAY CATEDRILLA', '2025-08-08 12:24:36', 58, 'absenteeism'),
+(390, 1, 'SLT NICO', 'Updated absenteeism of CONCEPCION, CHERRY MAY CATEDRILLA', '2025-08-08 12:25:00', 58, 'absenteeism'),
+(391, 1, 'SLT NICO', 'Updated absenteeism of CONCEPCION, CHERRY MAY CATEDRILLA', '2025-08-08 12:26:30', 58, 'absenteeism'),
+(392, 1, 'SLT NICO', 'Updated absenteeism of FAJARDO, JOHN RONALD', '2025-08-08 12:27:01', 53, 'absenteeism'),
+(393, 1, 'SLT NICO', 'Created absenteeism record for BELOSTRINO, JEROME PAGUYO', '2025-08-08 12:32:28', 59, 'absenteeism'),
+(394, 1, 'SLT NICO', 'created absenteeism record for BELOSTRINO, JEROME PAGUYO', '2025-08-08 12:32:28', 393, 'absenteeism'),
+(395, 1, 'SLT NICO', 'Created absenteeism record for DIAZ, ANGELICA JOY', '2025-08-08 12:33:30', 60, 'absenteeism'),
+(396, 1, 'SLT NICO', 'created absenteeism record for DIAZ, ANGELICA JOY', '2025-08-08 12:33:30', 395, 'absenteeism'),
+(397, 1, 'SLT NICO', 'Created absenteeism record for VILLADOR, EDDONNIE', '2025-08-08 12:34:40', 61, 'absenteeism'),
+(398, 1, 'SLT NICO', 'created absenteeism record for VILLADOR, EDDONNIE', '2025-08-08 12:34:40', 397, 'absenteeism'),
+(399, 1, 'SLT NICO', 'Created absenteeism record for LOMAT, IVERSON', '2025-08-08 12:35:22', 62, 'absenteeism'),
+(400, 1, 'SLT NICO', 'created absenteeism record for LOMAT, IVERSON', '2025-08-08 12:35:22', 399, 'absenteeism'),
+(401, 1, 'SLT NICO', 'Created absenteeism record for ABILES, CHARLZ DANEVER GUIBIJAR', '2025-08-08 12:36:02', 63, 'absenteeism'),
+(402, 1, 'SLT NICO', 'created absenteeism record for ABILES, CHARLZ DANEVER GUIBIJAR', '2025-08-08 12:36:02', 401, 'absenteeism'),
+(403, 1, 'SLT NICO', 'Created absenteeism record for CORILLO, MARIE ROSS', '2025-08-08 12:36:51', 64, 'absenteeism'),
+(404, 1, 'SLT NICO', 'created absenteeism record for CORILLO, MARIE ROSS', '2025-08-08 12:36:51', 403, 'absenteeism'),
+(405, 1, 'SLT NICO', 'Created absenteeism record for BERSAMIN, LEONARD MACAPAGAL', '2025-08-08 12:39:02', 65, 'absenteeism'),
+(406, 1, 'SLT NICO', 'created absenteeism record for BERSAMIN, LEONARD MACAPAGAL', '2025-08-08 12:39:02', 405, 'absenteeism'),
+(407, 1, 'SLT NICO', 'Created absenteeism record for ABUDA, ANGELYN P.', '2025-08-08 12:40:13', 66, 'absenteeism'),
+(408, 1, 'SLT NICO', 'created absenteeism record for ABUDA, ANGELYN P.', '2025-08-08 12:40:13', 407, 'absenteeism'),
+(409, 1, 'SLT NICO', 'Created absenteeism record for DIAZ, NIMFA ANGELA CORPUZ', '2025-08-08 12:40:51', 67, 'absenteeism'),
+(410, 1, 'SLT NICO', 'created absenteeism record for DIAZ, NIMFA ANGELA CORPUZ', '2025-08-08 12:40:51', 409, 'absenteeism'),
+(411, 1, 'SLT NICO', 'Created absenteeism record for BALAUZA, KEN DARYL', '2025-08-08 12:41:47', 68, 'absenteeism'),
+(412, 1, 'SLT NICO', 'created absenteeism record for BALAUZA, KEN DARYL', '2025-08-08 12:41:47', 411, 'absenteeism'),
+(413, 1, 'SLT NICO', 'Created absenteeism record for MALANG, DHODIE', '2025-08-08 12:42:35', 69, 'absenteeism'),
+(414, 1, 'SLT NICO', 'created absenteeism record for MALANG, DHODIE', '2025-08-08 12:42:35', 413, 'absenteeism'),
+(415, 1, 'SLT NICO', 'Updated absenteeism of MALANG, DHODIE', '2025-08-08 12:42:48', 69, 'absenteeism'),
+(416, 1, 'SLT NICO', 'Created absenteeism record for BARRAMEDA, ERIKA MAE BORBO', '2025-08-08 12:43:37', 70, 'absenteeism'),
+(417, 1, 'SLT NICO', 'created absenteeism record for BARRAMEDA, ERIKA MAE BORBO', '2025-08-08 12:43:37', 416, 'absenteeism'),
+(418, 1, 'SLT NICO', 'Created absenteeism record for LOPOZ, JOSE DANIEL', '2025-08-08 12:44:08', 71, 'absenteeism'),
+(419, 1, 'SLT NICO', 'created absenteeism record for LOPOZ, JOSE DANIEL', '2025-08-08 12:44:08', 418, 'absenteeism'),
+(420, 1, 'SLT NICO', 'Updated absenteeism of LOPOZ, JOSE DANIEL', '2025-08-08 12:44:18', 71, 'absenteeism'),
+(421, 1, 'SLT NICO', 'Updated absenteeism of LOPOZ, JOSE DANIEL', '2025-08-08 12:44:32', 71, 'absenteeism'),
+(422, 1, 'SLT NICO', 'Updated absenteeism of DIAZ, NIMFA ANGELA CORPUZ', '2025-08-08 12:48:02', 56, 'absenteeism'),
+(423, 1, 'SLT NICO', 'Created tardiness record for GALINATO, NICO', '2025-08-08 15:52:57', 147, 'tardiness'),
+(424, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-08 15:52:57', 423, 'tardiness'),
+(425, 1, 'SLT NICO', 'Created absenteeism record for GALINATO, NICO', '2025-08-08 15:56:46', 72, 'absenteeism'),
+(426, 1, 'SLT NICO', 'created absenteeism record for GALINATO, NICO', '2025-08-08 15:56:46', 425, 'absenteeism'),
+(427, 1, 'SLT NICO', 'Created absenteeism record for OLAES, ALEXANDER RAY', '2025-08-08 15:57:36', 73, 'absenteeism'),
+(428, 1, 'SLT NICO', 'created absenteeism record for OLAES, ALEXANDER RAY', '2025-08-08 15:57:36', 427, 'absenteeism'),
+(429, 1, 'SLT NICO', 'Created absenteeism record for MAESTRE, SIDNEY MANALANG', '2025-08-08 15:58:08', 74, 'absenteeism'),
+(430, 1, 'SLT NICO', 'created absenteeism record for MAESTRE, SIDNEY MANALANG', '2025-08-08 15:58:08', 429, 'absenteeism'),
+(431, 1, 'SLT NICO', 'Updated absenteeism of MAESTRE, SIDNEY MANALANG', '2025-08-08 16:18:32', 74, 'absenteeism'),
+(432, 1, 'SLT NICO', 'Updated absenteeism of MAESTRE, SIDNEY MANALANG', '2025-08-08 16:22:18', 74, 'absenteeism'),
+(433, 1, 'SLT NICO', 'Created absenteeism record for GALINATO, NICO', '2025-08-09 02:39:45', 75, 'absenteeism'),
+(434, 1, 'SLT NICO', 'created absenteeism record for GALINATO, NICO', '2025-08-09 02:39:45', 433, 'absenteeism'),
+(435, 1, 'SLT NICO', 'Created absenteeism record for GALINATO, NICO', '2025-08-09 02:40:02', 76, 'absenteeism'),
+(436, 1, 'SLT NICO', 'created absenteeism record for GALINATO, NICO', '2025-08-09 02:40:02', 435, 'absenteeism'),
+(437, 1, 'SLT NICO', 'Created absenteeism record for MONINIO, BEJAY', '2025-08-09 02:43:40', 77, 'absenteeism'),
+(438, 1, 'SLT NICO', 'created absenteeism record for MONINIO, BEJAY', '2025-08-09 02:43:40', 437, 'absenteeism'),
+(439, 1, 'SLT NICO', 'Created absenteeism record for GALINATO, NICO', '2025-08-09 02:43:53', 78, 'absenteeism'),
+(440, 1, 'SLT NICO', 'created absenteeism record for GALINATO, NICO', '2025-08-09 02:43:53', 439, 'absenteeism'),
+(441, 1, 'SLT NICO', 'Created absenteeism record for GALINATO, NICO', '2025-08-09 02:44:06', 79, 'absenteeism'),
+(442, 1, 'SLT NICO', 'created absenteeism record for GALINATO, NICO', '2025-08-09 02:44:06', 441, 'absenteeism'),
+(443, 1, 'SLT NICO', 'Created absenteeism record for GALINATO, NICO', '2025-08-09 02:44:17', 80, 'absenteeism'),
+(444, 1, 'SLT NICO', 'created absenteeism record for GALINATO, NICO', '2025-08-09 02:44:17', 443, 'absenteeism'),
+(445, 1, 'SLT NICO', 'Created absenteeism record for GALINATO, NICO', '2025-08-09 02:44:28', 81, 'absenteeism'),
+(446, 1, 'SLT NICO', 'created absenteeism record for GALINATO, NICO', '2025-08-09 02:44:28', 445, 'absenteeism'),
+(447, 1, 'SLT NICO', 'Created absenteeism record for GALINATO, NICO', '2025-08-09 02:44:39', 82, 'absenteeism'),
+(448, 1, 'SLT NICO', 'created absenteeism record for GALINATO, NICO', '2025-08-09 02:44:39', 447, 'absenteeism'),
+(449, 1, 'SLT NICO', 'Updated absenteeism of GALINATO, NICO', '2025-08-09 03:13:40', 78, 'absenteeism'),
+(450, 1, 'SLT NICO', 'Updated absenteeism of GALINATO, NICO', '2025-08-09 03:13:50', 82, 'absenteeism'),
+(451, 1, 'SLT NICO', 'Updated absenteeism of GALINATO, NICO', '2025-08-09 03:18:40', 82, 'absenteeism'),
+(452, 1, 'SLT NICO', 'Created tardiness record for GALINATO, NICO', '2025-08-09 03:29:17', 148, 'tardiness'),
+(453, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-09 03:29:17', 452, 'tardiness'),
+(454, 1, 'SLT NICO', 'Created tardiness record for GALINATO, NICO', '2025-08-09 03:29:39', 149, 'tardiness'),
+(455, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-09 03:29:39', 454, 'tardiness'),
+(456, 1, 'SLT NICO', 'Created tardiness record for GALINATO, NICO', '2025-08-09 03:29:57', 150, 'tardiness'),
+(457, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-09 03:29:57', 456, 'tardiness'),
+(458, 1, 'SLT NICO', 'Created tardiness record for GALINATO, NICO', '2025-08-09 03:30:18', 151, 'tardiness'),
+(459, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-09 03:30:18', 458, 'tardiness'),
+(460, 1, 'SLT NICO', 'Created tardiness record for GALINATO, NICO', '2025-08-09 03:30:48', 152, 'tardiness'),
+(461, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-09 03:30:48', 460, 'tardiness'),
+(462, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-09 03:31:02', 151, 'tardiness'),
+(463, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-09 03:31:07', 150, 'tardiness'),
+(464, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-09 03:31:15', 149, 'tardiness');
 
 -- --------------------------------------------------------
 
@@ -512,7 +752,7 @@ INSERT INTO `employees` (`id`, `employee_id`, `full_name`, `department`, `superv
 (4616, 'CXI11784', 'BULASAG, SHIENA CODICO', 'BNSF', 'ICALIA, EZEKIEL', 'Christopher Paller', 'bulasagshiena@gmail.com', '2025-07-24 01:14:15', '2025-07-28 23:49:45', 1),
 (4617, 'CXI11821', 'DILOY, AMORSOLO R.', 'BNSF', 'ICALIA, EZEKIEL', 'Christopher Paller', 'ardiloy122187@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4618, 'CXI11618', 'AMBOS, MARK JOSUA D', 'BNSF', 'ICALIA, EZEKIEL', 'Christopher Paller', 'mjambos10@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
-(4619, 'CXI11871', 'SATO, PRINCE ALPHARD', 'BNSF', 'ICALIA, EZEKIEL', 'Christopher Paller', '', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
+(4619, 'CXI11871', 'SATO, PRINCE ALPHARD', 'BNSF', 'ICALIA, EZEKIEL', 'Christopher Paller', 'princealphard1@gmail.com', '2025-07-24 01:14:15', '2025-08-06 02:15:14', 1),
 (4620, 'CXI11820', 'LACSON, ADRIAN P.', 'BNSF', 'ICALIA, EZEKIEL', 'Christopher Paller', 'adrianlacson011@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4621, 'CXI11672', 'PEÑALBA, MARK KEVIN', 'BNSF CALLBACK TEAM', 'ICALIA, EZEKIEL', 'Christopher Paller', '', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4622, 'CXI11217', 'MIRANDA, IMELDA MONTEGREJO', 'BNSF CALLBACK TEAM', 'ICALIA, EZEKIEL', 'Christopher Paller', 'mirandaimelda53@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
@@ -630,7 +870,7 @@ INSERT INTO `employees` (`id`, `employee_id`, `full_name`, `department`, `superv
 (4734, 'CXI01003', 'CASILAGAN, CHRISTIAN GARCIA', 'QA SPECIALIST', 'CERTEZA, NOVELYN', 'Abbes Saldivia', 'garciacasey591@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4735, 'CXI12027', 'SARIA, KAYE EMERYLL', 'CLC MANAGED', 'SAYAS, FE', 'Christopher Paller', 'CXI11776', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4736, 'CXI12039', 'BALBIN, JANREB', 'CLC MANAGED', 'SAYAS, FE', 'Christopher Paller', 'CXI11776', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
-(4737, 'CXI12033', 'FAJARDO, JOHN RONALD', 'CLC MANAGED', 'SAYAS, FE', 'Christopher Paller', 'CXI11776', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
+(4737, 'CXI12033', 'FAJARDO, JOHN RONALD', 'CLC MANAGED', 'SAYAS, FE', 'Christopher Paller', 'johnronaldfajardo@gmail.com', '2025-07-24 01:14:15', '2025-08-08 03:38:45', 1),
 (4738, 'CXI12035', 'TRIÑANES, SALVADOR CONNER', 'CLC MANAGED', 'SAYAS, FE', 'Christopher Paller', 'CXI11776', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4739, 'CXI00164', 'REYES, ESMERALDO ROCO', 'CLC MANAGED', 'SAYAS, FE', 'Christopher Paller', 'esmeraldoreyes30@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4740, 'CXI11360', 'MATRE, KAREN', 'CLC MANAGED', 'SAYAS, FE', 'Christopher Paller', 'ken_matre@yahoo.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
@@ -645,7 +885,7 @@ INSERT INTO `employees` (`id`, `employee_id`, `full_name`, `department`, `superv
 (4749, 'CXI11950', 'SICATIN, KRISHA', 'CLC MANAGED', 'SAYAS, FE', 'Christopher Paller', 'khrishaannes@gmail.com', '2025-07-24 01:14:15', '2025-07-24 01:14:15', 1),
 (4753, 'CXI00004', 'MENDOZA, BENEDICT PATASIN', 'OPErations manager', 'CXI MNGT', 'Phay Barrameda', 'benox24@gmail.com', '2025-07-31 04:44:55', '2025-07-31 04:44:55', 1),
 (4754, 'CXI00008', 'RIVERA, CHARISE CALDERON', 'OPErations manager', 'CXI MNGT', 'Phay Barrameda', 'chariserivera09@gmail.com', '2025-07-31 04:45:22', '2025-07-31 21:39:22', 1),
-(4755, 'CXI00141', 'BIER, FREDRIECH VAUGHN LACONSAY', 'OPErations manager', 'CXI MNGT', 'Kiko Barrameda', 'reddbiery@gmail.com', '2025-07-31 04:45:54', '2025-07-31 04:45:54', 1);
+(4755, 'CXI00141', 'BIER, FREDRIECH VAUGHN LACONSAY', 'OPErations manager', 'CXI MNGT', 'Kiko Barrameda', 'reddbiery@gmail.com', '2025-07-31 04:45:54', '2025-08-02 04:00:53', 1);
 
 -- --------------------------------------------------------
 
@@ -764,17 +1004,20 @@ CREATE TABLE `tardiness` (
   `created_at` datetime DEFAULT current_timestamp(),
   `email_sent` tinyint(1) DEFAULT 0,
   `email_sent_at` varchar(20) DEFAULT NULL,
-  `expires_at` datetime GENERATED ALWAYS AS (`created_at` + interval 1 month) STORED
+  `expires_at` datetime GENERATED ALWAYS AS (`created_at` + interval 1 month) STORED,
+  `ir_expiration` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tardiness`
 --
 
-INSERT INTO `tardiness` (`id`, `month`, `employee_id`, `full_name`, `department`, `supervisor`, `operation_manager`, `email`, `date_of_incident`, `types`, `minutes_late`, `shift`, `time_in`, `ir_form`, `accumulation_count`, `timestamp`, `sub_name`, `created_at`, `email_sent`, `email_sent_at`) VALUES
-(19, 'Aug 2025', 'CXI11812', 'MONTOYA, CHRISTIAN', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'cian.montoya09@gmail.com', '2025-08-01', 'Late', 1, '8:00 AM - 8:00 PM', '8:01 AM', 'NO', 1, '4:18 AM', 'SLT CIAN', '2025-07-31 20:18:28', 1, '2025-08-01 04:18:34'),
-(21, 'Aug 2025', 'CXI11802', 'AMADOR, AURABELLE A.', 'BK-APAC', 'ROSETE, KELVIN', 'FRED BIER', 'amadorbelle78@gmail.com', '2025-08-01', 'Late', 15, '4:00 AM - 1:00 PM', '4:15 AM', 'FOR ACCUMULATION', 1, '5:55 AM', 'SLT OLAN', '2025-07-31 21:08:58', 1, '2025-08-01 05:32:31'),
-(24, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-01', 'Late', 14, '4:00 AM - 1:00 PM', '4:14 AM', 'FOR ACCUMULATION', 1, '8:59 AM', 'SLT NICO', '2025-08-01 00:59:55', 1, '2025-08-01 09:37:06');
+INSERT INTO `tardiness` (`id`, `month`, `employee_id`, `full_name`, `department`, `supervisor`, `operation_manager`, `email`, `date_of_incident`, `types`, `minutes_late`, `shift`, `time_in`, `ir_form`, `accumulation_count`, `timestamp`, `sub_name`, `created_at`, `email_sent`, `email_sent_at`, `ir_expiration`) VALUES
+(148, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-08', 'Late', 1, '4:00 AM - 1:00 PM', '4:01AM', 'FOR IR', 1, '3:29 AM', 'SLT NICO', '2025-08-08 19:29:17', 0, NULL, NULL),
+(149, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-10', 'Late', 1, '4:00 AM - 1:00 PM', '4:01 AM', 'YES', 1, '3:31 AM', 'SLT NICO', '2025-08-08 19:29:39', 0, NULL, NULL),
+(150, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-10', 'Late', 1, '4:00 AM - 1:00 PM', '4:01 AM', 'YES', 1, '3:31 AM', 'SLT NICO', '2025-08-08 19:29:57', 0, NULL, NULL),
+(151, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-13', 'Late', 1, '4:00 AM - 1:00 PM', '4:01 AM', 'YES', 1, '3:31 AM', 'SLT NICO', '2025-08-08 19:30:18', 0, NULL, NULL),
+(152, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-09-25', 'Late', 1, '4:00 AM - 1:00 PM', '4:01 AM', 'FOR ACCUMULATION', 1, '3:30 AM', 'SLT NICO', '2025-08-08 19:30:48', 0, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -804,15 +1047,15 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `fullname`, `sub_name`, `password`, `slt_email`, `created_at`, `login_attempts`, `last_failed_login`, `locked_until`, `role`, `is_active`, `last_activity`, `last_modified`) VALUES
-(1, 'cxi11899', 'GALINATO, NICO', 'SLT NICO', '$2y$10$Nq1m.u1mc22CgjCYuRzHp.16IMLEc5PvKtFeZpPt0ej7V9xhIghc6', 'nicolo.galinato@communixinc.com', '2025-07-17 15:24:12', 0, NULL, NULL, 'admin', 1, '2025-08-01 02:01:20', '2025-08-01 02:01:20'),
-(37, 'cxi00525', 'JC TORRES', 'SLT JC', '$2y$10$fSnVChxO1EvhBhXFPkl/HOGC.uxik2kHay6cvlOKwkaIgXju.ASqS', 'juan.torres@communixinc.com', '2025-07-17 19:44:34', 0, NULL, NULL, 'admin', 1, '2025-07-31 22:58:58', '2025-07-31 22:58:58'),
+(1, 'cxi11899', 'GALINATO, NICO', 'SLT NICO', '$2y$10$Nq1m.u1mc22CgjCYuRzHp.16IMLEc5PvKtFeZpPt0ej7V9xhIghc6', 'nicolo.galinato@communixinc.com', '2025-07-17 15:24:12', 0, NULL, NULL, 'admin', 1, '2025-08-08 21:47:59', '2025-08-08 21:47:59'),
+(37, 'cxi00525', 'JC TORRES', 'SLT JC', '$2y$10$.WDGTWzqSQfJVWfE25TIcO3h/58HzpsE/xnudDl.b/qLG5atArS.6', 'juan.torres@communixinc.com', '2025-07-17 19:44:34', 0, NULL, NULL, 'admin', 1, '2025-08-06 13:53:04', '2025-08-06 13:53:04'),
 (38, 'cxi00730', 'RG DUTERTE', 'SLT RG', '$2y$10$4Tnf9CRtLqS4fvFM2Otjme8zCSX6bbtUDiSgNVQ8IGUgo/VBZ4gqe', 'rg.duterte@communixinc.com', '2025-07-17 19:45:03', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 15:08:02'),
 (39, 'cxi11647', 'ALEXANDER RAY OLAES', 'SLT ALEX', '$2y$10$drhplWGrgo0Gz7nbnRXV.OcYwpieFAkaKROp/xrH2Hj5hNxnyEItW', 'a.olaes@communixinc.com', '2025-07-17 19:45:22', 0, NULL, NULL, 'admin', 1, '2025-07-31 21:32:31', '2025-07-31 21:32:31'),
-(40, 'cxi11652', 'ANGKIKO, MIGUEL JEAN', 'SLT MIGS', '$2y$10$QfoRP/1fsDr2jyaTZTSQfORiDix1fHi..f4KK9p.lzU38sk7oWv7S', 'miguel.angkiko@communixinc.com', '2025-07-17 19:45:49', 0, NULL, NULL, 'admin', 1, '2025-07-31 04:45:56', '2025-07-31 04:45:56'),
+(40, 'cxi11652', 'ANGKIKO, MIGUEL JEAN', 'SLT MIGS', '$2y$10$QfoRP/1fsDr2jyaTZTSQfORiDix1fHi..f4KK9p.lzU38sk7oWv7S', 'miguel.angkiko@communixinc.com', '2025-07-17 19:45:49', 0, NULL, NULL, 'admin', 1, '2025-08-02 07:41:54', '2025-08-02 07:41:54'),
 (41, 'cxi11664', 'IVERSON LOMAT', 'SLT IVER', '$2y$10$ju/wgHSL1tQJeM4/weg5nuX3oGwKhBSOg3fcGjRZUIlzELPwtPeXi', 'iverson.lomat@communixinc.com', '2025-07-17 19:46:06', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-25 18:06:10'),
-(42, 'cxi11812', 'CHRISTIAN MONTOYA', 'SLT CIAN', '$2y$10$jyCYyY.UBtHPSBlKONCrpeZ15N4u0VHQw20/LxV0q6fxvqpuAa2cy', 'c.montoya@communixinc.com', '2025-07-17 19:46:35', 0, NULL, NULL, 'admin', 1, '2025-08-01 01:50:55', '2025-08-01 01:50:55'),
-(56, 'CXI12100', 'MONEDA ROLANDO', 'SLT OLAN', '$2y$10$pA3QgpdDpkdcPWQgkwqSx.kQMPgBdDbraAH58LMs6aa3cHGL7KAfO', 'R.moneda@communixinc.com', '2025-07-24 17:08:38', 0, NULL, NULL, 'admin', 1, '2025-07-31 22:56:27', '2025-07-31 22:56:27'),
-(57, 'CXI00732', 'APRIL BARRAMEDA', 'SOM PHAY', '$2y$10$Cy7ETXkpH2aU/S0NVUtPKeoO/2JmzNjl4Cl078HLmj4bsGflW1Jf2', 'phay.barrameda@communixinc.com', '2025-07-25 01:55:13', 0, NULL, NULL, 'admin', 1, '2025-07-30 02:52:30', '2025-07-30 02:52:30');
+(42, 'cxi11812', 'CHRISTIAN MONTOYA', 'SLT CIAN', '$2y$10$jyCYyY.UBtHPSBlKONCrpeZ15N4u0VHQw20/LxV0q6fxvqpuAa2cy', 'c.montoya@communixinc.com', '2025-07-17 19:46:35', 0, NULL, NULL, 'admin', 1, '2025-08-06 09:06:54', '2025-08-06 09:06:54'),
+(56, 'CXI12100', 'MONEDA ROLANDO', 'SLT OLAN', '$2y$10$pA3QgpdDpkdcPWQgkwqSx.kQMPgBdDbraAH58LMs6aa3cHGL7KAfO', 'R.moneda@communixinc.com', '2025-07-24 17:08:38', 0, NULL, NULL, 'admin', 1, '2025-08-06 00:59:56', '2025-08-06 00:59:56'),
+(57, 'CXI00732', 'PHAY BARRAMEDA', 'SOM PHAY', '$2y$10$Cy7ETXkpH2aU/S0NVUtPKeoO/2JmzNjl4Cl078HLmj4bsGflW1Jf2', 'phay.barrameda@communixinc.com', '2025-07-25 01:55:13', 0, NULL, NULL, 'admin', 1, '2025-07-30 02:52:30', '2025-08-02 10:41:12');
 
 --
 -- Indexes for dumped tables
@@ -823,6 +1066,13 @@ INSERT INTO `users` (`id`, `username`, `fullname`, `sub_name`, `password`, `slt_
 --
 ALTER TABLE `absenteeism`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `activity_history`
+--
+ALTER TABLE `activity_history`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `employees`
@@ -866,13 +1116,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `absenteeism`
 --
 ALTER TABLE `absenteeism`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
+
+--
+-- AUTO_INCREMENT for table `activity_history`
+--
+ALTER TABLE `activity_history`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=465;
 
 --
 -- AUTO_INCREMENT for table `employees`
 --
 ALTER TABLE `employees`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4757;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4770;
 
 --
 -- AUTO_INCREMENT for table `management`
@@ -890,13 +1146,23 @@ ALTER TABLE `operations_managers`
 -- AUTO_INCREMENT for table `tardiness`
 --
 ALTER TABLE `tardiness`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=153;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `activity_history`
+--
+ALTER TABLE `activity_history`
+  ADD CONSTRAINT `activity_history_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

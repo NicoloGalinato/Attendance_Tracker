@@ -237,12 +237,23 @@ if (isset($_GET['send_email']) && isset($_GET['type'])) {
         // Update record to mark email as sent
         $updateStmt = $pdo->prepare("SET time_zone = '+08:00'; UPDATE $type SET email_sent = 1, email_sent_at = NOW() WHERE id = ?");
         $updateStmt->execute([$id]);
+        $updateStmt->closeCursor(); // Close the cursor before next query
+        
+        // Get the record again to ensure we have fresh data
+        $stmt = $pdo->prepare("SELECT full_name FROM $type WHERE id = ?");
+        $stmt->execute([$id]);
+        $record = $stmt->fetch();
+        $stmt->closeCursor(); // Close this cursor too
+        
+        // Log the email activity
+        logActivity("Sent email: '{$subject}' to {$record['full_name']}", $id, $type);
+    
         
         // Redirect back with success message
         $_SESSION['success'] = "Email sent successfully to " . $record['full_name'];
         redirect('attendance.php?tab=' . $type);
         exit();
-        
+                
     } catch (Exception $e) {
         // Redirect back with error message
         $_SESSION['error'] = "Failed to send email: " . $mail->ErrorInfo;

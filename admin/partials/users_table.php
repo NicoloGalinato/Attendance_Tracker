@@ -79,7 +79,7 @@ try {
 
 <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow">
     <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-700">
+        <table class="min-w-full divide-y divide-gray-700 w-full [&_th]:text-center [&_td]:text-center " style="zoom:85%">
             <thead class="bg-gray-700">
                 <tr>
                     <?php if ($type === 'users'): ?>
@@ -166,7 +166,7 @@ try {
                             <a href="users.php?toggle_status=<?= $record[$idColumn] ?>&type=<?= $type ?>" class="text-yellow-500 hover:text-yellow-400 mr-3" title="Status update" onclick="return confirm('Are you sure you want to <?= $record['is_active'] ? 'deactivate' : 'activate' ?> this record?')">
                                 <i class="fas fa-<?= $record['is_active'] ? 'times' : 'check' ?>"></i>
                             </a>
-                            <a href="users.php?delete=<?= $record[$idColumn] ?>&type=<?= $type ?>" class="text-red-500 hover:text-red-400" title="Delete record" onclick="return confirm('Are you sure you want to delete this record?')">
+                            <a href="#" onclick="event.preventDefault(); showDeleteModal(<?= $record[$idColumn] ?>, '<?= $type ?>')" class="text-red-500 hover:text-red-400" title="Delete record">
                                 <i class="fas fa-trash"></i>
                             </a>
                         </td>

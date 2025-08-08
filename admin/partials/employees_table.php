@@ -52,7 +52,7 @@ try {
 
 <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow">
     <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-700">
+        <table class="min-w-full divide-y divide-gray-700 w-full [&_th]:text-center [&_td]:text-center " style="zoom:85%">
             <thead class="bg-gray-700">
                 <tr>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">CXI Number</th>
@@ -105,7 +105,7 @@ try {
                             <a href="employees.php?toggle_status=<?= $employee['id'] ?>" class="text-yellow-500 hover:text-yellow-400 mr-3" title="Status update" onclick="return confirm('Are you sure you want to <?= $employee['is_active'] ? 'deactivate' : 'activate' ?> this agent?')">
                                 <i class="fas fa-<?= $employee['is_active'] ? 'times' : 'check' ?>"></i>
                             </a>
-                            <a href="employees.php?delete=<?= $employee['id'] ?>" class="text-red-500 hover:text-red-400" title="Delete record" onclick="return confirm('Are you sure you want to delete this agent?')">
+                            <a href="#" onclick="event.preventDefault(); showDeleteModal(<?= $employee['id'] ?>)" class="text-red-500 hover:text-red-400" title="Delete record">
                                 <i class="fas fa-trash"></i>
                             </a>
                         </td>
