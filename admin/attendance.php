@@ -233,7 +233,7 @@ renderSidebar('attendance');
 $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
 ?>
 
-<div class="md:ml-64 pt-2 min-h-screen">
+<div class=" pt-2 min-h-screen">
     <main class="p-6">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold">Attendance Tracker</h1>

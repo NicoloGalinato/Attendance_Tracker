@@ -45,6 +45,63 @@ function renderHead($title) {
             .sidebar-item:hover:not(.active) {
                 background-color: rgba(255, 255, 255, 0.05);
             }
+            
+            /* Sidebar hover styles */
+            #sidebar {
+                width: 5rem;
+                transition: all 0.3s ease;
+                overflow: hidden;
+            }
+            
+            #sidebar:hover {
+                width: 16rem;
+            }
+            
+            #sidebar:hover .sidebar-text {
+                opacity: 1;
+                transition: opacity 0.3s ease 0.2s;
+            }
+            
+            .sidebar-text {
+                opacity: 0;
+                transition: opacity 0.1s ease;
+                white-space: nowrap;
+            }
+            
+            /* Adjust main content margin */
+            .main-content {
+                margin-left: 5rem;
+                transition: margin-left 0.3s ease;
+            }
+            
+            #sidebar:hover ~ .main-content {
+                margin-left: 16rem;
+            }
+            
+            /* Responsive adjustments */
+            @media (max-width: 768px) {
+                #sidebar {
+                    width: 16rem;
+                    transform: translateX(-100%);
+                }
+                
+                #sidebar:hover {
+                    width: 16rem;
+                }
+                
+                .main-content {
+                    margin-left: 0;
+                }
+                
+                #sidebarToggle:hover + #sidebar,
+                #sidebar:hover {
+                    transform: translateX(0);
+                }
+                
+                .sidebar-text {
+                    opacity: 1;
+                }
+            }
         </style>
     </head>
     <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col">
@@ -55,8 +112,8 @@ function renderNavbar() {
     ?>
     <nav class="bg-gray-800 border-b border-gray-700">
         <div class="px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-4">            
-                <button id="sidebarToggle" class="text-gray-400 hover:text-white focus:outline-none">
+            <div class="flex items-center space-x-4" style="opacity:0;">            
+                <button id="sidebarToggle" class="text-gray-400 hover:text-white focus:outline-none md:hidden">
                     <i class="fas fa-bars fa-lg"></i>
                 </button>
                 <div class="flex items-center">
@@ -85,39 +142,63 @@ function renderNavbar() {
 
 function renderSidebar($activePage = 'dashboard') {
     ?>
-    <aside id="sidebar" class="bg-gray-800 w-64 fixed h-full border-r border-gray-700 transition-all duration-300 z-40 -translate-x-full md:translate-x-0">
+    <aside id="sidebar" class="bg-gray-800 fixed h-full border-r border-gray-700 z-40">
         <div class="p-4">
             <div class="flex items-center space-x-4">
-                <div class="flex items-center">
-                    <img src="../assets/cxi.png" alt="CXI Logo" class=" mr-2">
+                <div class="logo-container">
+                    <img src="../assets/cxi.png" alt="CXI Logo" class="logo">
                 </div>
             </div>
             <div class="border-t border-gray-700 my-4"></div>
             <div class="space-y-1 mt-6">
                 <a href="dashboard.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'dashboard' ? 'active' : '' ?>">
                     <i class="sidebar-icon fas fa-tachometer-alt mr-3"></i>
-                    <span>Dashboard</span>
+                    <span class="sidebar-text">Dashboard</span>
                 </a>
                 <a href="attendance.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'attendance' ? 'active' : '' ?>">
                     <i class="sidebar-icon fas fa-chart-line mr-3"></i>
-                    <span>Tracker</span>
+                    <span class="sidebar-text">Tracker</span>
                 </a>
                 <a href="employees.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'employees' ? 'active' : '' ?>">
                     <i class="sidebar-icon fas fa-users mr-3"></i>
-                    <span>Manage Agents</span>
+                    <span class="sidebar-text">Manage Agents</span>
                 </a>
                 <a href="users.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'users' ? 'active' : '' ?>">
                     <i class="sidebar-icon fas fa-cog mr-3"></i>
-                    <span>Management Settings</span>
+                    <span class="sidebar-text">Management Settings</span>
                 </a>
             </div>
         </div>
     </aside>
+    <div class="main-content flex-1 flex flex-col">
+
+    <style>
+  /* Hover effect for logo */
+  .logo {
+    transition: all 0.3s ease;
+    width: 250px; /* Default size */
+    height: auto;
+  }
+  
+  /* Hover effect for menu items */
+  .menu-item {
+    transition: all 0.3s ease;
+    font-size: 16px; /* Default size */
+    display: inline-block;
+    margin: 0 15px;
+  }
+  
+  .menu-item:hover {
+    transform: scale(1.3); /* Lumalaki ng 30% */
+    font-weight: bold; /* Optional: nagiging bold din */
+  }
+</style>
     <?php
 }
 
 function renderFooter() {
     ?>
+    </div> <!-- Close main-content div -->
     <footer class="bg-gray-800 border-t border-gray-700 py-4 mt-auto">
         <div class="container mx-auto px-4 text-center text-gray-400 text-sm">
             &copy; <?= date('Y') ?> CXI Services Inc. All rights reserved.
@@ -177,10 +258,6 @@ function renderFooter() {
         // Check immediately and then every 15 seconds
         checkOnlineStatus();
         const statusCheckInterval = setInterval(checkOnlineStatus, 15000);
-
-        // Check status every 30 seconds
-        checkOnlineStatus();
-        setInterval(checkOnlineStatus, 500);
     </script>
     </body>
     </html>
