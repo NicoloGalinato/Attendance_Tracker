@@ -20,7 +20,7 @@ $statusFilter = isset($_GET['status']) ? $_GET['status'] : '';
 // Ensure we have the table and type from the parent file
 if (!isset($type)) $type = 'absenteeism';
 if (!isset($table)) $table = ($type === 'tardiness') ? 'tardiness' : 'absenteeism';
-if (!isset($perPage)) $perPage = 10;
+if (!isset($perPage)) $perPage = 15;
 
 // Initialize where clauses and parameters
 $whereClauses = [];

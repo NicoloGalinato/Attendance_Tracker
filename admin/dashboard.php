@@ -296,10 +296,19 @@ renderSidebar('dashboard');
 
         <!-- Combined Chart -->
         <div class="bg-gray-800 rounded-xl border border-gray-700 p-6 shadow mb-8">
-            <h3 class="text-lg font-semibold mb-4 flex items-center">
-                <i class="fas fa-chart-line text-primary-500 mr-2"></i>
-                Attendance Trend (Last 12 Months)
-            </h3>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold flex items-center">
+                    <i class="fas fa-chart-line text-primary-500 mr-2"></i>
+                    Attendance Trend
+                </h3>
+                <div class="flex space-x-2">
+                    <select id="timeRange" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg px-3 py-1">
+                        <option value="12months">Last 12 Months</option>
+                        <option value="30days">Last 30 Days</option>
+                        <option value="7days">Last 7 Days</option>
+                    </select>
+                </div>
+            </div>
             <div class="h-80">
                 <canvas id="combinedChart"></canvas>
             </div>
@@ -429,9 +438,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Combined Chart - updated to properly show percentages
+    // Combined Chart - now with dynamic data loading
     const combinedCtx = document.getElementById('combinedChart').getContext('2d');
-    const combinedChart = new Chart(combinedCtx, {
+    let combinedChart = new Chart(combinedCtx, {
         type: 'line',
         data: {
             labels: <?= json_encode($chartData['months']) ?>,
@@ -523,10 +532,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             return value + '%';
                         },
                         maxTicksLimit: 6
-                    },
-                    // Remove the fixed min/max to let it scale automatically
-                    // min: 0,
-                    // max: 100
+                    }
                 },
                 x: {
                     grid: {
@@ -569,6 +575,65 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+// Time range selector functionality
+document.getElementById('timeRange').addEventListener('change', function() {
+    const timeRange = this.value;
+    fetchChartData(timeRange);
+});
+
+function fetchChartData(timeRange) {
+    // Show loading state
+    combinedChart.data.labels = ['Loading...'];
+    combinedChart.data.datasets.forEach(dataset => {
+        dataset.data = [0];
+    });
+    combinedChart.update();
+
+    fetch(`../includes/fetch_chart_data.php?range=${timeRange}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            updateChart(combinedChart, data);
+        })
+        .catch(error => {
+            console.error('Error fetching chart data:', error);
+            // Show error state
+            combinedChart.data.labels = ['Error loading data'];
+            combinedChart.data.datasets.forEach(dataset => {
+                dataset.data = [0];
+            });
+            combinedChart.update();
+        });
+}
+
+function updateChart(chart, newData) {
+    // Ensure we have all required data
+    if (!newData.labels || !newData.absenteeism || !newData.tardiness || 
+        !newData.absenteeism_percentage || !newData.tardiness_percentage) {
+        throw new Error('Incomplete chart data received');
+    }
+
+    chart.data.labels = newData.labels;
+    chart.data.datasets[0].data = newData.absenteeism;
+    chart.data.datasets[1].data = newData.tardiness;
+    chart.data.datasets[2].data = newData.absenteeism_percentage;
+    chart.data.datasets[3].data = newData.tardiness_percentage;
+    
+    // Update chart scales based on time range
+    const isDaily = document.getElementById('timeRange').value !== '12months';
+    chart.options.scales.x.ticks.maxRotation = isDaily ? 45 : 0;
+    chart.options.scales.x.ticks.autoSkip = isDaily;
+    
+    chart.update();
+}
 });
 </script>
 
