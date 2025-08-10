@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Aug 08, 2025 at 09:56 PM
+-- Generation Time: Aug 10, 2025 at 11:36 PM
 -- Server version: 10.11.10-MariaDB
 -- PHP Version: 7.2.34
 
@@ -56,17 +56,42 @@ CREATE TABLE `absenteeism` (
 --
 
 INSERT INTO `absenteeism` (`id`, `month`, `employee_id`, `full_name`, `department`, `supervisor`, `operation_manager`, `email`, `date_of_absent`, `follow_call_in_procedure`, `sanction`, `reason`, `coverage`, `coverage_type`, `shift`, `ir_form`, `timestamp`, `sub_name`, `created_at`, `email_sent`, `email_sent_at`) VALUES
-(72, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-08', 'NO', 'ABSENCE / NCNS / CWD', 'NCNS', 'N/A', 'NO NEED', '7:00 PM - 4:00 AM', 'FOR IR', '3:56 PM', 'SLT NICO', '2025-08-08 07:56:46', 0, NULL),
-(73, 'Aug 2025', 'CXI11647', 'OLAES, ALEXANDER RAY', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'alexander.olaes2002@gmail.com', '2025-08-06', 'NO', 'ABSENCE / NCNS', 'NCNS', 'N/A', 'NO NEED', '7:00 PM - 4:00 AM', 'FOR IR', '3:57 PM', 'SLT NICO', '2025-08-08 07:57:36', 0, NULL),
-(74, 'Aug 2025', 'CXI11597', 'MAESTRE, SIDNEY MANALANG', 'AMERICAN AIRLINES', 'LATORENO, ABEJUN', 'BENEDICT MENDOZA', 'maestresidney8@gmail.com', '2025-08-05', 'NO', 'ABSENCE / NCNS / CWD', 'NCNS', 'NO NEED', 'NO NEED', '7:00 PM - 4:00 AM', 'YES', '4:22 PM', 'SLT NICO', '2025-08-08 07:58:08', 0, NULL),
-(75, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-09', 'YES - VIBER 5:48 PM JULY 30, 2025', 'ABSENCE / CWD', 'ASD', 'ASD', 'TRAINEE', '4:00 AM - 1:00 PM', 'PENDING', '2:39 AM', 'SLT NICO', '2025-08-08 18:39:45', 0, NULL),
-(76, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-09', 'NO', 'ABSENCE', 'ASD', 'ASD', 'TRAINEE', 'ASD', 'PENDING', '2:40 AM', 'SLT NICO', '2025-08-08 18:40:02', 0, NULL),
-(77, 'Aug 2025', 'CXI11845', 'MONINIO, BEJAY', 'AA BILLING DB', 'VIDOR, EUGENE', 'CHARISSE RIVERA', 'moninio.bejay@gmail.com', '2025-08-09', '1', 'ABSENCE', '1', '1', '-', '1', '1', '2:43 AM', 'SLT NICO', '2025-08-08 18:43:40', 0, NULL),
-(78, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-09', 'Q', 'ABSENCE', 'Q', 'PENDING', 'PENDING', 'Q', 'Q', '3:13 AM', 'SLT NICO', '2025-08-08 18:43:53', 0, NULL),
-(79, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-09', 'Q', 'ABSENCE', 'Q', 'Q', '-', 'Q', 'Q', '2:44 AM', 'SLT NICO', '2025-08-08 18:44:06', 0, NULL),
-(80, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-09', 'Q', 'ABSENCE', 'Q', 'Q', '-', 'Q', 'Q', '2:44 AM', 'SLT NICO', '2025-08-08 18:44:17', 0, NULL),
-(81, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-09', 'Q', 'ABSENCE', 'Q', 'Q', '-', 'Q', 'Q', '2:44 AM', 'SLT NICO', '2025-08-08 18:44:28', 0, NULL),
-(82, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-09', 'Q', 'ABSENCE', 'Q', 'UNCOVERED', '-', 'Q', 'Q', '3:18 AM', 'SLT NICO', '2025-08-08 18:44:39', 0, NULL);
+(1, 'Aug 2025', 'CXI12086', 'ORAYA, IRENE', 'AUTOBOOKING', 'CORRAL, GREGON', 'CHRISTOPHER PALLER', NULL, '2025-07-31', 'NO', 'ABSENCE / NCNS', 'NCNS', 'BUSIO, JANNA', '-', '12:30 AM - 9:30 AM', 'NO NEED', '10:33 AM', 'SLT NICO', '2025-08-09 09:16:20', 1, NULL),
+(2, 'Aug 2025', 'CXI12033', 'FAJARDO, JOHN RONALD', 'CLC MANAGED', 'SAYAS, FE', 'CHRISTOPHER PALLER', 'johnronaldfajardo@gmail.com', '2025-07-31', 'YES - VIBER 5:50 PM JULY 30, 2025', 'ABSENCE', 'DUE TO BABY SITTING TO HIS COUSIN\'S', 'GOROSPE, JASON LEMUEL', '-', '2:00 AM - 11:00 AM', 'YES', '10:30 AM', 'SLT NICO', '2025-08-09 09:16:20', 1, NULL),
+(3, 'Aug 2025', 'CXI11949', 'RAMOS, JOHN PAUL', 'CLC MANAGED', 'SAYAS, FE', 'CHRISTOPHER PALLER', 'jpaulramos3paulx@gmail.com', '2025-07-31', 'NO', 'ABSENCE / NCNS', 'NCNS', 'PACSON, ARYANNA', 'DSOT', '2:00 AM - 11:00 AM', 'YES', '12:37 PM', 'SLT NICO', '2025-08-09 09:16:20', 1, NULL),
+(4, 'Aug 2025', 'CXI11984', 'FAUSTINO, AIRIEL', 'SINGLES', 'BAGACAY, ROGELIO', 'CHARISSE RIVERA', NULL, '2025-07-31', 'YES - VIBER 12:16 AM JULY 31, 2025', 'ABSENCE', 'DUE TO IMPORTANT APPOINTMENT', 'CORILLO, MARIE - 4HRS DSOT \r\nFERNANDEZ, RONESSA - 4HRS DSOT', 'DSOT', '4:30 AM - 1:00 PM', 'YES', '10:31 AM', 'SLT NICO', '2025-08-09 09:16:20', 1, NULL),
+(5, 'Aug 2025', 'CXI11680', 'DIAZ, NIMFA ANGELA CORPUZ', 'BK-US', 'ROSETE, KELVIN', 'FRED BIER', 'nimfaangelacorpuz@gmail.com', '2025-07-31', 'YES - VIBER 4:03 PM JULY 30, 2025', 'ABSENCE', 'DUE TO A BONE FRACTURE, NEED TO REST FOR A FEW DAYS', 'VALENCIA, STEPHANIE ANN', 'RDOT', '4:00 AM - 1:00 PM', 'NO NEED', '10:31 AM', 'SLT NICO', '2025-08-09 09:16:20', 1, NULL),
+(6, 'Aug 2025', 'CXI11760', 'ALLEQUIR, ROSALYN', 'EZY/HAGR', 'LAZARO, ALLIYAH CAMILLE', 'FRED BIER', 'rosalyn.allequir@yahoo.com', '2025-07-31', 'YES - VIBER 12:21 AM JULY 31, 2025', 'ABSENCE', 'DUE TO NOT FEELING WELL', 'IGNACIO, VAN', 'RDOT', '7:00 AM - 7:00 PM', 'YES', '10:31 AM', 'SLT NICO', '2025-08-09 09:16:20', 1, NULL),
+(7, 'Aug 2025', 'CXI00361', 'CONCEPCION, CHERRY MAY CATEDRILLA', 'AMERICAN AIRLINES', 'CXI MNGT', 'BENEDICT MENDOZA', 'concepcioncherrymay@gmail.com', '2025-07-31', 'YES - VIBER 5:44 AM JULY 31, 2025', 'ABSENCE', 'DUE TO DAUGTHERS SCHOOL EVENT', 'N/A', '-', '12:00 PM - 9:00 PM', 'YES', '10:31 AM', 'SLT NICO', '2025-08-09 09:16:20', 1, NULL),
+(8, 'Aug 2025', 'CXI11684', 'BELOSTRINO, JEROME PAGUYO', 'BK-EMEA', 'BAILLO, CRISTINE', 'FRED BIER', 'jbelostrino032@gmail.com', '2025-07-31', 'YES - VIBER 6:02 AM JULY 31, 2025', 'ABSENCE', 'DUE TO IMPORTANT MATTER', 'LIMBO, MARIONE', 'RDOT', '2:00 PM - 11:00 PM', 'YES', '10:32 AM', 'SLT NICO', '2025-08-09 09:16:20', 1, NULL),
+(9, 'Aug 2025', 'CXI11302', 'DIAZ, ANGELICA JOY', 'AB CALLBACK TEAM', 'SEVILLA, ANN CLAUDETTE', 'CHRISTOPHER PALLER', 'diazangelicajoy007@gmail.com', '2025-07-31', 'YES - VIBER 12:00 PM JULY 31, 2025', 'ABSENCE', 'DUE TO DIZZINESS AND FEVER', 'BALVERDE, ROBIN', 'DSOT', '7:30 PM - 4:30 AM', 'YES', '10:32 AM', 'SLT NICO', '2025-08-09 09:16:20', 1, NULL),
+(10, 'Aug 2025', 'CXI11424', 'VILLADOR, EDDONNIE', 'AUTOBOOKING', 'ABILES, CHARLZ DANEVER', 'CHRISTOPHER PALLER', 'eddonnevillador22@gmail.com', '2025-07-31', 'YES - VIBER 2:20 PM JULY 31, 2025', 'ABSENCE', 'DUE TO FAMILY EMERGENCY', 'ACEVEDA, MA. ALLYSSA', 'RDOT', '7:30 PM - 4:30 AM', 'YES', '10:33 AM', 'SLT NICO', '2025-08-09 09:16:20', 1, NULL),
+(11, 'Aug 2025', 'CXI11664', 'LOMAT, IVERSON', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'iversonlomat03@gmail.com', '2025-07-31', 'YES - VIBER 2:51 PM JULY 31, 2025', 'ABSENCE', 'DUE TO LBM', 'N/A', '-', '7:00 PM - 4:00 AM', 'YES', '10:33 AM', 'SLT NICO', '2025-08-09 09:16:20', 1, NULL),
+(12, 'Aug 2025', 'CXI01095', 'ABILES, CHARLZ DANEVER GUIBIJAR', 'AUTOBOOKING', 'CXI MNGT', 'CHRISTOPHER PALLER', 'charlzdanever.abiles@gmail.com', '2025-07-31', 'NO', 'ABSENCE / NCNS (LATE ADVISE)', 'DUE TO A PERSONAL MATTER', 'N/A', '-', '7:00 PM - 4:00 AM*', 'YES', '10:33 AM', 'SLT NICO', '2025-08-09 09:16:20', 1, NULL),
+(13, 'Aug 2025', 'COM11704', 'CORILLO, MARIE ROSS', 'SINGLES', 'NAPIERE, MINETTE', 'CHARISSE RIVERA', 'mariecorillo.services@gmail.com', '2025-07-31', 'YES - VIBER 5:05 PM JULY 31, 2025', 'ABSENCE', 'DUE TO SEVERE HEADACHE, SORE THROAT AND DIZZINESS', 'NAPIERE, MINETTE - 7:30 PM TO 8:30 PM \r\nPICAZO, CHRISTIAN KING - 8:30 PM - 4:00 AM', 'AGENT MODE', '7:30 PM - 4:00 AM', 'YES', '11:27 AM', 'SLT NICO', '2025-08-09 09:16:20', 1, NULL),
+(16, 'Aug 2025', 'CXI11236', 'DE GUZMAN, NICKI ANN', 'AB CALLBACK TEAM', 'SEVILLA, ANN CLAUDETTE', 'CHRISTOPHER PALLER', 'nickianndeguzman00@gmail.com', '2025-07-31', 'YES - VIBER 5:37 PM JULY 31, 2025', 'ABSENCE', 'DUE TO HEADACHE AND TOOTHACHE', 'BERNASOR, GRACE ANN LABIAL', '-', '10:30 PM - 7:30 AM', 'YES', '10:43 AM', 'SLT NICO', '2025-08-09 09:16:20', 1, NULL),
+(17, 'Aug 2025', 'CXI11769', 'REGONDOLA CHAZ MARCO A', 'AUTOBOOKING', 'CRUZ, KIM CARLO', 'CHRISTOPHER PALLER', 'chazmarcoaregondola@gmail.com', '2025-07-31', 'YES - VIBER 5:23 PM JULY 31, 2025', 'ABSENCE / CWD', 'DUE TO A PERSONAL MATTER', 'BUSIO, JANNA MAE', '-', '11:30 PM - 8:30 AM', 'NO NEED', '10:44 AM', 'SLT NICO', '2025-08-09 09:16:20', 1, NULL),
+(18, 'Aug 2025', 'CXI11950', 'SICATIN, KRISHA', 'CLC MANAGED', 'SAYAS, FE', 'CHRISTOPHER PALLER', 'khrishaannes@gmail.com', '2025-07-31', 'NO', 'ABSENCE', 'DUE TO A PERSONAL MATTER', 'SAYAS, FE', 'AGENT MODE', '7:00 PM - 4:00 AM', 'YES', '1:01 PM', 'SLT NICO', '2025-08-09 09:16:20', 1, NULL),
+(19, 'Aug 2025', 'CXI12080', 'SIGUENZA, MELODIE BACALLA', 'BNSF', 'PACSON, ARYANNA', 'CHRISTOPHER PALLER', '', '2025-07-31', 'NO', 'ABSENCE / NCNS', 'DUE TO FEVER AND VIRAL INFECTION (ADVISED THROUGH GC ONLY)', 'CASPILLO, JOHNEL EBENEZER', '-', '8:00 PM - 5:00 AM', 'YES', '1:02 PM', 'SLT NICO', '2025-08-09 09:16:20', 1, NULL),
+(20, 'Aug 2025', 'CXI11625', 'DAROY, LORENA', 'TM / FR', 'VALENCIA, MARTIN RAY', 'BENEDICT MENDOZA', 'july4lorena@gmail.com', '2025-07-31', 'YES - VIBER 6:35 PM JULY 31, 2025', 'ABSENCE', 'WILL SEE A DOCTOR TOMORROW FOR MEDICAL CERTIFICATE', 'VALENCIA, MARTIN RAY MIRANDA', 'AGENT MODE', '11:00 PM - 8:00 AM', 'NO NEED', '1:01 PM', 'SLT NICO', '2025-08-09 09:16:20', 1, NULL),
+(21, 'Aug 2025', 'CXI00311', 'ROSALES, MICHELLE PADERON', 'SINGLES', 'BAGACAY, ROGELIO', 'CHARISSE RIVERA', 'mprworkingemail@gmail.com', '2025-07-31', 'NO', 'ABSENCE / NCNS', 'NCNS', 'TAGGED AS BACKUP', '-', '9:00 PM - 5:30 AM', 'NO NEED', '1:03 PM', 'SLT NICO', '2025-08-09 09:16:20', 1, NULL),
+(22, 'Aug 2025', 'CXI12062', 'OSORIO, RODANTE', 'AA BILLING DB', 'VIDOR, EUGENE', 'CHARISSE RIVERA', 'rodanteosorio28@gmail.com', '2025-07-31', 'NO', 'ABSENCE / NCNS', 'NCNS', 'VIDOR, EUGENE', 'AGENT MODE', '8:00 PM - 5:00 AM', 'YES', '1:06 PM', 'SLT NICO', '2025-08-09 09:16:20', 1, NULL),
+(25, 'Aug 2025', 'CXI11725', 'UY, JASPER', 'SINGLES', 'BAGACAY, ROGELIO', 'CHARISSE RIVERA', 'extremeseverity@gmail.com', '2025-07-31', 'NO', 'ABSENCE / NCNS', 'NCNS', 'NO NEED', 'NO NEED', '9:00 PM - 5:30 AM', 'NO NEED', '1:06 PM', 'SLT NICO', '2025-08-09 09:16:20', 1, NULL),
+(26, 'Aug 2025', 'CXI11949', 'RAMOS, JOHN PAUL', 'CLC MANAGED', 'SAYAS, FE', 'CHRISTOPHER PALLER', 'jpaulramos3paulx@gmail.com', '2025-08-01', 'YES', 'ABSENCE', 'DUE TO FAMILY PROBLEM', 'GOROSPE, JASON LEMUEL', '-', '2:00 AM - 11:00 AM', 'YES', '11:28 AM', 'SLT NICO', '2025-08-09 11:25:07', 1, NULL),
+(27, 'Aug 2025', 'CXI11667', 'LACORTE, CAITLIN JAY', 'AB CALLBACK TEAM', 'AREVALO PO, MARK FRANCES', 'CHRISTOPHER PALLER', 'caitlinlacorte@gmail.com', '2025-08-01', 'NO', 'ABSENCE / NCNS', 'IMM. RESIGNED', 'ROSARIO, NELTON JOHN', '-', '2:00 AM - 11:00 AM', 'NO NEED', '11:28 AM', 'SLT NICO', '2025-08-09 11:25:07', 1, NULL),
+(28, 'Aug 2025', 'CXI11680', 'DIAZ, NIMFA ANGELA CORPUZ', 'BK-US', 'ROSETE, KELVIN', 'FRED BIER', 'nimfaangelacorpuz@gmail.com', '2025-08-01', 'YES', 'ABSENCE', 'DUE TO A BONE FRACTURE, NEED TO REST FOR A FEW DAYS', 'CHOW, CHEWAH EUGENIO', 'RDOT', '4:00 AM - 1:00 PM', 'NO NEED', '11:26 AM', 'SLT NICO', '2025-08-09 11:25:07', 1, NULL),
+(29, 'Aug 2025', 'CXI00862', 'SOROSORO, EDNETH JOHN HERRADURA', 'BNSF', 'CXI MNGT', 'CHRISTOPHER PALLER', 'edneth.1996@gmail.com', '2025-08-01', 'YES', 'ABSENCE', 'DUE TO NOT FEELING WELL', 'N/A', '-', '4:00 AM - 1:00 PM*', 'YES', '11:28 AM', 'SLT NICO', '2025-08-09 11:25:07', 1, NULL),
+(30, 'Aug 2025', 'CXI11494', 'CALINOG, JEFFREY', 'AMERICAN AIRLINES', 'CONCEPCION, CHERRY MAY', 'BENEDICT MENDOZA', 'jepoycalinog03@gmail.com', '2025-08-01', 'YES', 'ABSENCE', 'DUE TO IMPORTANT BUSSINESS', 'SANCHEZ, ABIGAIL BUENCONSEJO', 'RDOT', '12:00 PM - 9:00 PM', 'YES', '11:26 AM', 'SLT NICO', '2025-08-09 11:25:07', 1, NULL),
+(31, 'Aug 2025', 'CXI11760', 'ALLEQUIR, ROSALYN', 'EZY/HAGR', 'LAZARO, ALLIYAH CAMILLE', 'FRED BIER', 'rosalyn.allequir@yahoo.com', '2025-08-01', 'YES', 'ABSENCE', 'DUE TO NOT FEELING WELL', 'UNCOVERED', '-', '7:00 AM - 7:00 PM', 'YES', '11:26 AM', 'SLT NICO', '2025-08-09 11:25:07', 1, NULL),
+(32, 'Aug 2025', 'CXI12086', 'ORAYA, IRENE', 'AUTOBOOKING', 'CORRAL, GREGON', 'CHRISTOPHER PALLER', NULL, '2025-08-01', 'NO', 'ABSENCE / NCNS', 'NCNS', 'SORTIJAS, AJ', '-', '12:30 AM - 9:30 AM', 'NO NEED', '11:28 AM', 'SLT NICO', '2025-08-09 11:25:07', 1, NULL),
+(33, 'Aug 2025', 'CXI11302', 'DIAZ, ANGELICA JOY', 'AB CALLBACK TEAM', 'SEVILLA, ANN CLAUDETTE', 'CHRISTOPHER PALLER', 'diazangelicajoy007@gmail.com', '2025-08-01', 'YES', 'ABSENCE', 'DUE TO BEING DIAGNOSED WITH A URINARY TRACT INFECTION', 'PEDROSA, ROWENA ROSALES', '-', '7:30 PM - 4:30 AM', 'YES', '11:28 AM', 'SLT NICO', '2025-08-09 11:25:07', 1, NULL),
+(34, 'Aug 2025', 'CXI11950', 'SICATIN, KRISHA', 'CLC MANAGED', 'SAYAS, FE', 'CHRISTOPHER PALLER', 'khrishaannes@gmail.com', '2025-08-01', 'YES', 'ABSENCE', 'DUE TO A PERSONAL MATTER', 'AURELIO, SAMANTHA KEITH', 'RDOT', '7:00 PM - 4:00 AM', 'YES', '1:01 PM', 'SLT NICO', '2025-08-09 11:25:07', 1, NULL),
+(35, 'Aug 2025', 'CXI11820', 'LACSON, ADRIAN P.', 'BNSF', 'ICALIA, EZEKIEL', 'CHRISTOPHER PALLER', 'adrianlacson011@gmail.com', '2025-08-01', 'YES', 'ABSENCE', 'DUE TO PERSONAL REASONS', 'BOLANTE, ALYSSA JANE', '-', '8:00 PM - 5:00 AM', 'YES', '11:28 AM', 'SLT NICO', '2025-08-09 11:25:07', 1, NULL),
+(36, 'Aug 2025', 'CXI11725', 'UY, JASPER', 'SINGLES', 'BAGACAY, ROGELIO', 'CHARISSE RIVERA', 'extremeseverity@gmail.com', '2025-08-01', 'NO', 'ABSENCE / NCNS', 'NCNS', 'NO NEED', 'NO NEED', '9:00 PM - 5:30 AM', 'NO NEED', '1:05 PM', 'SLT NICO', '2025-08-09 11:25:07', 1, NULL),
+(37, 'Aug 2025', 'CXI12062', 'OSORIO, RODANTE', 'AA BILLING DB', 'VIDOR, EUGENE', 'CHARISSE RIVERA', 'rodanteosorio28@gmail.com', '2025-08-01', 'NO', 'ABSENCE / NCNS / CWD', 'NCNS', 'VIDOR, EUGENE', 'AGENT MODE', '8:00 PM - 5:00 AM', 'YES', '1:06 PM', 'SLT NICO', '2025-08-09 11:25:07', 1, NULL),
+(38, 'Aug 2025', 'CXI00311', 'ROSALES, MICHELLE PADERON', 'SINGLES', 'BAGACAY, ROGELIO', 'CHARISSE RIVERA', 'mprworkingemail@gmail.com', '2025-08-01', 'NO', 'ABSENCE / NCNS', 'NCNS', 'PICAZO, CHRISTIAN KING BALANQUIT', 'AGENT MODE', '9:30 PM - 6:00 AM', 'NO NEED', '1:03 PM', 'SLT NICO', '2025-08-09 11:25:07', 1, NULL),
+(39, 'Aug 2025', 'CXI11625', 'DAROY, LORENA', 'TM / FR', 'VALENCIA, MARTIN RAY', 'BENEDICT MENDOZA', 'july4lorena@gmail.com', '2025-08-01', 'YES', 'ABSENCE', 'NO FIT TO WORK CERTIFICATE YET', 'VALENCIA, MARTIN RAY', 'AGENT MODE', '11:00 PM - 8:00 AM', 'NO NEED', '1:01 PM', 'SLT NICO', '2025-08-09 11:25:07', 1, NULL),
+(83, 'Aug 2025', 'CXI11725', 'UY, JASPER', 'SINGLES', 'BAGACAY, ROGELIO', 'CHARISSE RIVERA', 'extremeseverity@gmail.com', '2025-07-31', 'NO', 'ABSENCE / NCNS', 'NCNS', 'NO NEED', 'NO NEED', '9:00 PM - 5:30 AM', 'NO NEED', '1:06 PM', 'SLT NICO', '2025-08-09 10:03:29', 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -299,7 +324,81 @@ INSERT INTO `activity_history` (`id`, `user_id`, `sub_name`, `activity_descripti
 (461, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-09 03:30:48', 460, 'tardiness'),
 (462, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-09 03:31:02', 151, 'tardiness'),
 (463, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-09 03:31:07', 150, 'tardiness'),
-(464, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-09 03:31:15', 149, 'tardiness');
+(464, 1, 'SLT NICO', 'Updated tardiness of GALINATO, NICO', '2025-08-09 03:31:15', 149, 'tardiness'),
+(465, 1, 'SLT NICO', 'Created tardiness record for GALINATO, NICO', '2025-08-08 23:34:09', 153, 'tardiness'),
+(466, 1, 'SLT NICO', 'created tardiness record for GALINATO, NICO', '2025-08-08 23:34:09', 465, 'tardiness'),
+(467, 1, 'SLT NICO', 'Updated absenteeism of ORAYA, IRENE', '2025-08-09 00:29:25', 1, 'absenteeism'),
+(468, 1, 'SLT NICO', 'Updated absenteeism of FAJARDO, JOHN RONALD', '2025-08-09 00:29:36', 2, 'absenteeism'),
+(469, 1, 'SLT NICO', 'Updated absenteeism of CONCEPCION, CHERRY MAY CATEDRILLA', '2025-08-09 00:29:51', 7, 'absenteeism'),
+(470, 1, 'SLT NICO', 'Updated absenteeism of LOMAT, IVERSON', '2025-08-09 00:30:01', 11, 'absenteeism'),
+(471, 1, 'SLT NICO', 'Updated absenteeism of ABILES, CHARLZ DANEVER GUIBIJAR', '2025-08-09 00:30:11', 12, 'absenteeism'),
+(472, 1, 'SLT NICO', 'Updated absenteeism of DE GUZMAN, NICKI ANN', '2025-08-09 00:30:19', 16, 'absenteeism'),
+(473, 1, 'SLT NICO', 'Updated absenteeism of REGONDOLA CHAZ MARCO A', '2025-08-09 00:30:25', 17, 'absenteeism'),
+(474, 1, 'SLT NICO', 'Updated absenteeism of SIGUENZA, MELODIE BACALLA', '2025-08-09 00:30:31', 19, 'absenteeism'),
+(475, 1, 'SLT NICO', 'Updated absenteeism of ROSALES, MICHELLE PADERON', '2025-08-09 00:30:40', 21, 'absenteeism'),
+(476, 1, 'SLT NICO', 'Updated absenteeism of ROSALES, MICHELLE PADERON', '2025-08-09 00:30:52', 21, 'absenteeism'),
+(477, 1, 'SLT NICO', 'Updated absenteeism of FAUSTINO, AIRIEL', '2025-08-09 00:31:19', 4, 'absenteeism'),
+(478, 1, 'SLT NICO', 'Updated absenteeism of DIAZ, NIMFA ANGELA CORPUZ', '2025-08-09 00:31:42', 5, 'absenteeism'),
+(479, 1, 'SLT NICO', 'Updated absenteeism of ALLEQUIR, ROSALYN', '2025-08-09 00:32:03', 6, 'absenteeism'),
+(480, 1, 'SLT NICO', 'Updated absenteeism of CONCEPCION, CHERRY MAY CATEDRILLA', '2025-08-09 00:32:11', 7, 'absenteeism'),
+(481, 1, 'SLT NICO', 'Updated absenteeism of BELOSTRINO, JEROME PAGUYO', '2025-08-09 00:32:17', 8, 'absenteeism'),
+(482, 1, 'SLT NICO', 'Updated absenteeism of ABILES, CHARLZ DANEVER GUIBIJAR', '2025-08-09 00:32:21', 12, 'absenteeism'),
+(483, 1, 'SLT NICO', 'Updated absenteeism of OSORIO, RODANTE', '2025-08-09 00:32:28', 22, 'absenteeism'),
+(484, 1, 'SLT NICO', 'Updated absenteeism of FAUSTINO, AIRIEL', '2025-08-09 01:00:23', 4, 'absenteeism'),
+(485, 1, 'SLT NICO', 'Updated absenteeism of FAUSTINO, AIRIEL', '2025-08-09 01:16:35', 4, 'absenteeism'),
+(486, 1, 'SLT NICO', 'Updated absenteeism of DIAZ, NIMFA ANGELA CORPUZ', '2025-08-09 01:16:46', 5, 'absenteeism'),
+(487, 1, 'SLT NICO', 'Updated absenteeism of ALLEQUIR, ROSALYN', '2025-08-09 01:16:53', 6, 'absenteeism'),
+(488, 1, 'SLT NICO', 'Updated absenteeism of CONCEPCION, CHERRY MAY CATEDRILLA', '2025-08-09 01:16:59', 7, 'absenteeism'),
+(489, 1, 'SLT NICO', 'Updated absenteeism of BELOSTRINO, JEROME PAGUYO', '2025-08-09 01:17:06', 8, 'absenteeism'),
+(490, 1, 'SLT NICO', 'Updated absenteeism of ABILES, CHARLZ DANEVER GUIBIJAR', '2025-08-09 01:17:13', 12, 'absenteeism'),
+(491, 1, 'SLT NICO', 'Updated absenteeism of OSORIO, RODANTE', '2025-08-09 01:17:19', 22, 'absenteeism'),
+(492, 1, 'SLT NICO', 'Updated absenteeism of FAUSTINO, AIRIEL', '2025-08-09 01:19:26', 4, 'absenteeism'),
+(493, 1, 'SLT NICO', 'Updated absenteeism of UY, JASPER', '2025-08-09 01:43:28', 25, 'absenteeism'),
+(494, 1, 'SLT NICO', 'Updated absenteeism of UY, JASPER', '2025-08-09 01:43:45', 25, 'absenteeism'),
+(495, 1, 'SLT NICO', 'Updated absenteeism of CORILLO, MARIE ROSS', '2025-08-09 01:46:15', 13, 'absenteeism'),
+(496, 1, 'SLT NICO', 'Updated absenteeism of DAROY, LORENA', '2025-08-09 01:55:33', 20, 'absenteeism'),
+(497, 1, 'SLT NICO', 'Created absenteeism record for UY, JASPER', '2025-08-09 02:03:29', 83, 'absenteeism'),
+(498, 1, 'SLT NICO', 'Updated absenteeism of UY, JASPER', '2025-08-09 02:08:24', 25, 'absenteeism'),
+(499, 1, 'SLT NICO', 'Updated absenteeism of UY, JASPER', '2025-08-09 02:08:37', 25, 'absenteeism'),
+(500, 1, 'SLT NICO', 'Updated absenteeism of UY, JASPER', '2025-08-09 02:08:57', 83, 'absenteeism'),
+(501, 1, 'SLT NICO', 'Updated absenteeism of FAJARDO, JOHN RONALD', '2025-08-09 02:30:42', 2, 'absenteeism'),
+(502, 1, 'SLT NICO', 'Updated absenteeism of FAUSTINO, AIRIEL', '2025-08-09 02:31:03', 4, 'absenteeism'),
+(503, 1, 'SLT NICO', 'Updated absenteeism of DIAZ, NIMFA ANGELA CORPUZ', '2025-08-09 02:31:26', 5, 'absenteeism'),
+(504, 1, 'SLT NICO', 'Updated absenteeism of ALLEQUIR, ROSALYN', '2025-08-09 02:31:36', 6, 'absenteeism'),
+(505, 1, 'SLT NICO', 'Updated absenteeism of CONCEPCION, CHERRY MAY CATEDRILLA', '2025-08-09 02:31:53', 7, 'absenteeism'),
+(506, 1, 'SLT NICO', 'Updated absenteeism of BELOSTRINO, JEROME PAGUYO', '2025-08-09 02:32:39', 8, 'absenteeism'),
+(507, 1, 'SLT NICO', 'Updated absenteeism of DIAZ, ANGELICA JOY', '2025-08-09 02:32:52', 9, 'absenteeism'),
+(508, 1, 'SLT NICO', 'Updated absenteeism of VILLADOR, EDDONNIE', '2025-08-09 02:33:05', 10, 'absenteeism'),
+(509, 1, 'SLT NICO', 'Updated absenteeism of LOMAT, IVERSON', '2025-08-09 02:33:21', 11, 'absenteeism'),
+(510, 1, 'SLT NICO', 'Updated absenteeism of ABILES, CHARLZ DANEVER GUIBIJAR', '2025-08-09 02:33:45', 12, 'absenteeism'),
+(511, 1, 'SLT NICO', 'Updated absenteeism of ORAYA, IRENE', '2025-08-09 02:33:57', 1, 'absenteeism'),
+(512, 1, 'SLT NICO', 'Updated absenteeism of CORILLO, MARIE ROSS', '2025-08-09 02:34:27', 13, 'absenteeism'),
+(513, 1, 'SLT NICO', 'Updated absenteeism of DE GUZMAN, NICKI ANN', '2025-08-09 02:43:48', 16, 'absenteeism'),
+(514, 1, 'SLT NICO', 'Updated absenteeism of REGONDOLA CHAZ MARCO A', '2025-08-09 02:44:05', 17, 'absenteeism'),
+(515, 1, 'SLT NICO', 'Updated absenteeism of DAROY, LORENA', '2025-08-09 02:44:45', 20, 'absenteeism'),
+(516, 1, 'SLT NICO', 'Updated absenteeism of DIAZ, NIMFA ANGELA CORPUZ', '2025-08-09 03:26:33', 28, 'absenteeism'),
+(517, 1, 'SLT NICO', 'Updated absenteeism of CALINOG, JEFFREY', '2025-08-09 03:26:40', 30, 'absenteeism'),
+(518, 1, 'SLT NICO', 'Updated absenteeism of ALLEQUIR, ROSALYN', '2025-08-09 03:26:46', 31, 'absenteeism'),
+(519, 1, 'SLT NICO', 'Updated absenteeism of CORILLO, MARIE ROSS', '2025-08-09 03:27:18', 13, 'absenteeism'),
+(520, 1, 'SLT NICO', 'Updated absenteeism of RAMOS, JOHN PAUL', '2025-08-09 03:28:31', 26, 'absenteeism'),
+(521, 1, 'SLT NICO', 'Updated absenteeism of LACORTE, CAITLIN JAY', '2025-08-09 03:28:34', 27, 'absenteeism'),
+(522, 1, 'SLT NICO', 'Updated absenteeism of ORAYA, IRENE', '2025-08-09 03:28:38', 32, 'absenteeism'),
+(523, 1, 'SLT NICO', 'Updated absenteeism of DIAZ, ANGELICA JOY', '2025-08-09 03:28:41', 33, 'absenteeism'),
+(524, 1, 'SLT NICO', 'Updated absenteeism of LACSON, ADRIAN P.', '2025-08-09 03:28:45', 35, 'absenteeism'),
+(525, 1, 'SLT NICO', 'Updated absenteeism of SOROSORO, EDNETH JOHN HERRADURA', '2025-08-09 03:28:49', 29, 'absenteeism'),
+(526, 1, 'SLT NICO', 'Updated absenteeism of RAMOS, JOHN PAUL', '2025-08-09 04:37:17', 3, 'absenteeism'),
+(527, 1, 'SLT NICO', 'Updated absenteeism of DAROY, LORENA', '2025-08-09 13:01:31', 20, 'absenteeism'),
+(528, 1, 'SLT NICO', 'Updated absenteeism of DAROY, LORENA', '2025-08-09 13:01:38', 39, 'absenteeism'),
+(529, 1, 'SLT NICO', 'Updated absenteeism of SICATIN, KRISHA', '2025-08-09 13:01:52', 18, 'absenteeism'),
+(530, 1, 'SLT NICO', 'Updated absenteeism of SICATIN, KRISHA', '2025-08-09 13:01:58', 34, 'absenteeism'),
+(531, 1, 'SLT NICO', 'Updated absenteeism of SIGUENZA, MELODIE BACALLA', '2025-08-09 13:02:55', 19, 'absenteeism'),
+(532, 1, 'SLT NICO', 'Updated absenteeism of ROSALES, MICHELLE PADERON', '2025-08-09 13:03:08', 38, 'absenteeism'),
+(533, 1, 'SLT NICO', 'Updated absenteeism of ROSALES, MICHELLE PADERON', '2025-08-09 13:03:15', 21, 'absenteeism'),
+(534, 1, 'SLT NICO', 'Updated absenteeism of UY, JASPER', '2025-08-09 13:05:59', 36, 'absenteeism'),
+(535, 1, 'SLT NICO', 'Updated absenteeism of UY, JASPER', '2025-08-09 13:06:05', 83, 'absenteeism'),
+(536, 1, 'SLT NICO', 'Updated absenteeism of UY, JASPER', '2025-08-09 13:06:12', 25, 'absenteeism'),
+(537, 1, 'SLT NICO', 'Updated absenteeism of OSORIO, RODANTE', '2025-08-09 13:06:29', 37, 'absenteeism'),
+(538, 1, 'SLT NICO', 'Updated absenteeism of OSORIO, RODANTE', '2025-08-09 13:06:36', 22, 'absenteeism');
 
 -- --------------------------------------------------------
 
@@ -1008,17 +1107,6 @@ CREATE TABLE `tardiness` (
   `ir_expiration` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `tardiness`
---
-
-INSERT INTO `tardiness` (`id`, `month`, `employee_id`, `full_name`, `department`, `supervisor`, `operation_manager`, `email`, `date_of_incident`, `types`, `minutes_late`, `shift`, `time_in`, `ir_form`, `accumulation_count`, `timestamp`, `sub_name`, `created_at`, `email_sent`, `email_sent_at`, `ir_expiration`) VALUES
-(148, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-08', 'Late', 1, '4:00 AM - 1:00 PM', '4:01AM', 'FOR IR', 1, '3:29 AM', 'SLT NICO', '2025-08-08 19:29:17', 0, NULL, NULL),
-(149, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-10', 'Late', 1, '4:00 AM - 1:00 PM', '4:01 AM', 'YES', 1, '3:31 AM', 'SLT NICO', '2025-08-08 19:29:39', 0, NULL, NULL),
-(150, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-10', 'Late', 1, '4:00 AM - 1:00 PM', '4:01 AM', 'YES', 1, '3:31 AM', 'SLT NICO', '2025-08-08 19:29:57', 0, NULL, NULL),
-(151, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-08-13', 'Late', 1, '4:00 AM - 1:00 PM', '4:01 AM', 'YES', 1, '3:31 AM', 'SLT NICO', '2025-08-08 19:30:18', 0, NULL, NULL),
-(152, 'Aug 2025', 'CXI11899', 'GALINATO, NICO', 'SLT', 'TORRES, JUAN CARLO', 'PHAY BARRAMEDA', 'nicologalinato80@gmail.com', '2025-09-25', 'Late', 1, '4:00 AM - 1:00 PM', '4:01 AM', 'FOR ACCUMULATION', 1, '3:30 AM', 'SLT NICO', '2025-08-08 19:30:48', 0, NULL, NULL);
-
 -- --------------------------------------------------------
 
 --
@@ -1047,7 +1135,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `fullname`, `sub_name`, `password`, `slt_email`, `created_at`, `login_attempts`, `last_failed_login`, `locked_until`, `role`, `is_active`, `last_activity`, `last_modified`) VALUES
-(1, 'cxi11899', 'GALINATO, NICO', 'SLT NICO', '$2y$10$Nq1m.u1mc22CgjCYuRzHp.16IMLEc5PvKtFeZpPt0ej7V9xhIghc6', 'nicolo.galinato@communixinc.com', '2025-07-17 15:24:12', 0, NULL, NULL, 'admin', 1, '2025-08-08 21:47:59', '2025-08-08 21:47:59'),
+(1, 'cxi11899', 'GALINATO, NICO', 'SLT NICO', '$2y$10$Nq1m.u1mc22CgjCYuRzHp.16IMLEc5PvKtFeZpPt0ej7V9xhIghc6', 'nicolo.galinato@communixinc.com', '2025-07-17 15:24:12', 0, NULL, NULL, 'admin', 1, '2025-08-10 23:24:40', '2025-08-10 23:24:40'),
 (37, 'cxi00525', 'JC TORRES', 'SLT JC', '$2y$10$.WDGTWzqSQfJVWfE25TIcO3h/58HzpsE/xnudDl.b/qLG5atArS.6', 'juan.torres@communixinc.com', '2025-07-17 19:44:34', 0, NULL, NULL, 'admin', 1, '2025-08-06 13:53:04', '2025-08-06 13:53:04'),
 (38, 'cxi00730', 'RG DUTERTE', 'SLT RG', '$2y$10$4Tnf9CRtLqS4fvFM2Otjme8zCSX6bbtUDiSgNVQ8IGUgo/VBZ4gqe', 'rg.duterte@communixinc.com', '2025-07-17 19:45:03', 0, NULL, NULL, 'admin', 1, NULL, '2025-07-24 15:08:02'),
 (39, 'cxi11647', 'ALEXANDER RAY OLAES', 'SLT ALEX', '$2y$10$drhplWGrgo0Gz7nbnRXV.OcYwpieFAkaKROp/xrH2Hj5hNxnyEItW', 'a.olaes@communixinc.com', '2025-07-17 19:45:22', 0, NULL, NULL, 'admin', 1, '2025-07-31 21:32:31', '2025-07-31 21:32:31'),
@@ -1116,19 +1204,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `absenteeism`
 --
 ALTER TABLE `absenteeism`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=84;
 
 --
 -- AUTO_INCREMENT for table `activity_history`
 --
 ALTER TABLE `activity_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=465;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=539;
 
 --
 -- AUTO_INCREMENT for table `employees`
 --
 ALTER TABLE `employees`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4770;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4773;
 
 --
 -- AUTO_INCREMENT for table `management`
@@ -1146,7 +1234,7 @@ ALTER TABLE `operations_managers`
 -- AUTO_INCREMENT for table `tardiness`
 --
 ALTER TABLE `tardiness`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=153;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=154;
 
 --
 -- AUTO_INCREMENT for table `users`

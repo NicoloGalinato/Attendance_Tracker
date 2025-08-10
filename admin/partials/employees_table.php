@@ -52,7 +52,7 @@ try {
 
 <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow">
     <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-700 w-full [&_th]:text-center [&_td]:text-center " style="zoom:85%">
+        <table class="min-w-full divide-y divide-gray-700 w-full" style="zoom:85%">
             <thead class="bg-gray-700">
                 <tr>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">CXI Number</th>
