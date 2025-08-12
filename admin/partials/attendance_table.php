@@ -19,7 +19,9 @@ $statusFilter = isset($_GET['status']) ? $_GET['status'] : '';
 
 // Ensure we have the table and type from the parent file
 if (!isset($type)) $type = 'absenteeism';
-if (!isset($table)) $table = ($type === 'tardiness') ? 'tardiness' : 'absenteeism';
+if (!isset($table)) {
+    $table = ($type === 'tardiness') ? 'tardiness' : ($type === 'vto' ? 'vto_tracker' : 'absenteeism');
+}
 if (!isset($perPage)) $perPage = 15;
 
 // Initialize where clauses and parameters
@@ -91,13 +93,13 @@ if (!empty($search)) {
 }
 
 if (!empty($dateFrom)) {
-    $dateField = ($type === 'tardiness') ? 'date_of_incident' : 'date_of_absent';
+    $dateField = ($type === 'tardiness') ? 'date_of_incident' : ($type === 'vto' ? 'timestamp' : 'date_of_absent');
     $whereClauses[] = "$dateField >= :date_from";
     $params[':date_from'] = $dateFrom;
 }
 
 if (!empty($dateTo)) {
-    $dateField = ($type === 'tardiness') ? 'date_of_incident' : 'date_of_absent';
+    $dateField = ($type === 'tardiness') ? 'date_of_incident' : ($type === 'vto' ? 'timestamp' : 'date_of_absent');
     $whereClauses[] = "$dateField <= :date_to";
     $params[':date_to'] = $dateTo;
 }
@@ -271,7 +273,7 @@ try {
 <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow">
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-700 w-full" style="zoom:85%">
-            <thead class="bg-gray-700 ">
+            <thead class="bg-gray-700">
                 <tr>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">CXI Number</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Full Name</th>
@@ -282,13 +284,23 @@ try {
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Followed Procedure</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Coverage</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Coverage Type</th>
-                    <?php else: ?>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Incident Report</th>
+                    <?php elseif ($type === 'tardiness'): ?>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Date of Tardiness</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Type</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Minutes</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Shift</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Incident Report</th>
+                    <?php else: ?>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Date</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Shift</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Time In</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Time Out</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Worked (mins)</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">VTO (mins)</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">VTO Type</th>
                     <?php endif; ?>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Incident Report</th>
+                    
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Reported By</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Time Reported</th>
                     <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
@@ -297,91 +309,145 @@ try {
             <tbody class="bg-gray-800 divide-y divide-gray-700">
                 <?php if (empty($records)): ?>
                     <tr>
-                        <td colspan="<?= $type === 'absenteeism' ? 9 : 8 ?>" class="px-6 py-4 text-center text-gray-400">
+                        <td colspan="<?= $type === 'absenteeism' ? 14 : ($type === 'tardiness' ? 14 : 14) ?>" class="px-6 py-4 text-center text-gray-400">
                             No records found
                         </td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($records as $record): ?>
-                    <tr class="hover:bg-gray-700/50">
-
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-100" style="text-transform: uppercase;"><?= htmlspecialchars($record['employee_id']) ?></div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['full_name']) ?></div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['department']) ?></div>
-                        </td>
-
-
-                        <?php if ($type === 'absenteeism'): ?>
+                    <?php if ($type === 'vto'): ?>
+                        <tr class="hover:bg-gray-700/50">
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-300"><?= date('M d, Y', strtotime($record['date_of_absent'])) ?></div>
+                                <div class="text-sm font-medium text-gray-100" style="text-transform: uppercase;"><?= htmlspecialchars($record['employee_id'] ?? '') ?></div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['shift']) ?></div>
+                                <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['full_name'] ?? '') ?></div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['follow_call_in_procedure'] === 'NO' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' ?>" >
-                                    <?= $record['follow_call_in_procedure'] ?>
-                                </span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['coverage']) ?></div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['coverage_type']) ?></div>
-                            </td>
-                        <?php else: ?>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-300"><?= date('M d, Y', strtotime($record['date_of_incident'])) ?></div>
+                                <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['department'] ?? '') ?></div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['types'] === 'Late' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800' ?> ">
-                                    <?= $record['types'] ?>
+                                <div class="text-sm text-gray-300"><?= isset($record['timestamp']) ? date('M d, Y', strtotime($record['timestamp'])) : '' ?></div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['shift'] ?? '') ?></div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['time_in'] ?? '') ?></div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['time_out'] ?? '') ?></div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['mins_of_work'] ?? '') ?></div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['vto_mins'] ?? '') ?></div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    <?= htmlspecialchars($record['vto_type'] ?? '') ?>
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-300"><?= $record['minutes_late'] ?></div>
+                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['sub_name'] ?? '') ?></div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-300"><?= $record['shift'] ?></div>
+                                <div class="text-sm text-gray-300"><?= isset($record['timestamp']) ? date('g:i A', strtotime($record['timestamp'])) : '' ?></div>
                             </td>
-                        <?php endif; ?>
-                        
-                        
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= $record['ir_form'] ?></div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-300"><?= htmlspecialchars($record['sub_name']) ?></div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-300"><?= date('g:i A', strtotime($record['timestamp'])) ?></div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <?php if (!$record['email_sent']): ?>
-                                <a href="send_email.php?send_email=<?= $record['id'] ?>&type=<?= $type ?>" title="Send Email" class="text-blue-500 hover:text-blue-400 mr-3">
-                                    <i class="fas fa-envelope"></i>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <a href="vto_form.php?id=<?= $record['id'] ?? '' ?>" title="Edit record" class="text-primary-500 hover:text-primary-400 mr-3">
+                                    <i class="fas fa-edit"></i>
                                 </a>
-                            <?php else: ?>
-                                <span title="Email sent on <?= date('M d, Y g:i A', strtotime($record['email_sent_at'])) ?>" class="text-green-500 mr-3">
-                                    <i class="fas fa-check-circle"></i>
-                                </span>
+                                <a href="#" onclick="event.preventDefault(); showHistoryModal(<?= $record['id'] ?? '' ?>, 'vto')" title="View History" class="text-purple-500 hover:text-purple-400 mr-3">
+                                    <i class="fas fa-history"></i>
+                                </a>
+                                <a href="#" onclick="event.preventDefault(); showDeleteModal(<?= $record['id'] ?? '' ?>, 'vto')" class="text-red-500 hover:text-red-400" title="Delete record">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    <?php else: ?>
+                        <tr class="hover:bg-gray-700/50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-100" style="text-transform: uppercase;"><?= htmlspecialchars($record['employee_id']) ?></div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['full_name']) ?></div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['department']) ?></div>
+                            </td>
+
+                            <?php if ($type === 'absenteeism'): ?>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-300"><?= date('M d, Y', strtotime($record['date_of_absent'])) ?></div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-300"><?= htmlspecialchars($record['shift']) ?></div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['follow_call_in_procedure'] === 'NO' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' ?>">
+                                        <?= $record['follow_call_in_procedure'] ?>
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['coverage']) ?></div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-300"><?= htmlspecialchars($record['coverage_type']) ?></div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= $record['ir_form'] ?></div>
+                                </td>
+                            <?php elseif ($type === 'tardiness'): ?>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-300"><?= date('M d, Y', strtotime($record['date_of_incident'])) ?></div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['types'] === 'Late' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800' ?>">
+                                        <?= $record['types'] ?>
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-300"><?= $record['minutes_late'] ?></div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-300"><?= $record['shift'] ?></div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= $record['ir_form'] ?></div>
+                                </td>
                             <?php endif; ?>
-                            <a href="attendance_form.php?id=<?= $record['id'] ?>&type=<?= $type ?>" title="Edit record" class="text-primary-500 hover:text-primary-400 mr-3">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <a href="#" onclick="event.preventDefault(); showHistoryModal(<?= $record['id'] ?>, '<?= $type ?>')" title="View History" class="text-purple-500 hover:text-purple-400 mr-3">
-                                <i class="fas fa-history"></i>
-                            </a>
-                            <a href="#" onclick="event.preventDefault(); showDeleteModal(<?= $record['id'] ?>, '<?= $type ?>')" class="text-red-500 hover:text-red-400" title="Delete record">
-                                <i class="fas fa-trash"></i>
-                            </a>
-                        </td>
-                    </tr>
+                            
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['sub_name']) ?></div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-300"><?= date('g:i A', strtotime($record['timestamp'])) ?></div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <?php if (!$record['email_sent']): ?>
+                                    <a href="send_email.php?send_email=<?= $record['id'] ?>&type=<?= $type ?>" title="Send Email" class="text-blue-500 hover:text-blue-400 mr-3">
+                                        <i class="fas fa-envelope"></i>
+                                    </a>
+                                <?php else: ?>
+                                    <span title="Email sent on <?= date('M d, Y g:i A', strtotime($record['email_sent_at'])) ?>" class="text-green-500 mr-3">
+                                        <i class="fas fa-check-circle"></i>
+                                    </span>
+                                <?php endif; ?>
+                                <a href="attendance_form.php?id=<?= $record['id'] ?>&type=<?= $type ?>" title="Edit record" class="text-primary-500 hover:text-primary-400 mr-3">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="#" onclick="event.preventDefault(); showHistoryModal(<?= $record['id'] ?>, '<?= $type ?>')" title="View History" class="text-purple-500 hover:text-purple-400 mr-3">
+                                    <i class="fas fa-history"></i>
+                                </a>
+                                <a href="#" onclick="event.preventDefault(); showDeleteModal(<?= $record['id'] ?>, '<?= $type ?>')" class="text-red-500 hover:text-red-400" title="Delete record">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    <?php endif; ?>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </tbody>

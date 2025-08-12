@@ -178,7 +178,7 @@ if (isset($_GET['delete'])) {
     }
     
     try {
-        $table = ($type === 'tardiness') ? 'tardiness' : 'absenteeism';
+        $table = ($type === 'tardiness') ? 'tardiness' : ($type === 'vto' ? 'vto_tracker' : 'absenteeism');
         $stmt = $pdo->prepare("DELETE FROM $table WHERE id = ?");
         $stmt->execute([$id]);
         
@@ -237,7 +237,7 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
     <main class="p-6">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold">Attendance Tracker</h1>
-            <a href="attendance_form.php?action=create&type=<?= $currentTab ?>" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center">
+            <a href="<?= $currentTab === 'vto' ? 'vto_form.php' : 'attendance_form.php' ?>?action=create&type=<?= $currentTab ?>" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center">
                 <i class="fas fa-plus mr-2"></i> Add New
             </a>
         </div>
@@ -330,6 +330,9 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
                 </a>
                 <a href="?tab=tardiness" class="<?= $currentTab === 'tardiness' ? 'border-primary-500 text-primary-400' : 'border-transparent text-gray-400 hover:text-gray-300' ?> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
                     Tardiness
+                </a>
+                <a href="?tab=vto" class="<?= $currentTab === 'vto' ? 'border-primary-500 text-primary-400' : 'border-transparent text-gray-400 hover:text-gray-300' ?> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                    VTO Tracker
                 </a>
             </nav>
         </div>
