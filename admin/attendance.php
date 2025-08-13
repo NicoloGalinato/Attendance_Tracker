@@ -26,20 +26,43 @@ $stats = [
 ];
 
 try {
+    $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
 
     // Pending emails (not sent)
-    $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE email_sent = 0");
-    $stats['pending_emails'] += $stmt->fetchColumn();
-    
-    $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE email_sent = 0");
-    $stats['pending_emails'] += $stmt->fetchColumn();
+    if ($currentTab === 'absenteeism' || $currentTab === 'tardiness') {
+        if ($currentTab === 'absenteeism') {
+            $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE email_sent = 0");
+            $stats['pending_emails'] = $stmt->fetchColumn();
+        } else {
+            $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE email_sent = 0");
+            $stats['pending_emails'] = $stmt->fetchColumn();
+        }
+    } else {
+        // For other tabs or when no tab is selected, show both
+        $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE email_sent = 0");
+        $stats['pending_emails'] = $stmt->fetchColumn();
+        
+        $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE email_sent = 0");
+        $stats['pending_emails'] += $stmt->fetchColumn();
+    }
     
     // Pending IR forms
-    $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE ir_form NOT REGEXP '^(YES|NO NEED)'");
-    $stats['pending_ir'] += $stmt->fetchColumn();
-
-    $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE ir_form NOT REGEXP '^(YES|FOR ACCUMULATION)|NO NEED)'");
-    $stats['pending_ir'] += $stmt->fetchColumn();
+    if ($currentTab === 'absenteeism' || $currentTab === 'tardiness') {
+        if ($currentTab === 'absenteeism') {
+            $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE ir_form NOT REGEXP '^(YES|NO NEED)'");
+            $stats['pending_ir'] = $stmt->fetchColumn();
+        } else {
+            $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE ir_form NOT REGEXP '^(YES|FOR ACCUMULATION)|NO NEED)'");
+            $stats['pending_ir'] = $stmt->fetchColumn();
+        }
+    } else {
+        // For other tabs or when no tab is selected, show both
+        $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE ir_form NOT REGEXP '^(YES|NO NEED)'");
+        $stats['pending_ir'] = $stmt->fetchColumn();
+        
+        $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE ir_form NOT REGEXP '^(YES|FOR ACCUMULATION)|NO NEED)'");
+        $stats['pending_ir'] += $stmt->fetchColumn();
+    }
 
     // Pending Coverage
     $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE coverage = 'PENDING'");
@@ -273,7 +296,8 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
             </button>
         
             <!-- Pending Coverage -->
-            <button type="button" name="filter" value="pending_coverage" class="filter-button bg-gray-800 rounded-xl border border-gray-700 p-6 shadow hover:border-orange-500 transition-colors duration-200 text-left">
+            <button type="button" name="filter" value="pending_coverage" class="filter-button bg-gray-800 rounded-xl border border-gray-700 p-6 shadow hover:border-orange-500 transition-colors duration-200 text-left <?= $currentTab === 'tardiness' ? 'opacity-50 cursor-not-allowed' : '' ?>" 
+                <?= $currentTab === 'tardiness' ? 'disabled' : '' ?>>
                 <div class="flex items-center justify-between">
                     <div>
                         <h3 class="text-gray-400 text-sm font-medium">Pending Coverage</h3>
@@ -287,7 +311,8 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
             </button>
         
             <!-- Uncovered Shift -->
-            <button type="button" name="filter" value="uncovered_shift" class="filter-button bg-gray-800 rounded-xl border border-gray-700 p-6 shadow hover:border-red-500 transition-colors duration-200 text-left">
+            <button type="button" name="filter" value="uncovered_shift" class="filter-button bg-gray-800 rounded-xl border border-gray-700 p-6 shadow hover:border-red-500 transition-colors duration-200 text-left <?= $currentTab === 'tardiness' ? 'opacity-50 cursor-not-allowed' : '' ?>" 
+                <?= $currentTab === 'tardiness' ? 'disabled' : '' ?>>
                 <div class="flex items-center justify-between">
                     <div>
                         <h3 class="text-gray-400 text-sm font-medium">Uncovered Shift</h3>
