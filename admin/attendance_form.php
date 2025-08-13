@@ -389,12 +389,21 @@ renderSidebar('attendance');
                     <?php endif; ?>
                 </div>
                 
-                <div class="flex space-x-3 pt-6">
-                    <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-lg flex items-center">
-                        <i class="fas fa-save mr-2"></i> Save
-                    </button>
-                    <a href="attendance.php?tab=<?= $type ?>" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg flex items-center">
-                        Cancel
+                <div class="flex justify-between items-center pt-6">
+                    <div class="flex space-x-3">
+                        <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-lg flex items-center">
+                            <i class="fas fa-save mr-2"></i> Save
+                        </button>
+                        <a href="attendance.php?tab=<?= $type ?>" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg flex items-center">
+                            Cancel
+                        </a>
+                    </div>
+                    <a href="https://docs.google.com/forms/d/e/1FAIpQLScpWhJ-nnGQnLoOMFUx6oW9hQn2y6F335SHQYTbyr--x0ZZtw/viewform?pli=1&pli=1" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    class="bg-yellow-500/40 hover:bg-yellow-500/30 text-white px-6 py-2 rounded-lg flex items-center">
+                        <i class="fas fa-file-alt text-yellow-500 mr-2"></i>
+                        IR Form
                     </a>
                 </div>
             </form>
