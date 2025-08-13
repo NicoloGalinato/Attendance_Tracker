@@ -38,7 +38,7 @@ try {
     $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE ir_form NOT REGEXP '^(YES|NO NEED)'");
     $stats['pending_ir'] += $stmt->fetchColumn();
 
-    $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE ir_form NOT REGEXP '^(YES|FOR ACCUMULATION)'");
+    $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE ir_form NOT REGEXP '^(YES|FOR ACCUMULATION)|NO NEED)'");
     $stats['pending_ir'] += $stmt->fetchColumn();
 
     // Pending Coverage
