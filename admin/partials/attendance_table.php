@@ -39,7 +39,8 @@ if (!empty($cardFilter)) {
                 // For absenteeism: exclude records where ir_form starts with YES or NO NEED
                 $whereClauses[] = "ir_form NOT REGEXP '^(YES|NO NEED)'";
             } else {
-                $whereClauses[] = "ir_form NOT IN ('YES', 'FOR ACCUMULATION')";
+                // For tardiness: exclude records where ir_form starts with YES or FOR ACCUMULATION
+                $whereClauses[] = "ir_form NOT REGEXP '^(YES|FOR ACCUMULATION|NO NEED)'";
             }
             break;
         case 'pending_coverage':

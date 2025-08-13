@@ -47,11 +47,22 @@ try {
     }
     
     // Pending IR forms
-    $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE ir_form != 'YES' AND ir_form != 'NO NEED'");
-    $stats['pending_ir'] += $stmt->fetchColumn();
-    
-    $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE ir_form != 'YES' AND ir_form != 'FOR ACCUMULATION'");
-    $stats['pending_ir'] += $stmt->fetchColumn();
+    if ($currentTab === 'absenteeism' || $currentTab === 'tardiness') {
+        if ($currentTab === 'absenteeism') {
+            $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE ir_form NOT REGEXP '^(YES|NO NEED)'");
+            $stats['pending_ir'] = $stmt->fetchColumn();
+        } else {
+            $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE ir_form NOT REGEXP '^(YES|FOR ACCUMULATION|NO NEED)'");
+            $stats['pending_ir'] += $stmt->fetchColumn();
+        }
+    } else {
+        // For other tabs or when no tab is selected, show both
+        $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE ir_form NOT REGEXP '^(YES|NO NEED)'");
+        $stats['pending_ir'] = $stmt->fetchColumn();
+        
+        $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE ir_form NOT REGEXP '^(YES|FOR ACCUMULATION)|NO NEED)'");
+        $stats['pending_ir'] += $stmt->fetchColumn();
+    }
 
     // Pending Coverage
     $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE coverage = 'PENDING'");
