@@ -220,32 +220,32 @@ renderSidebar('attendance');
                     
                     <div>
                         <label for="time_in" class="block text-sm font-medium text-gray-300 mb-2">Time In</label>
-                        <input type="time" id="time_in" name="time_in"
+                        <input type="text" id="time_in" name="time_in" style="text-transform: uppercase;"
                                class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
                                value="<?= $record ? htmlspecialchars($record['time_in']) : '' ?>" required>
                     </div>
                     
                     <div>
                         <label for="time_out" class="block text-sm font-medium text-gray-300 mb-2">Time Out</label>
-                        <input type="time" id="time_out" name="time_out"
+                        <input type="text" id="time_out" name="time_out" style="text-transform: uppercase;"
                                class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
                                value="<?= $record ? htmlspecialchars($record['time_out']) : '' ?>" required>
                     </div>
                     
                     <div>
-                        <label for="mins_of_work" class="block text-sm font-medium text-gray-300 mb-2">Minutes Worked</label>
-                        <input type="number" id="mins_of_work" name="mins_of_work"
-                               class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
-                               value="<?= $record ? htmlspecialchars($record['mins_of_work']) : '' ?>" required>
+                    <label for="mins_of_work" class="block text-sm font-medium text-gray-300 mb-2">Minutes Worked</label>
+                        <input type="number" id="mins_of_work" name="mins_of_work" readonly
+                            class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                            value="<?= $record ? htmlspecialchars($record['mins_of_work']) : '' ?>" required>
                     </div>
-                    
+
                     <div>
                         <label for="vto_mins" class="block text-sm font-medium text-gray-300 mb-2">VTO Minutes</label>
                         <input type="number" id="vto_mins" name="vto_mins"
-                               class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
-                               value="<?= $record ? htmlspecialchars($record['vto_mins']) : '' ?>" required>
+                            class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                            value="<?= $record ? htmlspecialchars($record['vto_mins']) : '' ?>" required>
                     </div>
-                    
+                                        
                     <div>
                         <label for="vto_type" class="block text-sm font-medium text-gray-300 mb-2">VTO Type</label>
                         <select id="vto_type" name="vto_type"
@@ -349,27 +349,135 @@ function fetchEmployeeDetails(employeeId) {
         });
 }
 
+
 // Calculate minutes worked when time in/out changes
 document.getElementById('time_in').addEventListener('change', calculateWorkTime);
 document.getElementById('time_out').addEventListener('change', calculateWorkTime);
+document.getElementById('time_in').addEventListener('input', calculateWorkTime);
+document.getElementById('time_out').addEventListener('input', calculateWorkTime);
+document.getElementById('shift').addEventListener('change', calculateWorkTime);
 
 function calculateWorkTime() {
     const timeIn = document.getElementById('time_in').value;
     const timeOut = document.getElementById('time_out').value;
+    const shift = document.getElementById('shift').value.toUpperCase();
     
-    if (timeIn && timeOut) {
-        const inDate = new Date(`2000-01-01T${timeIn}`);
-        const outDate = new Date(`2000-01-01T${timeOut}`);
+    if (timeIn && timeOut && shift) {
+        // First, calculate shift duration in minutes
+        const shiftDuration = calculateShiftDuration(shift);
         
-        if (outDate > inDate) {
-            const diffMs = outDate - inDate;
-            const diffMins = Math.round(diffMs / 60000);
-            document.getElementById('mins_of_work').value = diffMins;
-        } else {
-            document.getElementById('mins_of_work').value = '';
+        // Special case: Same time in/out (full VTO)
+        if (timeIn === timeOut) {
+            document.getElementById('mins_of_work').value = 0;
+            document.getElementById('vto_mins').value = shiftDuration;
+            return;
         }
+        
+        // Convert time strings to minutes since midnight
+        const inMinutes = timeToMinutes(timeIn);
+        const outMinutes = timeToMinutes(timeOut);
+        
+        // Determine if this is a night shift (look for AM in shift end time)
+        const isNightShift = shift.includes('AM') || 
+                           (shift.includes('-') && shift.split('-')[1].includes('AM'));
+        
+        let minutesWorked;
+        
+        if (isNightShift) {
+            // Night shift calculation (may cross midnight)
+            if (outMinutes > inMinutes) {
+                // Same day (e.g., 7:00 PM to 11:00 PM)
+                minutesWorked = outMinutes - inMinutes;
+            } else {
+                // Crosses midnight (e.g., 7:00 PM to 5:00 AM)
+                minutesWorked = (1440 - inMinutes) + outMinutes; // 1440 = minutes in a day
+            }
+        } else {
+            // Day shift calculation
+            if (outMinutes >= inMinutes) {
+                minutesWorked = outMinutes - inMinutes;
+            } else {
+                // Invalid time range for day shift
+                document.getElementById('mins_of_work').value = '';
+                document.getElementById('vto_mins').value = '';
+                return;
+            }
+        }
+        
+        // Set the calculated values
+        document.getElementById('mins_of_work').value = minutesWorked;
+        document.getElementById('vto_mins').value = Math.max(0, shiftDuration - minutesWorked);
     }
 }
+
+// Calculate shift duration in minutes based on shift pattern
+function calculateShiftDuration(shiftPattern) {
+    // Extract start and end times from shift pattern
+    const timePattern = /(\d{1,2}:\d{2}\s*(?:AM|PM)?)\s*-\s*(\d{1,2}:\d{2}\s*(?:AM|PM)?)/i;
+    const match = shiftPattern.match(timePattern);
+    
+    if (match) {
+        const startTime = match[1].trim();
+        const endTime = match[2].trim();
+        
+        const startMinutes = timeToMinutes(startTime);
+        let endMinutes = timeToMinutes(endTime);
+        
+        // Handle overnight shifts
+        if (endMinutes <= startMinutes) {
+            endMinutes += 1440; // Add 24 hours
+        }
+        
+        const duration = endMinutes - startMinutes;
+        
+        // Return common shift durations (12hr=720, 9hr=540, 8hr=480)
+        if (duration >= 600 && duration <= 740) return 660; // 12hr shift
+        if (duration >= 420 && duration <= 560) return 480; // 9hr shift
+        
+        return duration; // Return exact duration if not standard
+    }
+    
+    return 480; // Default to 8hr shift if pattern not recognized
+}
+
+// Convert time string to minutes since midnight
+function timeToMinutes(timeStr) {
+    if (!timeStr) return 0;
+    
+    // Normalize the time string
+    timeStr = timeStr.trim().toUpperCase();
+    let isPM = false;
+    
+    // Handle AM/PM
+    if (timeStr.includes('PM')) {
+        isPM = true;
+        timeStr = timeStr.replace('PM', '').trim();
+    } else if (timeStr.includes('AM')) {
+        timeStr = timeStr.replace('AM', '').trim();
+    }
+    
+    // Split hours and minutes
+    const parts = timeStr.split(':');
+    let hours = parseInt(parts[0]) || 0;
+    const minutes = parseInt(parts[1]) || 0;
+    
+    // Convert to 24-hour format
+    if (isPM && hours < 12) hours += 12;
+    if (!isPM && hours === 12) hours = 0;
+    
+    return hours * 60 + minutes;
+}
+
+// Initialize calculation when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    <?php if ($record): ?>
+        fetchEmployeeDetails('<?= $record['employee_id'] ?>');
+        // Calculate work time if editing existing record with time values
+        if (document.getElementById('time_in').value && document.getElementById('time_out').value) {
+            calculateWorkTime();
+        }
+    <?php endif; ?>
+});
 </script>
 
 <?php renderFooter(); ?>
