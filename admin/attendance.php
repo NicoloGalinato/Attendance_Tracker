@@ -35,10 +35,10 @@ try {
     $stats['pending_emails'] += $stmt->fetchColumn();
     
     // Pending IR forms
-    $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE ir_form != 'YES' AND ir_form != 'NO NEED'");
+    $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE ir_form NOT REGEXP '^(YES|NO NEED)'");
     $stats['pending_ir'] += $stmt->fetchColumn();
-    
-    $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE ir_form != 'YES' AND ir_form != 'FOR ACCUMULATION'");
+
+    $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE ir_form NOT REGEXP '^(YES|FOR ACCUMULATION)'");
     $stats['pending_ir'] += $stmt->fetchColumn();
 
     // Pending Coverage
