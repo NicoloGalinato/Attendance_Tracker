@@ -45,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'supervisor' => strtoupper($employee['supervisor']),
             'operation_manager' => strtoupper($employee['operation_manager']),
             'shift' => strtoupper(sanitizeInput($_POST['shift'])),
+            'shift_date' => strtoupper(sanitizeInput($_POST['shift_date'])),
             'coverage' => strtoupper(sanitizeInput($_POST['coverage'])),
             'coverage_type' => strtoupper(sanitizeInput($_POST['coverage_type'])),
             'time_in' => sanitizeInput($_POST['time_in']),
@@ -66,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 supervisor = :supervisor,
                 operation_manager = :operation_manager,
                 shift = :shift,
+                shift_date = :shift_date,
                 coverage = :coverage,
                 coverage_type = :coverage_type,
                 time_in = :time_in,
@@ -86,11 +88,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Insert new record
             $stmt = $pdo->prepare("INSERT INTO vto_tracker 
                 (month, employee_id, full_name, department, supervisor, operation_manager, 
-                shift, coverage, coverage_type, time_in, time_out, mins_of_work, vto_mins, 
+                shift, shift_date, coverage, coverage_type, time_in, time_out, mins_of_work, vto_mins, 
                 vto_type, timestamp, sub_name)
                 VALUES 
                 (:month, :employee_id, :full_name, :department, :supervisor, :operation_manager,
-                :shift, :coverage, :coverage_type, :time_in, :time_out, :mins_of_work, :vto_mins,
+                :shift, :shift_date, :coverage, :coverage_type, :time_in, :time_out, :mins_of_work, :vto_mins,
                 :vto_type, :timestamp, :sub_name)");
             
             $stmt->execute($data);
@@ -195,6 +197,12 @@ renderSidebar('attendance');
                                class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
                                value="<?= $record ? htmlspecialchars($record['shift']) : '' ?>" required>
                     </div>
+<div>
+                            <label for="shift_date" class="block text-sm font-medium text-gray-300 mb-2">Shift Date</label>
+                            <input type="date" id="shift_date" name="shift_date" style="text-transform: uppercase;"
+                                   class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                                   value="<?= $record ? htmlspecialchars($record['shift_date']) : '' ?>" required>
+                        </div>
                     
                     <div>
                         <label for="coverage" class="block text-sm font-medium text-gray-300 mb-2">Coverage</label>
@@ -250,8 +258,8 @@ renderSidebar('attendance');
                         <label for="vto_type" class="block text-sm font-medium text-gray-300 mb-2">VTO Type</label>
                         <select id="vto_type" name="vto_type"
                                 class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" required>
-                            <option value="PRE APPROVED" <?= $record && $record['vto_type'] === 'PRE APPROVED' ? 'selected' : '' ?>>PRE APPROVED</option>
                             <option value="REALTIME" <?= $record && $record['vto_type'] === 'REALTIME' ? 'selected' : '' ?>>REALTIME</option>
+                            <option value="PRE APPROVED" <?= $record && $record['vto_type'] === 'PRE APPROVED' ? 'selected' : '' ?>>PRE APPROVED</option>
                         </select>
                     </div>
                 </div>
