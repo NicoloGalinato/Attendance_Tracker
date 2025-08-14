@@ -18,8 +18,12 @@ try {
         $stmt = $pdo->prepare("SELECT * FROM tardiness ORDER BY created_at ASC");
         $stmt->execute();
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } elseif ($type === 'vto_tracker') {
+        $stmt = $pdo->prepare("SELECT * FROM vto_tracker ORDER BY created_at ASC");
+        $stmt->execute();
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } else {
-        throw new Exception("Invalid data type requested");
+        throw new Exception("Invalid data type requested. Valid types are: absenteeism, tardiness, vto, vto_tracker");
     }
     
     echo json_encode(['success' => true, 'data' => $data]);
