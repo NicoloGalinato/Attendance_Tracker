@@ -54,22 +54,25 @@ if (isset($_GET['send_email']) && isset($_GET['type'])) {
         $record5 = $stmt->fetch();
         
         // Validate all required email addresses
-        $requiredEmails = array(
-            'Agent' => isset($record['email']) ? $record['email'] : null,
-            'Operation Manager' => isset($record5['email']) ? $record5['email'] : null
-        );
-        
-        // Supervisor email is optional
-        $supervisorEmail = isset($record4['email']) ? $record4['email'] : null;
-        
-        foreach ($requiredEmails as $role => $email) {
-            if (empty($email)) {
-                die("Email address for $role is missing");
-            }
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                die("Invalid email format for $role: $email");
-            }
-        }
+$agentEmail = !empty($record['email']) && filter_var($record['email'], FILTER_VALIDATE_EMAIL) 
+    ? $record['email'] 
+    : (!empty($record4['email']) && filter_var($record4['email'], FILTER_VALIDATE_EMAIL) 
+        ? $record4['email'] 
+        : null);
+
+$requiredEmails = array(
+    'Agent/Supervisor' => $agentEmail,
+    'Operation Manager' => isset($record5['email']) ? $record5['email'] : null
+);
+
+foreach ($requiredEmails as $role => $email) {
+    if (empty($email)) {
+        die("Email address for $role is missing");
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        die("Invalid email format for $role: $email");
+    }
+}
 
         // Create PHPMailer instance
         $mail = new PHPMailer(true);
@@ -85,13 +88,35 @@ if (isset($_GET['send_email']) && isset($_GET['type'])) {
         
         // Sender and recipient
         $mail->setFrom('cxi-slm@communixinc.com', 'CXI Service Level Management');
+
+
+
+
         
-        // Add validated email addresses
-        $mail->addAddress($record['email']); // To Agent
-        if (!empty($record4['email']) && filter_var($record4['email'], FILTER_VALIDATE_EMAIL)) {
-            $mail->addAddress($record4['email']); // To Supervisor
-        }
-        $mail->addAddress($record5['email']); // To Operation Manager
+        // Add validated email addresses - Agent/Supervisor logic
+$agentEmail = !empty($record['email']) && filter_var($record['email'], FILTER_VALIDATE_EMAIL) 
+    ? $record['email'] 
+    : (!empty($record4['email']) && filter_var($record4['email'], FILTER_VALIDATE_EMAIL) 
+        ? $record4['email'] 
+        : null);
+
+if ($agentEmail) {
+    $mail->addAddress($agentEmail); // To Agent (or Supervisor if Agent email is invalid/missing)
+}
+
+// Add Operation Manager's email (required)
+$mail->addAddress($record5['email']); // To Operation Manager
+
+// Add Supervisor's email separately if it's different from what we already added
+if (!empty($record4['email']) && 
+    filter_var($record4['email'], FILTER_VALIDATE_EMAIL) && 
+    $record4['email'] !== $agentEmail) {
+    $mail->addAddress($record4['email']); // To Supervisor (only if not already added)
+}
+
+
+
+
         
         // Default cc for the bosses
         $ccEmails = [
