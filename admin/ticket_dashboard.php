@@ -14,18 +14,23 @@ updateLastActivity();
 // AJAX Endpoint for updating ticket status
 if (isset($_POST['action']) && $_POST['action'] === 'resolve_ticket') {
     $ticketId = $_POST['id'] ?? null;
+    $resolution = $_POST['resolution'] ?? null;
     $response = ['success' => false, 'message' => 'Invalid request.'];
 
     if ($ticketId) {
-        $query = "UPDATE ticket SET Status = 'RESOLVED', TIME_RESOLVED = NOW() WHERE id = ?";
+        $query = "UPDATE ticket SET Status = 'RESOLVED', TIME_RESOLVED = NOW(), resolution = ? WHERE id = ?";
         $stmt = $con->prepare($query);
-        $stmt->bind_param("i", $ticketId);
         
-        if ($stmt->execute()) {
-            $response['success'] = true;
-            $response['message'] = 'Ticket resolved successfully.';
+        if ($stmt) {
+            $stmt->bind_param("si", $resolution, $ticketId);
+            if ($stmt->execute()) {
+                $response['success'] = true;
+                $response['message'] = 'Ticket resolved successfully.';
+            } else {
+                $response['message'] = 'Failed to resolve ticket: ' . $stmt->error;
+            }
         } else {
-            $response['message'] = 'Failed to resolve ticket: ' . $con->error;
+            $response['message'] = 'Failed to prepare statement: ' . $con->error;
         }
     }
 
@@ -156,7 +161,7 @@ $monthsWithData = $monthsResult->fetch_all(MYSQLI_ASSOC);
                     <tr>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">ID</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Timestamp</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Department</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">LOB</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Issues Concerning</th>
                     </tr>
@@ -216,7 +221,6 @@ $monthsWithData = $monthsResult->fetch_all(MYSQLI_ASSOC);
     let currentPage = 1;
     let resolvedTicketsChart = null;
     
-    // Function to get today's date in a consistent 'm/d/Y' format
     function getTodayDateString() {
         const today = new Date();
         const month = (today.getMonth() + 1).toString();
@@ -225,7 +229,6 @@ $monthsWithData = $monthsResult->fetch_all(MYSQLI_ASSOC);
         return `${month}/${day}/${year}`;
     }
 
-    // Function to fetch data from the server
     async function fetchTicketData() {
         try {
             const response = await fetch('ticket_dashboard.php?action=get_tickets_data');
@@ -237,13 +240,11 @@ $monthsWithData = $monthsResult->fetch_all(MYSQLI_ASSOC);
         }
     }
 
-    // Function to update cards and table
     function updateDashboard() {
         updateCardCounts();
         filterAndPaginate(currentFilter, currentPage);
     }
     
-    // Function to update the card counts
     function updateCardCounts() {
         const todayDateString = getTodayDateString();
         
@@ -264,7 +265,6 @@ $monthsWithData = $monthsResult->fetch_all(MYSQLI_ASSOC);
         document.getElementById('pending-tickets-count').textContent = pendingCount;
     }
 
-    // Function to filter and paginate the table
     function filterAndPaginate(filter, page) {
         currentFilter = filter;
         currentPage = page;
@@ -298,7 +298,6 @@ $monthsWithData = $monthsResult->fetch_all(MYSQLI_ASSOC);
         renderPagination(totalPages, page);
     }
 
-    // Function to render the table with the given tickets
     function renderTable(ticketsToRender) {
         const tableBody = document.getElementById('ticket-table-body');
         let html = '';
@@ -324,7 +323,6 @@ $monthsWithData = $monthsResult->fetch_all(MYSQLI_ASSOC);
         tableBody.innerHTML = html;
     }
 
-    // Function to render pagination controls
     function renderPagination(totalPages, page) {
         const paginationControls = document.getElementById('pagination-controls');
         let html = '<ul class="flex items-center space-x-2">';
@@ -344,37 +342,52 @@ $monthsWithData = $monthsResult->fetch_all(MYSQLI_ASSOC);
         paginationControls.innerHTML = html;
     }
 
-    // Function to open the modal and populate with ticket details
     function openModal(ticket) {
         const modal = document.getElementById('ticketModal');
         const modalContent = document.getElementById('modalContent');
         const modalFooter = document.getElementById('modalFooter');
         
         const detailsHtml = `
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-300">
-                <div><strong>ID:</strong> ${ticket.id}</div>
-                <div><strong>Timestamp:</strong> ${ticket.Timestamp}</div>
-                <div><strong>Email Address:</strong> ${ticket.Email_Address}</div>
-                <div><strong>Department:</strong> ${ticket.Department}</div>
-                <div><strong>Site:</strong> ${ticket.Site}</div>
-                <div><strong>Affected Employee:</strong> ${ticket.Affected_employee}</div>
-                <div><strong>EID:</strong> ${ticket.EID}</div>
-                <div><strong>Issues Concerning:</strong> ${ticket.Issues_Concerning}</div>
-                <div><strong>Station Number:</strong> ${ticket.Station_Number}</div>
-                <div><strong>Time Received:</strong> ${ticket.TIME_RECEIVED}</div>
-                <div><strong>Time Resolved:</strong> ${ticket.TIME_RESOLVED || 'N/A'}</div>
-                <div><strong>SLT on DUTY:</strong> ${ticket.SLT_on_DUTY || 'N/A'}</div>
-                <div><strong>Week Beginning:</strong> ${ticket.Week_Beginning}</div>
-                <div><strong>LOB:</strong> ${ticket.LOB}</div>
-                <div><strong>OM:</strong> ${ticket.OM}</div>
-                <div><strong>Employee Name:</strong> ${ticket.Employee_name}</div>
-                <div><strong>Work Number:</strong> ${ticket.Work_Number}</div>
-                <div><strong>Status:</strong> ${ticket.Status}</div>
-                <div><strong>Urgency:</strong> ${ticket.Urgency}</div>
-            </div>
-            <div class="mt-4">
-                <strong>Issue Details:</strong>
-                <p class="mt-2 p-3 bg-gray-700 rounded-md whitespace-pre-wrap">${ticket.Issue_Details}</p>
+            <div class="space-y-4">
+                <div class="space-y-2 pb-4 border-b border-gray-600">
+                    <h4 class="text-xl font-bold text-gray-200">Issue Details</h4>
+                    <p class="mt-2 p-3 text-gray-300 bg-gray-700 rounded-lg whitespace-pre-wrap">${ticket.Issue_Details}</p>
+                </div>
+
+                <div class="space-y-2 pt-4 pb-4 border-b border-gray-600">
+                    <h4 class="text-xl font-bold text-gray-200">Employee Details</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-gray-300">
+                        <div><strong>Employee Name:</strong> ${ticket.Employee_name}</div>
+                        <div><strong>Work Number:</strong> ${ticket.Work_Number}</div>
+                        <div><strong>EID:</strong> ${ticket.EID}</div>
+                        <div><strong>Site:</strong> ${ticket.Site}</div>
+                        <div><strong>LOB:</strong> ${ticket.LOB}</div>
+                    </div>
+                </div>
+
+                <div class="space-y-2 pt-4">
+                    <h4 class="text-lg font-semibold text-gray-200">Resolution Details</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-gray-300">
+                        <div><strong>OM:</strong> ${ticket.OM}</div>
+                        <div><strong>SLT on DUTY:</strong> ${ticket.SLT_on_DUTY || 'N/A'}</div>
+                        <div><strong>Time Received:</strong> ${ticket.TIME_RECEIVED}</div>
+                        <div><strong>Time Resolved:</strong> ${ticket.TIME_RESOLVED || 'N/A'}</div>
+                        <div><strong>Urgency:</strong> ${ticket.Urgency}</div>
+                        <div><strong>Department:</strong> ${ticket.Department}</div>
+                    </div>
+                </div>
+                
+                ${ticket.Status === 'PENDING' ? `
+                    <div class="mt-4">
+                        <label for="resolution_details" class="block text-sm font-medium text-gray-400 mb-2">What did you do to fix the issue?</label>
+                        <textarea id="resolution_details" rows="4" class="block w-full rounded-md bg-gray-700 text-white border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"></textarea>
+                    </div>
+                ` : `
+                    <div class="mt-4">
+                        <h4 class="text-lg font-semibold text-gray-200">Resolution Notes</h4>
+                        <p class="mt-2 p-3 text-gray-300 bg-gray-700 rounded-lg whitespace-pre-wrap">${ticket.resolution || 'No resolution details provided.'}</p>
+                    </div>
+                `}
             </div>
         `;
         
@@ -389,18 +402,24 @@ $monthsWithData = $monthsResult->fetch_all(MYSQLI_ASSOC);
         modal.classList.remove('hidden');
     }
 
-    // Function to close the modal
     function closeModal() {
         const modal = document.getElementById('ticketModal');
         modal.classList.add('hidden');
     }
 
-    // AJAX function to resolve a ticket
     async function resolveTicket(ticketId) {
         if (confirm("Are you sure you want to resolve this ticket?")) {
+            const resolution = document.getElementById('resolution_details').value;
+            
+            if (resolution.trim() === '') {
+                alert('Please provide details on what you did to fix the issue.');
+                return;
+            }
+
             const formData = new FormData();
             formData.append('action', 'resolve_ticket');
             formData.append('id', ticketId);
+            formData.append('resolution', resolution);
 
             try {
                 const response = await fetch('ticket_dashboard.php', {
@@ -412,7 +431,7 @@ $monthsWithData = $monthsResult->fetch_all(MYSQLI_ASSOC);
                 if (result.success) {
                     alert(result.message);
                     closeModal();
-                    fetchTicketData(); // Reload data after resolving
+                    fetchTicketData();
                 } else {
                     alert(result.message);
                 }
@@ -423,7 +442,6 @@ $monthsWithData = $monthsResult->fetch_all(MYSQLI_ASSOC);
         }
     }
 
-    // Function to fetch data and update the chart
     async function updateChart(month) {
         try {
             const response = await fetch(`ticket_dashboard.php?action=get_resolved_slt_data&month=${month}`);
@@ -476,17 +494,14 @@ $monthsWithData = $monthsResult->fetch_all(MYSQLI_ASSOC);
         }
     }
     
-    // Initial data load and start polling
     document.addEventListener('DOMContentLoaded', () => {
         const monthSelector = document.getElementById('monthSelector');
         
         fetchTicketData();
-        updateChart(monthSelector.value); // Initial chart render
+        updateChart(monthSelector.value);
         
-        // Polling for the dashboard data
         setInterval(fetchTicketData, 15000); 
 
-        // Update the chart whenever a new month is selected
         monthSelector.addEventListener('change', (event) => {
             updateChart(event.target.value);
         });

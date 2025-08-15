@@ -155,6 +155,10 @@ function renderSidebar($activePage = 'dashboard') {
                     <i class="sidebar-icon fas fa-tachometer-alt mr-3"></i>
                     <span class="sidebar-text">Dashboard</span>
                 </a>
+                <a href="attendance.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'attendance' ? 'active' : '' ?>">
+                    <i class="sidebar-icon fas fa-chart-line mr-3"></i>
+                    <span class="sidebar-text">Tracker</span>
+                </a>
                 <a href="ticket_dashboard.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'ticket_dashboard' ? 'active' : '' ?>">
                     <i class="sidebar-icon fas fa-clipboard-list mr-3"></i>
                     <span class="sidebar-text">Ticket Dashboard</span>
@@ -162,10 +166,6 @@ function renderSidebar($activePage = 'dashboard') {
                 <a href="statistics.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'statistics' ? 'active' : '' ?>">
                     <i class="sidebar-icon fas fa-chart-bar mr-3"></i>
                     <span class="sidebar-text">Ticket Statistics</span>
-                </a>
-                <a href="attendance.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'attendance' ? 'active' : '' ?>">
-                    <i class="sidebar-icon fas fa-chart-line mr-3"></i>
-                    <span class="sidebar-text">Tracker</span>
                 </a>
                 <a href="employees.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'employees' ? 'active' : '' ?>">
                     <i class="sidebar-icon fas fa-users mr-3"></i>
