@@ -121,6 +121,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $action = $id > 0 ? 'updated' : 'created';
                 $recordId = $id > 0 ? $id : $pdo->lastInsertId();
                 logActivity("$action absenteeism record for {$data['full_name']}", $recordId, 'absenteeism');
+                
+                if ($stmt->rowCount() > 0) {
+                    $_SESSION['success'] = "Record " . ($id > 0 ? 'updated' : 'added') . " successfully!";
+                    
+                    // Check if this is a new record and has pending IR
+                    if ($id === 0 && strpos(strtoupper($_POST['ir_form']), 'PENDING') !== false) {
+                        // Store the employee_id in session to check in the attendance.php
+                        $_SESSION['check_pending_ir'] = $employeeId;
+                    }
+                    
+                    logActivity(($id > 0 ? "Updated" : "Created") . " {$type} record for {$data['full_name']}", 
+                            $id > 0 ? $id : $pdo->lastInsertId(), $type);
+                }
             }
         } else {
             // Tardiness form
@@ -323,6 +336,7 @@ renderSidebar('attendance');
                                 <option value="ABSENCE / NCNS (LATE ADVISE)" <?= $record && $record['sanction'] === 'ABSENCE / NCNS (LATE ADVISE)' ? 'selected' : '' ?>>ABSENCE / NCNS (LATE ADVISE)</option>
                                 <option value="ABSENCE / NCNS / CWD" <?= $record && $record['sanction'] === 'ABSENCE / NCNS / CWD' ? 'selected' : '' ?>>ABSENCE / NCNS / CWD</option>
                                 <option value="ABSENCE / NCNS / CWD (LATE ADVISE)" <?= $record && $record['sanction'] === 'ABSENCE / NCNS / CWD (LATE ADVISE)' ? 'selected' : '' ?>>ABSENCE / NCNS / CWD (LATE ADVISE)</option>
+                                <option value="PVL" <?= $record && $record['sanction'] === 'PVL' ? 'selected' : '' ?>>PVL</option>
                             </select>
                         </div>
                         
@@ -351,6 +365,7 @@ renderSidebar('attendance');
                                 <option value="DSOT" <?= $record && $record['coverage_type'] === 'DSOT' ? 'selected' : '' ?>>DSOT</option>
                                 <option value="RDOT" <?= $record && $record['coverage_type'] === 'RDOT' ? 'selected' : '' ?>>RDOT</option>
                                 <option value="AGENT MODE" <?= $record && $record['coverage_type'] === 'AGENT MODE' ? 'selected' : '' ?>>AGENT MODE</option>
+                                <option value="PVL" <?= $record && $record['coverage_type'] === 'PVL' ? 'selected' : '' ?>>PVL</option>
                             </select>
                         </div>
                         

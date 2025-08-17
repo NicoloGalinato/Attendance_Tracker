@@ -201,6 +201,27 @@ if (isset($_GET['send_email'])) {
     redirect('attendance.php?tab=' . $type);
 }
 
+if (isset($_SESSION['check_pending_ir'])) {
+    $employeeId = $_SESSION['check_pending_ir'];
+    unset($_SESSION['check_pending_ir']);
+    
+    // Get all pending IRs for this employee
+    try {
+        $stmt = $pdo->prepare("SELECT id, employee_id, full_name, date_of_absent, ir_form FROM absenteeism 
+                      WHERE employee_id = ? AND ir_form LIKE 'PENDING%' 
+                      ORDER BY date_of_absent");
+        $stmt->execute([$employeeId]);
+        $pendingIRs = $stmt->fetchAll();
+        
+        if (count($pendingIRs) > 0) {
+            $showPendingIRModal = true;
+            $pendingIRData = $pendingIRs;
+        }
+    } catch (PDOException $e) {
+        error_log("Error checking pending IRs: " . $e->getMessage());
+    }
+}
+
 require_once '../components/layout.php';
 renderHead('Attendance Tracker');
 renderNavbar();
@@ -415,6 +436,105 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
         <div id="attendanceTableContainer">
             <?php include 'partials/attendance_table.php'; ?>
         </div>
+
+
+        <?php if (isset($showPendingIRModal) && $showPendingIRModal): ?>
+        <div id="pendingIRModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-gray-800 rounded-lg border border-gray-700 shadow-xl w-full max-w-4xl">
+                <div class="px-6 py-6">
+                    <h3 class="text-lg font-bold text-gray-100 mb-4">Pending IR Forms Found</h3>
+                    <p class="text-gray-300 mb-4">This agent has <?= count($pendingIRData) ?> pending IR form(s). Would you like to update them all?</p>
+                    
+                    <div class="mb-4">
+                        <label for="irFormUpdate" class="block text-sm font-medium text-gray-300 mb-2">New IR Form Status:</label>
+                        <input type="text" id="irFormUpdate" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-200" 
+                            placeholder="Enter the latest IR form current status (e.g., PENDING / Current Status)">
+                    </div>
+                    
+                    <div class="overflow-x-auto mb-6">
+                        <table class="min-w-full divide-y divide-gray-700">
+                            <thead class="bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Employee ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Full Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Current Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-gray-800 divide-y divide-gray-700">
+                                <?php foreach ($pendingIRData as $ir): ?>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-100">
+                                        <?= htmlspecialchars($ir['employee_id']) ?>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                        <?= htmlspecialchars($ir['full_name']) ?>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                        <?= date('M d, Y', strtotime($ir['date_of_absent'])) ?>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                        <?= htmlspecialchars($ir['ir_form']) ?>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3">
+                        <button onclick="closePendingIRModal()" class="px-4 py-2 bg-gray-600 text-gray-100 rounded-md hover:bg-gray-500">
+                            Skip
+                        </button>
+                        <button onclick="updateAllPendingIRs()" class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-500">
+                            Update All
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<script>
+function closePendingIRModal() {
+    document.getElementById('pendingIRModal').remove();
+}
+
+function updateAllPendingIRs() {
+    const newStatus = document.getElementById('irFormUpdate').value;
+    if (!newStatus.trim()) {
+        alert('Please enter a valid IR form status');
+        return;
+    }
+    
+    fetch('../includes/update_pending_irs.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            employee_id: '<?= $employeeId ?>',
+            new_status: newStatus
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Successfully updated ' + data.updated + ' records');
+            closePendingIRModal();
+            
+            // Submit the main filter form to refresh the table
+            document.getElementById('mainFilterForm').submit();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating records');
+    });
+}
+</script>
+<?php endif; ?>
     </main>
 </div>
 
@@ -433,7 +553,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const irFilter = document.getElementById('irFilter');
     let searchTimeout;
     let currentFilter = '';
-    
+
     // Function to load data with current filters
     function loadFilteredData(page = 1) {
         const urlParams = new URLSearchParams(window.location.search);
