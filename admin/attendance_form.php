@@ -40,7 +40,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $currentDate = date('Y-m-d');
         $currentTime = date('g:i A');
         
+        // Check for duplicate entry
         if ($type === 'absenteeism') {
+            $dateField = strtoupper(sanitizeInput($_POST['date_of_absent']));
+            
+            // Check if a record already exists for this employee on this date (excluding current record if editing)
+            $duplicateCheck = $pdo->prepare("SELECT id FROM absenteeism WHERE employee_id = ? AND date_of_absent = ? AND id != ?");
+            $duplicateCheck->execute([$employeeId, $dateField, $id]);
+            $existingRecord = $duplicateCheck->fetch();
+            
+            if ($existingRecord) {
+                throw new Exception("An absenteeism record already exists for this ". $employee['full_name'] ." on the selected date " . date('F j, Y', strtotime($dateField)) .".");
+            }
+            
             $data = [
                 'month' => $currentMonth,
                 'employee_id' => $employeeId,
@@ -49,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'supervisor' => strtoupper($employee['supervisor']),
                 'operation_manager' => strtoupper($employee['operation_manager']),
                 'email' => $employee['email'],
-                'date_of_absent' => strtoupper(sanitizeInput($_POST['date_of_absent'])),
+                'date_of_absent' => $dateField,
                 'follow_call_in_procedure' => strtoupper(sanitizeInput($_POST['follow_call_in_procedure'])),
                 'sanction' => strtoupper(sanitizeInput($_POST['sanction'])),
                 'reason' => strtoupper($_POST['reason']),
@@ -104,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 $_SESSION['success'] = "Absenteeism record added successfully!";
                 logActivity("Created absenteeism record for {$data['full_name']}", $recordId, 'absenteeism');
-                
+
                 // After successful insert/update
                 $action = $id > 0 ? 'updated' : 'created';
                 $recordId = $id > 0 ? $id : $pdo->lastInsertId();
@@ -112,6 +124,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } else {
             // Tardiness form
+            $dateField = strtoupper(sanitizeInput($_POST['date_of_incident']));
+            
+            // Check if a record already exists for this employee on this date (excluding current record if editing)
+            $duplicateCheck = $pdo->prepare("SELECT id FROM tardiness WHERE employee_id = ? AND date_of_incident = ? AND id != ?");
+            $duplicateCheck->execute([$employeeId, $dateField, $id]);
+            $existingRecord = $duplicateCheck->fetch();
+            
+            if ($existingRecord) {
+                throw new Exception("A tardiness record already exists for this ". $employee['full_name'] ." on the selected date " . date('F j, Y', strtotime($dateField)) .".");
+            }
+            
             $data = [
                 'month' => $currentMonth,
                 'employee_id' => $employeeId,
@@ -120,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'supervisor' => strtoupper($employee['supervisor']),
                 'operation_manager' => strtoupper($employee['operation_manager']),
                 'email' => $employee['email'],
-                'date_of_incident' => strtoupper(sanitizeInput($_POST['date_of_incident'])),
+                'date_of_incident' => $dateField,
                 'types' => strtoupper(sanitizeInput($_POST['types'])),
                 'minutes_late' => (int)$_POST['minutes_late'],
                 'shift' => strtoupper(sanitizeInput($_POST['shift'])),
@@ -168,7 +191,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $recordId = $pdo->lastInsertId();
                 
                 $_SESSION['success'] = "Tardiness record added successfully!";
-                 logActivity("Created tardiness record for {$data['full_name']}", $recordId, 'tardiness');
+                logActivity("Created tardiness record for {$data['full_name']}", $recordId, 'tardiness');
+
                 // After successful insert/update
                 $action = $id > 0 ? 'updated' : 'created';
                 $recordId = $id > 0 ? $id : $pdo->lastInsertId();
