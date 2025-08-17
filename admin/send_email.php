@@ -113,11 +113,6 @@ if (!empty($record4['email']) &&
     $record4['email'] !== $agentEmail) {
     $mail->addAddress($record4['email']); // To Supervisor (only if not already added)
 }
-
-
-
-
-        
         // Default cc for the bosses
         $ccEmails = [
             'kiko.barrameda@communixinc.com',
@@ -126,15 +121,22 @@ if (!empty($record4['email']) &&
             'cxi-slm@communixinc.com',
             'ken.munoz@communixinc.com',
             'humanresources@communixinc.com',
-            'cxi-hr@communixinc.com'
+            'cxi-hr@communixinc.com',
+            'cxi.clinic@communixinc.com'
         ];
+
+        // Remove cxi.clinic@communixinc.com if type is tardiness
+        if ($type === 'tardiness') {
+            $ccEmails = array_filter($ccEmails, function($email) {
+                return $email !== 'cxi.clinic@communixinc.com';
+            });
+        }
 
         foreach ($ccEmails as $ccEmail) {
             if (filter_var($ccEmail, FILTER_VALIDATE_EMAIL)) {
                 $mail->addCC($ccEmail);
             }
         }
-        
         
         // Email content
         if ($type === 'absenteeism') {
