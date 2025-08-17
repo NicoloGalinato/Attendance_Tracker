@@ -58,71 +58,24 @@ try {
     } else {
         // For other tabs or when no tab is selected, show both
         $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE ir_form NOT REGEXP '^(YES|NO NEED)'");
-    $stats['pending_ir'] += $stmt->fetchColumn();
+        $stats['pending_ir'] += $stmt->fetchColumn();
 
-    $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE ir_form NOT REGEXP '^(YES|FOR ACCUMULATION|NO NEED)'");
-    $stats['pending_ir'] += $stmt->fetchColumn();
+        $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE ir_form NOT REGEXP '^(YES|FOR ACCUMULATION|NO NEED)'");
+        $stats['pending_ir'] += $stmt->fetchColumn();
     }
 
     // Pending Coverage
-    $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE coverage = 'PENDING'");
+    $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE coverage = 'PENDING'"); 
     $stats['pending_coverage'] += $stmt->fetchColumn();
 
-    $todayDate = date('Y-m-d');
 
+
+    $todayDate = date('Y-m-d');
     // Pending Uncovered Shift
     $todayDate = date('Y-m-d');
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM absenteeism WHERE coverage = 'UNCOVERED' AND date_of_absent = ?");
     $stmt->execute([$todayDate]);
     $stats['uncovered_shift'] += $stmt->fetchColumn();
-
-    // Absenteeism stats
-    $today = date('Y-m-d');
-    $weekStart = date('Y-m-d', strtotime('monday this week'));
-    $monthStart = date('Y-m-01');
-    $yearStart = date('Y-01-01');
-
-    
-    // Today
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM absenteeism WHERE date_of_absent = ?");
-    $stmt->execute([$today]);
-    $stats['absent_today'] = $stmt->fetchColumn();
-    
-    // This week
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM absenteeism WHERE date_of_absent BETWEEN ? AND ?");
-    $stmt->execute([$weekStart, $today]);
-    $stats['absent_week'] = $stmt->fetchColumn();
-    
-    // This month
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM absenteeism WHERE date_of_absent BETWEEN ? AND ?");
-    $stmt->execute([$monthStart, $today]);
-    $stats['absent_month'] = $stmt->fetchColumn();
-    
-    // This year
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM absenteeism WHERE date_of_absent BETWEEN ? AND ?");
-    $stmt->execute([$yearStart, $today]);
-    $stats['absent_year'] = $stmt->fetchColumn();
-    
-    // Tardiness stats
-    // Today
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM tardiness WHERE date_of_incident = ?");
-    $stmt->execute([$today]);
-    $stats['late_today'] = $stmt->fetchColumn();
-    
-    // This week
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM tardiness WHERE date_of_incident BETWEEN ? AND ?");
-    $stmt->execute([$weekStart, $today]);
-    $stats['late_week'] = $stmt->fetchColumn();
-    
-    // This month
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM tardiness WHERE date_of_incident BETWEEN ? AND ?");
-    $stmt->execute([$monthStart, $today]);
-    $stats['late_month'] = $stmt->fetchColumn();
-    
-    // This year
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM tardiness WHERE date_of_incident BETWEEN ? AND ?");
-    $stmt->execute([$yearStart, $today]);
-    $stats['late_year'] = $stmt->fetchColumn();
     
 } catch (PDOException $e) {
     // If there's an error, we'll just use the default 0 values
@@ -345,6 +298,9 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
             <?php if (!empty($_GET['cov'])): ?>
                 <input type="hidden" name="cov" value="<?= htmlspecialchars($_GET['cov']) ?>">
             <?php endif; ?>
+            <?php if (!empty($_GET['ir'])): ?>
+                <input type="hidden" name="ir" value="<?= htmlspecialchars($_GET['ir']) ?>">
+            <?php endif; ?>
         </form>
 
         <!-- Tabs -->
@@ -364,71 +320,97 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
 
         <?php renderAlert(); ?>
         
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">   
+            <!-- Search Input -->
+            <div class="relative sm:col-span-2 lg:col-span-1">
+                <input type="text" id="searchInput" 
+                    class="w-full pl-10 pr-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                    placeholder="Search by employee ID or name..."
+                    value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
+                <div class="absolute left-3 top-2.5 text-gray-400">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
             
-    <!-- Search Input -->
-    <div class="relative sm:col-span-2 lg:col-span-1">
-        <input type="text" id="searchInput" 
-               class="w-full pl-10 pr-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
-               placeholder="Search by employee ID or name..."
-               value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
-        <div class="absolute left-3 top-2.5 text-gray-400">
-            <i class="fas fa-search"></i>
-        </div>
-    </div>
-    
-    <!-- Date Range Filter -->
-    <div class="flex gap-2 sm:col-span-2 lg:col-span-1">
-        <div class="relative flex-grow">
-            <input type="date" id="dateFrom" 
-                   class="w-full px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200"
-                   value="<?= isset($_GET['from']) ? htmlspecialchars($_GET['from']) : '' ?>">
-        </div>
-        <div class="relative flex-grow">
-            <input type="date" id="dateTo" 
-                   class="w-full px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200"
-                   value="<?= isset($_GET['to']) ? htmlspecialchars($_GET['to']) : '' ?>">
-        </div>
-    </div>
-    
-    <!-- Department Filter -->
-    <div class="relative sm:col-span-1 lg:col-span-1">
-        <select id="departmentFilter" 
-                class="w-full px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200 appearance-none">
-            <option value="">All Departments</option>
-            <?php
-            $stmt = $pdo->query("SELECT DISTINCT department FROM absenteeism UNION SELECT DISTINCT department FROM tardiness ORDER BY department");
-            while ($row = $stmt->fetch()) {
-                $selected = (isset($_GET['dept']) && $_GET['dept'] === $row['department']) ? 'selected' : '';
-                echo '<option value="'.htmlspecialchars($row['department']).'" '.$selected.'>'.htmlspecialchars($row['department']).'</option>';
-            }
-            ?>
-        </select>
-        <div class="absolute right-3 top-2.5 text-gray-400 pointer-events-none">
-            <i class="fas fa-chevron-down"></i>
-        </div>
-    </div>
-    
-    <!-- Coverage Filter -->
-    <div class="relative sm:col-span-1 lg:col-span-1">
-        <select id="coverageFilter" 
-                class="w-full px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200 appearance-none">
-            <option value="">All Coverage</option>
-            <?php
-            // Define the specific values we want to show in the filter
-            $filterValues = ['UNCOVERED', 'PENDING', 'NO NEED', 'N/A', '-'];
+            <!-- Date Range Filter -->
+            <div class="flex gap-2 sm:col-span-2 lg:col-span-1">
+                <div class="relative flex-grow">
+                    <input type="date" id="dateFrom" 
+                        class="w-full px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200"
+                        value="<?= isset($_GET['from']) ? htmlspecialchars($_GET['from']) : '' ?>">
+                </div>
+            </div>
+            <div class="flex gap-2 sm:col-span-2 lg:col-span-1">
+                <div class="relative flex-grow">
+                    <input type="date" id="dateTo" 
+                        class="w-full px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200"
+                        value="<?= isset($_GET['to']) ? htmlspecialchars($_GET['to']) : '' ?>">
+                </div>
+            </div>
             
-            foreach ($filterValues as $value) {
-                $selected = (isset($_GET['cov']) && $_GET['cov'] === $value) ? 'selected' : '';
-                echo '<option value="'.htmlspecialchars($value).'" '.$selected.'>'.htmlspecialchars($value).'</option>';
-            }
-            ?>
-        </select>
-        <div class="absolute right-3 top-2.5 text-gray-400 pointer-events-none">
-            <i class="fas fa-chevron-down"></i>
+            <!-- Department Filter -->
+            <div class="relative sm:col-span-1 lg:col-span-1">
+                <select id="departmentFilter" 
+                        class="w-full px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200 appearance-none">
+                    <option value="">ALL DEPARTMENTS</option>
+                    <?php
+                    $stmt = $pdo->query("SELECT DISTINCT department FROM absenteeism UNION SELECT DISTINCT department FROM tardiness ORDER BY department");
+                    while ($row = $stmt->fetch()) {
+                        $selected = (isset($_GET['dept']) && $_GET['dept'] === $row['department']) ? 'selected' : '';
+                        echo '<option value="'.htmlspecialchars($row['department']).'" '.$selected.'>'.htmlspecialchars($row['department']).'</option>';
+                    }
+                    ?>
+                </select>
+                <div class="absolute right-3 top-2.5 text-gray-400 pointer-events-none">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+            
+            <!-- Coverage Filter -->
+            <div class="relative sm:col-span-1 lg:col-span-1">
+                <select id="coverageFilter" 
+                        class="w-full px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200 appearance-none">
+                    <option value="">ALL COVERAGE</option>
+                    <?php
+                    // Define the specific values we want to show in the filter
+                    $filterValues = ['UNCOVERED', 'PENDING', 'NO NEED', 'N/A', '-'];
+                    
+                    foreach ($filterValues as $value) {
+                        $selected = (isset($_GET['cov']) && $_GET['cov'] === $value) ? 'selected' : '';
+                        echo '<option value="'.htmlspecialchars($value).'" '.$selected.'>'.htmlspecialchars($value).'</option>';
+                    }
+                    ?>
+                </select>
+                <div class="absolute right-3 top-2.5 text-gray-400 pointer-events-none">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+
+            <!-- IR Filter -->
+            <div class="relative sm:col-span-1 lg:col-span-1">
+                <select id="irFilter" 
+                        class="w-full px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200 appearance-none">
+                    <option value="">INCIDENT FORM</option>
+                    <?php
+                    $stmt = $pdo->query("SELECT DISTINCT ir_form FROM absenteeism WHERE ir_form LIKE 'PENDING%' ORDER BY ir_form DESC");
+                    $pendingDates = [];
+                    while ($row = $stmt->fetch()) {
+                        if (preg_match('/PENDING \/ ([A-Z]{3} [0-9]{1,2})/', $row['ir_form'], $matches)) {
+                            $dateOnly = "PENDING / " . $matches[1];
+                            if (!in_array($dateOnly, $pendingDates)) {
+                                $pendingDates[] = $dateOnly;
+                                $selected = (isset($_GET['ir']) && $_GET['ir'] === $dateOnly) ? 'selected' : '';
+                                echo '<option value="'.htmlspecialchars($dateOnly).'" '.$selected.'>'.htmlspecialchars($dateOnly).'</option>';
+                            }
+                        }
+                    }
+                    ?>
+                </select>
+                <div class="absolute right-3 top-2.5 text-gray-400 pointer-events-none">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
         <div id="attendanceTableContainer">
             <?php include 'partials/attendance_table.php'; ?>
@@ -448,6 +430,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const dateTo = document.getElementById('dateTo');
     const departmentFilter = document.getElementById('departmentFilter');
     const coverageFilter = document.getElementById('coverageFilter');
+    const irFilter = document.getElementById('irFilter');
     let searchTimeout;
     let currentFilter = '';
     
@@ -468,14 +451,15 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             formData.append('department', departmentFilter.value);
             formData.append('coverage', coverageFilter.value);
+            formData.append('ir_filter', irFilter.value);
         }
 
         // Add other filters
         formData.append('date_from', dateFrom.value);
         formData.append('date_to', dateTo.value);
         formData.append('type', urlParams.get('tab') || 'absenteeism');
-        formData.append('page', page); // Add page parameter
-
+        formData.append('page', page);
+        
         fetch('partials/attendance_table.php', {
             method: 'POST',
             body: formData
@@ -565,6 +549,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     departmentFilter.addEventListener('change', handleDropdownFilter);
     coverageFilter.addEventListener('change', handleDropdownFilter);
+    irFilter.addEventListener('change', handleDropdownFilter);
     searchInput.addEventListener('input', () => {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {

@@ -15,6 +15,7 @@ if ($type === 'absenteeism') {
 }
 
 $cardFilter = isset($_POST['filter']) ? $_POST['filter'] : (isset($_GET['filter']) ? $_GET['filter'] : '');
+$irFilter = isset($_POST['ir_filter']) ? $_POST['ir_filter'] : (isset($_GET['ir']) ? $_GET['ir'] : '');
 $statusFilter = isset($_GET['status']) ? $_GET['status'] : '';
 
 // Ensure we have the table and type from the parent file
@@ -117,6 +118,16 @@ if (!empty($department)) {
 if ($type === 'absenteeism' && !empty($coverage)) {
     $whereClauses[] = "coverage = :coverage";
     $params[':coverage'] = $coverage;
+}
+
+// Add this to the where clauses section
+if (!empty($irFilter)) {
+    // Extract the date part from the filter (e.g., "PENDING / AUG 14")
+    if (preg_match('/PENDING \/ ([A-Z]{3} [0-9]{1,2})/', $irFilter, $matches)) {
+        $datePart = $matches[1];
+        $whereClauses[] = "ir_form LIKE :ir_filter";
+        $params[':ir_filter'] = "PENDING / $datePart%";
+    }
 }
 
 $searchQuery = empty($whereClauses) ? '' : 'WHERE ' . implode(' AND ', $whereClauses);
