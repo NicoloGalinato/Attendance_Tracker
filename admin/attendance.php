@@ -417,7 +417,7 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
             <div class="relative sm:col-span-1 lg:col-span-1">
                 <select id="irFilter" 
                         class="w-full px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200 appearance-none">
-                    <option value="">INCIDENT FORM</option>
+                    <option value="">ALL INCIDENT REPORTS</option>
                     <?php
                     $stmt = $pdo->query("SELECT DISTINCT ir_form FROM absenteeism WHERE ir_form LIKE 'PENDING%' ORDER BY ir_form DESC");
                     $pendingDates = [];
