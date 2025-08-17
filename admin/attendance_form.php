@@ -122,12 +122,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $recordId = $id > 0 ? $id : $pdo->lastInsertId();
                 logActivity("$action absenteeism record for {$data['full_name']}", $recordId, 'absenteeism');
                 
+                // In the POST handling section, after successful insert/update
                 if ($stmt->rowCount() > 0) {
                     $_SESSION['success'] = "Record " . ($id > 0 ? 'updated' : 'added') . " successfully!";
                     
-                    // Check if this is a new record and has pending IR
-                    if ($id === 0 && strpos(strtoupper($_POST['ir_form']), 'PENDING') !== false) {
-                        // Store the employee_id in session to check in the attendance.php
+                    // Check if this employee has any pending IR forms (regardless of current record's status)
+                    $stmt = $pdo->prepare("SELECT COUNT(*) FROM absenteeism 
+                                        WHERE employee_id = ? AND ir_form LIKE 'PENDING%'");
+                    $stmt->execute([$employeeId]);
+                    $pendingCount = $stmt->fetchColumn();
+                    
+                    if ($pendingCount > 0) {
                         $_SESSION['check_pending_ir'] = $employeeId;
                     }
                     

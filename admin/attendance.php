@@ -208,14 +208,20 @@ if (isset($_SESSION['check_pending_ir'])) {
     // Get all pending IRs for this employee
     try {
         $stmt = $pdo->prepare("SELECT id, employee_id, full_name, date_of_absent, ir_form FROM absenteeism 
-                      WHERE employee_id = ? AND ir_form LIKE 'PENDING%' 
-                      ORDER BY date_of_absent");
+                              WHERE employee_id = ? AND ir_form LIKE 'PENDING%' 
+                              ORDER BY date_of_absent");
         $stmt->execute([$employeeId]);
         $pendingIRs = $stmt->fetchAll();
         
         if (count($pendingIRs) > 0) {
             $showPendingIRModal = true;
             $pendingIRData = $pendingIRs;
+            
+            // Also get employee details for the modal
+            $stmt = $pdo->prepare("SELECT full_name FROM employees WHERE employee_id = ?");
+            $stmt->execute([$employeeId]);
+            $employee = $stmt->fetch();
+            $employeeName = $employee ? $employee['full_name'] : '';
         }
     } catch (PDOException $e) {
         error_log("Error checking pending IRs: " . $e->getMessage());
@@ -442,7 +448,7 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
         <div id="pendingIRModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
             <div class="bg-gray-800 rounded-lg border border-gray-700 shadow-xl w-full max-w-4xl">
                 <div class="px-6 py-6">
-                    <h3 class="text-lg font-bold text-gray-100 mb-4">Pending IR Forms Found</h3>
+                    <h3 class="text-lg font-bold text-gray-100 mb-4">Pending IR Forms Found for <?= htmlspecialchars($employeeName) ?></h3>
                     <p class="text-gray-300 mb-4">This agent has <?= count($pendingIRData) ?> pending IR form(s). Would you like to update them all?</p>
                     
                     <div class="mb-4">
@@ -522,8 +528,10 @@ function updateAllPendingIRs() {
             alert('Successfully updated ' + data.updated + ' records');
             closePendingIRModal();
             
-            // Submit the main filter form to refresh the table
-            document.getElementById('mainFilterForm').submit();
+            // Only refresh if there were pending forms
+            if (data.has_pending) {
+                document.getElementById('mainFilterForm').submit();
+            }
         } else {
             alert('Error: ' + data.message);
         }
