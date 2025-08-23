@@ -79,17 +79,26 @@ foreach ($requiredEmails as $role => $email) {
         
         // SMTP Configuration for Brevo
         $mail->isSMTP();
-        $mail->Host = 'smtp-relay.brevo.com';
+        $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = '93a5f1001@smtp-brevo.com'; // Replace with your Brevo email
-        $mail->Password = 'RYMLcrAb9KJNTHsg'; // Replace with your Brevo SMTP password
+        $mail->Username = 'cxi-slm@communixinc.com'; // Replace with your Brevo email
+        $mail->Password = 'wwrb ohbj ghrm mseo'; // Replace with your Brevo SMTP password
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
+
+
+        // Add these for better reliability
+        $mail->SMTPOptions = array(
+            'ssl' => array(
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+                'allow_self_signed' => true
+            )
+        );
+        $mail->Timeout = 30;
         
         // Sender and recipient
         $mail->setFrom('cxi-slm@communixinc.com', 'CXI Service Level Management');
-
-
 
 
         
@@ -113,6 +122,7 @@ if (!empty($record4['email']) &&
     $record4['email'] !== $agentEmail) {
     $mail->addAddress($record4['email']); // To Supervisor (only if not already added)
 }
+
         // Default cc for the bosses
         $ccEmails = [
             'kiko.barrameda@communixinc.com',
@@ -137,6 +147,7 @@ if (!empty($record4['email']) &&
                 $mail->addCC($ccEmail);
             }
         }
+        
         
         // Email content
         if ($type === 'absenteeism') {
@@ -182,11 +193,11 @@ if (!empty($record4['email']) &&
                             <p style=\"margin: 5px 0 0 0; color: #555;\">CXI Services Inc</p>
                             <p style=\"margin: 5px 0 0 0; color: #555;\">Service Level Technician</p>
                             <p style=\"margin: 5px 0 0 0;\">
-                                <img src=\"https://www.pngarts.com/files/10/Vector-Email-Icon-Transparent-Images.png\" width=\"16\" height=\"16\" style=\"vertical-align: middle; margin-right: 5px;\">
+                                <img src=\"https://lightpink-cormorant-243207.hostingersite.com/assets/email.png\" width=\"16\" height=\"16\" style=\"vertical-align: middle; margin-right: 5px;\">
                                 <a href=" . htmlspecialchars($record2['fullname']) . " style=\"color: #0066cc; text-decoration: none;\">" . htmlspecialchars($record2['slt_email']) . "</a>
                             </p>
                             <p style=\"margin: 5px 0 0 0;\">
-                                <img src=\"https://cdn-icons-png.flaticon.com/512/44/44386.png\" width=\"16\" height=\"16\" style=\"vertical-align: middle; margin-right: 5px;\">
+                                <img src=\"https://lightpink-cormorant-243207.hostingersite.com/assets/globe.png\" width=\"16\" height=\"16\" style=\"vertical-align: middle; margin-right: 5px;\">
                                 <a href=\"https://www.cxiph.com\" style=\"color: #0066cc; text-decoration: none;\">www.cxiph.com</a>
                             </p>
                         </td>
@@ -238,11 +249,11 @@ if (!empty($record4['email']) &&
                             <p style=\"margin: 5px 0 0 0; color: #555;\">CXI Services Inc</p>
                             <p style=\"margin: 5px 0 0 0; color: #555;\">Service Level Technician</p>
                             <p style=\"margin: 5px 0 0 0;\">
-                                <img src=\"https://www.pngarts.com/files/10/Vector-Email-Icon-Transparent-Images.png\" width=\"16\" height=\"16\" style=\"vertical-align: middle; margin-right: 5px;\">
+                                <img src=\"https://lightpink-cormorant-243207.hostingersite.com/assets/email.png\" width=\"16\" height=\"16\" style=\"vertical-align: middle; margin-right: 5px;\">
                                 <a href=" . htmlspecialchars($record2['fullname']) . " style=\"color: #0066cc; text-decoration: none;\">" . htmlspecialchars($record2['slt_email']) . "</a>
                             </p>
                             <p style=\"margin: 5px 0 0 0;\">
-                                <img src=\"https://cdn-icons-png.flaticon.com/512/44/44386.png\" width=\"16\" height=\"16\" style=\"vertical-align: middle; margin-right: 5px;\">
+                                <img src=\"https://lightpink-cormorant-243207.hostingersite.com/assets/globe.png\" width=\"16\" height=\"16\" style=\"vertical-align: middle; margin-right: 5px;\">
                                 <a href=\"https://www.cxiph.com\" style=\"color: #0066cc; text-decoration: none;\">www.cxiph.com</a>
                             </p>
                         </td>

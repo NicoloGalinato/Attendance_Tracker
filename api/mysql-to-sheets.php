@@ -11,19 +11,19 @@ $type = isset($_GET['type']) ? $_GET['type'] : 'absenteeism';
 
 try {
     if ($type === 'absenteeism') {
-        $stmt = $pdo->prepare("SELECT * FROM absenteeism ORDER BY created_at ASC");
+        $stmt = $pdo->prepare("SELECT * FROM absenteeism ORDER BY date_of_absent ASC");
         $stmt->execute();
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } elseif ($type === 'tardiness') {
-        $stmt = $pdo->prepare("SELECT * FROM tardiness ORDER BY created_at ASC");
+        $stmt = $pdo->prepare("SELECT * FROM tardiness ORDER BY date_of_incident ASC");
         $stmt->execute();
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } elseif ($type === 'vto_tracker') {
-        $stmt = $pdo->prepare("SELECT * FROM vto_tracker ORDER BY created_at ASC");
+        $stmt = $pdo->prepare("SELECT * FROM vto_tracker ORDER BY shift_date ASC");
         $stmt->execute();
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } else {
-        throw new Exception("Invalid data type requested. Valid types are: absenteeism, tardiness, vto, vto_tracker");
+        throw new Exception("Invalid data type requested");
     }
     
     echo json_encode(['success' => true, 'data' => $data]);

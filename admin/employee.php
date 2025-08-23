@@ -146,7 +146,7 @@ renderSidebar('employees');
                         <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
                         <input type="email" id="email" name="email"
                                class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
-                               value="<?= $employee ? htmlspecialchars($employee['email']) : '' ?>" required>
+                               value="<?= $employee ? htmlspecialchars($employee['email']) : '' ?>">
                     </div>
 
                     <div class="flex items-center">

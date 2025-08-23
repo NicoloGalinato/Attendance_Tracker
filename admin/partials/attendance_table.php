@@ -127,6 +127,9 @@ if (!empty($irFilter)) {
         $datePart = $matches[1];
         $whereClauses[] = "ir_form LIKE :ir_filter";
         $params[':ir_filter'] = "PENDING / $datePart%";
+    }// Handle FOR IR filter
+    elseif ($irFilter === 'FOR IR') {
+        $whereClauses[] = "ir_form = 'FOR IR'";
     }
 }
 
@@ -148,7 +151,28 @@ $page = min($page, $totalPages);
 $offset = ($page - 1) * $perPage;
 
 try {
-    $query = "SELECT * FROM $table $searchQuery ORDER BY created_at DESC LIMIT :limit OFFSET :offset";
+    // Determine the order by clause
+    $orderBy = "ORDER BY created_at DESC"; // Default ordering
+    
+    // If IR filter is applied, order by the extracted time from ir_form
+    if (!empty($irFilter)) {
+        // Extract and parse the time from ir_form for proper ordering
+        $orderBy = "ORDER BY 
+            CASE 
+                WHEN ir_form LIKE '%AM%' OR ir_form LIKE '%PM%' THEN
+                    STR_TO_DATE(
+                        CONCAT(
+                            SUBSTRING_INDEX(SUBSTRING_INDEX(ir_form, ' ', -2), ' ', 1),
+                            ' ',
+                            SUBSTRING_INDEX(ir_form, ' ', -1)
+                        ),
+                        '%l:%i %p'
+                    )
+                ELSE STR_TO_DATE('12:00 AM', '%l:%i %p')
+            END ASC";
+    }
+    
+    $query = "SELECT * FROM $table $searchQuery $orderBy LIMIT :limit OFFSET :offset";
     $stmt = $pdo->prepare($query);
     
     foreach ($params as $key => $value) {
@@ -290,35 +314,40 @@ try {
         <table class="min-w-full divide-y divide-gray-700 w-full" style="zoom:85%">
             <thead class="bg-gray-700">
                 <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">CXI Number</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Full Name</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Department</th>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">CXI Number</th>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-48">Full Name</th>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-40">Department</th>
                     <?php if ($type === 'absenteeism'): ?>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Date of Absence</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Shift</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Followed Procedure</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Coverage</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Coverage Type</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Incident Report</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Supervisor</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Operations Manager</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Date of Absence</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Sanction</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Reason</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-24">Shift</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-40">Followed Procedure</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Coverage</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-40">Coverage Type</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-40">Incident Report</th>
                     <?php elseif ($type === 'tardiness'): ?>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Date of Tardiness</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Type</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Minutes</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Shift</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Incident Report</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Operations Manager</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Date of Tardiness</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-24">Type</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-20">Minutes</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-24">Shift</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-40">Incident Report</th>
                     <?php else: ?>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Shift Date</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Shift</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Time In</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Time Out</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Worked (mins)</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">VTO (mins)</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">VTO Type</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Shift Date</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-24">Shift</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-20">Time In</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-20">Time Out</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-24">Worked (mins)</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-24">VTO (mins)</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">VTO Type</th>
                     <?php endif; ?>
                     
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Reported By</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Time Reported</th>
-                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-40">Reported By</th>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Time Reported</th>
+                    <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Actions</th>
                 </tr>
             </thead>
             <tbody class="bg-gray-800 divide-y divide-gray-700">
@@ -332,45 +361,45 @@ try {
                     <?php foreach ($records as $record): ?>
                     <?php if ($type === 'vto'): ?>
                         <tr class="hover:bg-gray-700/50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-100" style="text-transform: uppercase;"><?= htmlspecialchars($record['employee_id'] ?? '') ?></div>
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <div class="text-sm font-medium text-gray-100" style="text-transform: uppercase;" title="<?= htmlspecialchars($record['employee_id'] ?? '') ?>"><?= htmlspecialchars($record['employee_id'] ?? '') ?></div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['full_name'] ?? '') ?></div>
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <div class="text-sm text-gray-300" style="text-transform: uppercase;" title="<?= htmlspecialchars($record['full_name'] ?? '') ?>"><?= htmlspecialchars($record['full_name'] ?? '') ?></div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['department'] ?? '') ?></div>
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <div class="text-sm text-gray-300" style="text-transform: uppercase;" title="<?= htmlspecialchars($record['department'] ?? '') ?>"><?= htmlspecialchars($record['department'] ?? '') ?></div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-300"><?= isset($record['shift_date']) ? date('M d, Y', strtotime($record['shift_date'])) : '' ?></div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-300"><?= htmlspecialchars($record['shift'] ?? '') ?></div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-300"><?= htmlspecialchars($record['time_in'] ?? '') ?></div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-300"><?= htmlspecialchars($record['time_out'] ?? '') ?></div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-300"><?= htmlspecialchars($record['mins_of_work'] ?? '') ?></div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-300"><?= htmlspecialchars($record['vto_mins'] ?? '') ?></div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800" title="<?= htmlspecialchars($record['vto_type'] ?? '') ?>">
                                     <?= htmlspecialchars($record['vto_type'] ?? '') ?>
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['sub_name'] ?? '') ?></div>
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['sub_name'] ?? '') ?>"><?= htmlspecialchars($record['sub_name'] ?? '') ?></div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-300"><?= isset($record['timestamp']) ? date('g:i A', strtotime($record['timestamp'])) : '' ?></div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <a href="vto_form.php?id=<?= $record['id'] ?? '' ?>" title="Edit record" class="text-primary-500 hover:text-primary-400 mr-3">
                                     <i class="fas fa-edit"></i>
                                 </a>
@@ -384,64 +413,79 @@ try {
                         </tr>
                     <?php else: ?>
                         <tr class="hover:bg-gray-700/50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-100" style="text-transform: uppercase;"><?= htmlspecialchars($record['employee_id']) ?></div>
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <div class="text-sm font-medium text-gray-100" style="text-transform: uppercase;" title="<?= htmlspecialchars($record['employee_id']) ?>"><?= htmlspecialchars($record['employee_id']) ?></div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['full_name']) ?></div>
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <div class="text-sm text-gray-300" style="text-transform: uppercase;" title="<?= htmlspecialchars($record['full_name']) ?>"><?= htmlspecialchars($record['full_name']) ?></div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['department']) ?></div>
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <div class="text-sm text-gray-300" style="text-transform: uppercase;" title="<?= htmlspecialchars($record['department']) ?>"><?= htmlspecialchars($record['department']) ?></div>
                             </td>
 
                             <?php if ($type === 'absenteeism'): ?>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                    <div class="text-sm text-gray-300" style="text-transform: uppercase;" title="<?= htmlspecialchars($record['supervisor']) ?>"><?= htmlspecialchars($record['supervisor']) ?></div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                    <div class="text-sm text-gray-300" style="text-transform: uppercase;" title="<?= htmlspecialchars($record['operation_manager']) ?>"><?= htmlspecialchars($record['operation_manager']) ?></div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
                                     <div class="text-sm text-gray-300"><?= date('M d, Y', strtotime($record['date_of_absent'])) ?></div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                    <div class="text-sm text-gray-300" style="text-transform: uppercase;" title="<?= htmlspecialchars($record['sanction']) ?>"><?= htmlspecialchars($record['sanction']) ?></div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                    <div class="text-sm text-gray-300" style="text-transform: uppercase;" title="<?= htmlspecialchars($record['reason']) ?>"><?= htmlspecialchars($record['reason']) ?></div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
                                     <div class="text-sm text-gray-300"><?= htmlspecialchars($record['shift']) ?></div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-4 py-4 whitespace-nowrap">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['follow_call_in_procedure'] === 'NO' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' ?>">
                                         <?= $record['follow_call_in_procedure'] ?>
                                     </span>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['coverage']) ?></div>
+                                <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                    <div class="text-sm text-gray-300" style="text-transform: uppercase;" title="<?= htmlspecialchars($record['coverage']) ?>"><?= htmlspecialchars($record['coverage']) ?></div>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <div class="text-sm text-gray-300"><?= htmlspecialchars($record['coverage_type']) ?></div>
+                                <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                    <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['coverage_type']) ?>"><?= htmlspecialchars($record['coverage_type']) ?></div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= $record['ir_form'] ?></div>
+                                <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                    <div class="text-sm text-gray-300" style="text-transform: uppercase;" title="<?= $record['ir_form'] ?>"><?= $record['ir_form'] ?></div>
                                 </td>
                             <?php elseif ($type === 'tardiness'): ?>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-300"><?= $record['operation_manager'] ?></div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
                                     <div class="text-sm text-gray-300"><?= date('M d, Y', strtotime($record['date_of_incident'])) ?></div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-4 py-4 whitespace-nowrap">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['types'] === 'Late' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800' ?>">
                                         <?= $record['types'] ?>
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-4 py-4 whitespace-nowrap">
                                     <div class="text-sm text-gray-300"><?= $record['minutes_late'] ?></div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-4 py-4 whitespace-nowrap">
                                     <div class="text-sm text-gray-300"><?= $record['shift'] ?></div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= $record['ir_form'] ?></div>
+                                <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                    <div class="text-sm text-gray-300" style="text-transform: uppercase;" title="<?= $record['ir_form'] ?>"><?= $record['ir_form'] ?></div>
                                 </td>
                             <?php endif; ?>
                             
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['sub_name']) ?></div>
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['sub_name']) ?>"><?= htmlspecialchars($record['sub_name']) ?></div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-300"><?= date('g:i A', strtotime($record['timestamp'])) ?></div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <?php if (!$record['email_sent']): ?>
                                     <a href="send_email.php?send_email=<?= $record['id'] ?>&type=<?= $type ?>" title="Send Email" class="text-blue-500 hover:text-blue-400 mr-3">
                                         <i class="fas fa-envelope"></i>
