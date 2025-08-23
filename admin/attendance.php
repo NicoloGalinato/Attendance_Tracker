@@ -240,9 +240,15 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
     <main class="p-6">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold">Attendance Tracker</h1>
-            <a href="<?= $currentTab === 'vto' ? 'vto_form.php' : 'attendance_form.php' ?>?action=create&type=<?= $currentTab ?>" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center">
-                <i class="fas fa-plus mr-2"></i> Add New
-            </a>
+            <div class="flex items-center gap-2">
+                <!-- No Need Email Button (initially hidden) -->
+                <button id="noNeedEmailBtn" class="hidden bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg flex items-center">
+                    <i class="fas fa-envelope mr-2"></i> No Need Email
+                </button>
+                <a href="<?= $currentTab === 'vto' ? 'vto_form.php' : 'attendance_form.php' ?>?action=create&type=<?= $currentTab ?>" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center">
+                    <i class="fas fa-plus mr-2"></i> Add New
+                </a>
+            </div>
         </div>
         
         <!-- Stats Cards -->
@@ -548,12 +554,95 @@ function updateAllPendingIRs() {
 </div>
 
 
+
 <script>
-// // // // // 
-// Filter function
-// // // // // 
+
+// Simple checkbox functionality that works with dynamic content
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize elements
+    // Use event delegation for checkboxes since they're loaded dynamically
+    document.addEventListener('change', function(e) {
+        // Handle select all checkbox
+        if (e.target.id === 'selectAllCheckbox') {
+            const isChecked = e.target.checked;
+            document.querySelectorAll('.record-checkbox').forEach(checkbox => {
+                checkbox.checked = isChecked;
+            });
+            toggleNoNeedEmailButton();
+        }
+        
+        // Handle individual record checkboxes
+        if (e.target.classList.contains('record-checkbox')) {
+            toggleNoNeedEmailButton();
+        }
+    });
+    
+    // No Need Email button functionality
+    const noNeedEmailBtn = document.getElementById('noNeedEmailBtn');
+    if (noNeedEmailBtn) {
+        noNeedEmailBtn.addEventListener('click', function() {
+            const selectedIds = Array.from(document.querySelectorAll('.record-checkbox'))
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.getAttribute('data-id'));
+                
+            if (selectedIds.length === 0) {
+                alert('Please select at least one record.');
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to mark ${selectedIds.length} record(s) as "No Need Email"?`)) {
+                return;
+            }
+            
+            // Send AJAX request to update records
+            const formData = new FormData();
+            formData.append('action', 'no_need_email');
+            formData.append('record_ids', JSON.stringify(selectedIds));
+            formData.append('type', '<?= $currentTab ?>');
+            
+            fetch('../includes/update_attendance.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Successfully updated ${data.updated} record(s).`);
+                    location.reload(); // Reload to reflect changes
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating records.');
+            });
+        });
+    }
+    
+    // Modify the toggleNoNeedEmailButton function
+    function toggleNoNeedEmailButton() {
+        // Don't show the button for VTO tab
+        if ('<?= $currentTab ?>' === 'vto') return;
+        
+        const anyChecked = Array.from(document.querySelectorAll('.record-checkbox')).some(checkbox => checkbox.checked);
+        const noNeedEmailBtn = document.getElementById('noNeedEmailBtn');
+        
+        if (anyChecked && noNeedEmailBtn) {
+            noNeedEmailBtn.classList.remove('hidden');
+        } else if (noNeedEmailBtn) {
+            noNeedEmailBtn.classList.add('hidden');
+        }
+    }
+
+    // Also hide the "No Need Email" button when in VTO tab
+    if ('<?= $currentTab ?>' === 'vto') {
+        const noNeedEmailBtn = document.getElementById('noNeedEmailBtn');
+        if (noNeedEmailBtn) {
+            noNeedEmailBtn.classList.add('hidden');
+        }
+    }
+    
+    // Initialize filter functionality
     const searchInput = document.getElementById('searchInput');
     const dateFrom = document.getElementById('dateFrom');
     const dateTo = document.getElementById('dateTo');
@@ -615,7 +704,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
             
-
     // Card filter buttons handler
     function handleCardFilter(filterValue) {
         const urlParams = new URLSearchParams(window.location.search);
@@ -717,6 +805,8 @@ document.addEventListener('DOMContentLoaded', function() {
     loadFilteredData(initialPage);
 });
 // // // // // 
+
+
 </script>
 
 <script>

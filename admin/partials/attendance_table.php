@@ -314,6 +314,11 @@ try {
         <table class="min-w-full divide-y divide-gray-700 w-full" style="zoom:85%">
             <thead class="bg-gray-700">
                 <tr>
+                    <?php if ($type !== 'vto'): ?>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-8">
+                            <input type="checkbox" id="selectAllCheckbox">
+                        </th>
+                    <?php endif; ?>
                     <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">CXI Number</th>
                     <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-48">Full Name</th>
                     <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-40">Department</th>
@@ -413,6 +418,9 @@ try {
                         </tr>
                     <?php else: ?>
                         <tr class="hover:bg-gray-700/50">
+                            <td class="px-4 py-4 whitespace-nowrap text-center">
+                                <input type="checkbox" class="record-checkbox" data-id="<?= $record['id'] ?>">
+                            </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <div class="text-sm font-medium text-gray-100" style="text-transform: uppercase;" title="<?= htmlspecialchars($record['employee_id']) ?>"><?= htmlspecialchars($record['employee_id']) ?></div>
                             </td>
