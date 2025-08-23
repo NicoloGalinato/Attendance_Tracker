@@ -143,10 +143,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             // Tardiness form
             $dateField = strtoupper(sanitizeInput($_POST['date_of_incident']));
+            $types = isset($_POST['types']) ? strtoupper(sanitizeInput($_POST['types'])) : 'LATE';
             
             // Check if a record already exists for this employee on this date (excluding current record if editing)
-            $duplicateCheck = $pdo->prepare("SELECT id FROM tardiness WHERE employee_id = ? AND date_of_incident = ? AND id != ?");
-            $duplicateCheck->execute([$employeeId, $dateField, $id]);
+            $duplicateCheck = $pdo->prepare("SELECT id FROM tardiness WHERE employee_id = ? AND date_of_incident = ? AND types = ? AND id != ?");
+            $duplicateCheck->execute([$employeeId, $dateField, $types, $id]);
             $existingRecord = $duplicateCheck->fetch();
             
             if ($existingRecord) {
@@ -162,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'operation_manager' => strtoupper($employee['operation_manager']),
                 'email' => $employee['email'],
                 'date_of_incident' => $dateField,
-                'types' => strtoupper(sanitizeInput($_POST['types'])),
+                'types' => $types,
                 'minutes_late' => (int)$_POST['minutes_late'],
                 'shift' => strtoupper(sanitizeInput($_POST['shift'])),
                 'time_in' => strtoupper(sanitizeInput($_POST['time_in'])),
