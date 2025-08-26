@@ -159,6 +159,10 @@ function renderSidebar($activePage = 'dashboard') {
                     <i class="sidebar-icon fas fa-chart-line mr-3"></i>
                     <span class="sidebar-text">Tracker</span>
                 </a>
+                <a href="attendance_statistics.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'attendance_statistics' ? 'active' : '' ?>">
+                    <i class="sidebar-icon fas fa-chart-pie mr-3"></i>
+                    <span class="sidebar-text">Attendance Statistics</span>
+                </a>
                 <a href="ticket_dashboard.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'ticket_dashboard' ? 'active' : '' ?>">
                     <i class="sidebar-icon fas fa-clipboard-list mr-3"></i>
                     <span class="sidebar-text">Ticket Dashboard</span>

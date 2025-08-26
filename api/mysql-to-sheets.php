@@ -11,15 +11,15 @@ $type = isset($_GET['type']) ? $_GET['type'] : 'absenteeism';
 
 try {
     if ($type === 'absenteeism') {
-        $stmt = $pdo->prepare("SELECT * FROM absenteeism ORDER BY date_of_absent ASC");
+        $stmt = $pdo->prepare("SELECT * FROM absenteeism ORDER BY date_of_absent ASC, timestamp_column ASC");
         $stmt->execute();
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } elseif ($type === 'tardiness') {
-        $stmt = $pdo->prepare("SELECT * FROM tardiness ORDER BY date_of_incident ASC");
+        $stmt = $pdo->prepare("SELECT * FROM tardiness ORDER BY date_of_incident ASC, timestamp_column ASC");
         $stmt->execute();
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } elseif ($type === 'vto_tracker') {
-        $stmt = $pdo->prepare("SELECT * FROM vto_tracker ORDER BY shift_date ASC");
+        $stmt = $pdo->prepare("SELECT * FROM vto_tracker ORDER BY shift_date ASC, timestamp_column ASC");
         $stmt->execute();
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } else {
