@@ -50,7 +50,7 @@ try {
 
     // Pending Uncovered Shift
     $todayDate = date('Y-m-d');
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM absenteeism WHERE coverage = 'UNCOVERED' AND date_of_absent = ?");
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM absenteeism WHERE coverage = 'UNCOVERED' AND date_of_absent >= ?");
     $stmt->execute([$todayDate]);
     $stats['uncovered_shift'] += $stmt->fetchColumn();
 
@@ -59,6 +59,7 @@ try {
     $weekStart = date('Y-m-d', strtotime('monday this week'));
     $monthStart = date('Y-m-01');
     $yearStart = date('Y-01-01');
+    $yearEnd = date('Y-12-31');
 
     
     // Today
@@ -78,7 +79,7 @@ try {
     
     // This year
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM absenteeism WHERE date_of_absent BETWEEN ? AND ?");
-    $stmt->execute([$yearStart, $today]);
+    $stmt->execute([$yearStart, $yearEnd]);
     $stats['absent_year'] = $stmt->fetchColumn();
     
     // Tardiness stats
