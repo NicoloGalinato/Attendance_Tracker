@@ -241,6 +241,38 @@ document.addEventListener('keydown', function(e) {
         closeDeleteModal();
     }
 });
+
+// Real-time online status polling
+function updateOnlineStatuses() {
+    fetch('../api/online_status.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update all online indicators
+                document.querySelectorAll('.online-status').forEach(indicator => {
+                    const userId = indicator.getAttribute('data-user-id');
+                    const isOnline = data.onlineUsers.includes(parseInt(userId));
+                    
+                    if (isOnline) {
+                        indicator.classList.remove('bg-gray-400');
+                        indicator.classList.add('bg-green-400');
+                        // Show the ping animation
+                        indicator.previousElementSibling.style.display = 'inline-flex';
+                    } else {
+                        indicator.classList.remove('bg-green-400');
+                        indicator.classList.add('bg-gray-400');
+                        // Hide the ping animation
+                        indicator.previousElementSibling.style.display = 'none';
+                    }
+                });
+            }
+        })
+        .catch(error => console.error('Error checking online status:', error));
+}
+
+// Update online status immediately and then every 5 seconds
+updateOnlineStatuses();
+setInterval(updateOnlineStatuses, 5000);
 </script>
 
 <?php renderFooter(); ?>

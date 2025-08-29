@@ -8,11 +8,12 @@ if (!isLoggedIn() || !isAdmin()) {
 }
 
 header('Content-Type: application/json');
+header('Cache-Control: no-cache, must-revalidate'); // Prevent caching
 
 try {
     // Create DateTime object for threshold in UTC
     $threshold = new DateTime('now', new DateTimeZone(DB_TIMEZONE));
-    $threshold->modify('-300 seconds');
+    $threshold->modify('-5 seconds'); // Increased to 5 seconds for better reliability
     
     $stmt = $pdo->prepare("SELECT id FROM users WHERE last_activity IS NOT NULL AND last_activity > ?");
     $stmt->execute([$threshold->format('Y-m-d H:i:s')]);
@@ -20,9 +21,11 @@ try {
     
     echo json_encode([
         'success' => true,
-        'onlineUsers' => $onlineUsers
+        'onlineUsers' => $onlineUsers,
+        'timestamp' => time() // Add timestamp for debugging
     ]);
 } catch (PDOException $e) {
+    error_log("Online status error: " . $e->getMessage());
     echo json_encode([
         'success' => false,
         'error' => 'Database error'

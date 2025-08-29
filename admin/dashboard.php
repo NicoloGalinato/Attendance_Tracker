@@ -58,6 +58,7 @@ try {
     $today = date('Y-m-d');
     $weekStart = date('Y-m-d', strtotime('monday this week'));
     $monthStart = date('Y-m-01');
+    $monthEnd = date('Y-m-t');
     $yearStart = date('Y-01-01');
     $yearEnd = date('Y-12-31');
 
@@ -74,7 +75,7 @@ try {
     
     // This month
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM absenteeism WHERE date_of_absent BETWEEN ? AND ?");
-    $stmt->execute([$monthStart, $today]);
+    $stmt->execute([$monthStart, $monthEnd]);
     $stats['absent_month'] = $stmt->fetchColumn();
     
     // This year
@@ -306,7 +307,6 @@ renderSidebar('dashboard');
                     <select id="timeRange" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg px-3 py-1">
                         <option value="12months">Last 12 Months</option>
                         <option value="30days">Last 30 Days</option>
-                        <option value="7days">Last 7 Days</option>
                     </select>
                 </div>
             </div>
