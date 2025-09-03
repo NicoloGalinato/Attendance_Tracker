@@ -77,6 +77,15 @@ function renderHead($title) {
             #sidebar:hover ~ .main-content {
                 margin-left: 16rem;
             }
+            /* Custom CSS to hide the scrollbar for the modal */
+            .hide-scrollbar::-webkit-scrollbar {
+                display: none; /* Para sa Chrome, Safari, at Opera */
+            }
+
+            .hide-scrollbar {
+                -ms-overflow-style: none; /* Para sa IE at Edge */
+                scrollbar-width: none; /* Para sa Firefox */
+            }
             
             /* Responsive adjustments */
             @media (max-width: 768px) {
