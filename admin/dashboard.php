@@ -306,7 +306,8 @@ renderSidebar('dashboard');
                 <div class="flex space-x-2">
                     <select id="timeRange" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg px-3 py-1">
                         <option value="12months">Last 12 Months</option>
-                        <option value="30days">Last 30 Days</option>
+                        <option value="30days" selected>Last 30 Days</option>
+                        <option value="7days">Last 7 Days</option>
                     </select>
                 </div>
             </div>
@@ -576,6 +577,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+
+fetchChartData('30days');
 
 // Time range selector functionality
 document.getElementById('timeRange').addEventListener('change', function() {

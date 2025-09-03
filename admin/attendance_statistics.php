@@ -61,12 +61,6 @@ try {
     // Get operation managers for tabs
     $stmt = $pdo->query("SELECT DISTINCT operation_manager FROM absenteeism WHERE operation_manager != '' ORDER BY operation_manager");
     $stats['operation_managers'] = $stmt->fetchAll(PDO::FETCH_COLUMN);
-
-    // Idagdag si PHAY BARRAMED kung wala pa siya sa listahan
-    if (!in_array('PHAY BARRAMED', $stats['operation_managers'])) {
-        $stats['operation_managers'][] = 'PHAY BARRAMED';
-        sort($stats['operation_managers']); // Panatilihin ang alphabetical order
-    }
     
     // Get operation manager statistics for charts
     $omQuery = "SELECT 
@@ -259,12 +253,12 @@ renderSidebar('attendance_statistics');
         <div class="border-b border-gray-700 mb-6">
             <nav class="-mb-px flex space-x-8 overflow-x-auto" id="om-tabs">
                 <button type="button" data-tab="overall" 
-                class="<?= $operationManagerTab === 'overall' ? 'border-primary-500 text-primary-400' : 'border-transparent text-gray-400 hover:text-gray-300' ?> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm om-tab">
+                   class="<?= $operationManagerTab === 'overall' ? 'border-primary-500 text-primary-400' : 'border-transparent text-gray-400 hover:text-gray-300' ?> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm om-tab">
                     Overall
                 </button>
                 <?php foreach ($stats['operation_managers'] as $manager): ?>
                     <button type="button" data-tab="<?= htmlspecialchars($manager) ?>" 
-                    class="<?= $operationManagerTab === $manager ? 'border-primary-500 text-primary-400' : 'border-transparent text-gray-400 hover:text-gray-300' ?> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm om-tab">
+                       class="<?= $operationManagerTab === $manager ? 'border-primary-500 text-primary-400' : 'border-transparent text-gray-400 hover:text-gray-300' ?> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm om-tab">
                         <?= htmlspecialchars($manager) ?>
                     </button>
                 <?php endforeach; ?>

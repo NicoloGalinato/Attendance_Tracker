@@ -120,52 +120,37 @@ if ($type === 'absenteeism' && !empty($coverage)) {
     $params[':coverage'] = $coverage;
 }
 
-
 // Add this to the where clauses section
 if (!empty($irFilter)) {
     if ($type === 'tardiness') {
         if ($irFilter === 'FOR IR') {
             $whereClauses[] = "ir_form = 'FOR IR'";
-            // Add order by date of incident in descending order
-            $orderBy = "ORDER BY date_of_incident DESC";
         } 
         elseif ($irFilter === 'FOR ACCUMULATION') {
             $whereClauses[] = "ir_form = 'FOR ACCUMULATION'";
-            // Add order by date of incident in descending order
-            $orderBy = "ORDER BY date_of_incident DESC";
         }
         elseif ($irFilter === 'PENDING') {
             $whereClauses[] = "ir_form LIKE 'PENDING%'";
-            // Add order by date of incident in descending order
-            $orderBy = "ORDER BY date_of_incident DESC";
         }
         // Handle specific pending dates
-        elseif (preg_match('/PENDING \/ ([A-Z]{3} [0-9]{1,2})/', $irFilter, $matches)) {
+        elseif (preg_match('/PENDING \/ ([A-Z]{3,4} [0-9]{1,2})/', $irFilter, $matches)) {
             $datePart = $matches[1];
             $whereClauses[] = "ir_form LIKE :ir_filter";
             $params[':ir_filter'] = "PENDING / $datePart%";
-            // Add order by date of incident in descending order
-            $orderBy = "ORDER BY date_of_incident DESC";
         }
     } else {
         // Absenteeism filtering
         if ($irFilter === 'FOR IR') {
             $whereClauses[] = "ir_form = 'FOR IR'";
-            // Add order by date of absent in descending order
-            $orderBy = "ORDER BY date_of_absent DESC";
         }
         elseif ($irFilter === 'NO NEED') {
             $whereClauses[] = "ir_form = 'NO NEED'";
-            // Add order by date of absent in descending order
-            $orderBy = "ORDER BY date_of_absent DESC";
         }
         // Handle specific pending dates for absenteeism
-        elseif (preg_match('/PENDING \/ ([A-Z]{3} [0-9]{1,2})/', $irFilter, $matches)) {
+        elseif (preg_match('/PENDING \/ ([A-Z]{3,4} [0-9]{1,2})/', $irFilter, $matches)) {
             $datePart = $matches[1];
             $whereClauses[] = "ir_form LIKE :ir_filter";
             $params[':ir_filter'] = "PENDING / $datePart%";
-            // Add order by date of absent in descending order
-            $orderBy = "ORDER BY date_of_absent DESC";
         }
     }
     

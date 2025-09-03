@@ -53,13 +53,16 @@ try {
         }
     } 
     elseif ($range === '30days') {
-        // Last 30 days
+        // Last 30 days (including today)
         $endDate = new DateTime();
         $startDate = clone $endDate;
-        $startDate->sub(new DateInterval('P29D'));
+        $startDate->sub(new DateInterval('P29D')); // 29 days ago to make 30 days total
         
         $interval = new DateInterval('P1D');
-        $period = new DatePeriod($startDate, $interval, $endDate);
+        // We need to include the end date, so add 1 day to the end date
+        $periodEnd = clone $endDate;
+        $periodEnd->add(new DateInterval('P1D'));
+        $period = new DatePeriod($startDate, $interval, $periodEnd);
         
         foreach ($period as $date) {
             $day = $date->format('Y-m-d');
@@ -81,13 +84,16 @@ try {
         }
     }
     elseif ($range === '7days') {
-        // Last 7 days
+        // Last 7 days (including today)
         $endDate = new DateTime();
         $startDate = clone $endDate;
-        $startDate->sub(new DateInterval('P6D'));
+        $startDate->sub(new DateInterval('P6D')); // 6 days ago to make 7 days total
         
         $interval = new DateInterval('P1D');
-        $period = new DatePeriod($startDate, $interval, $endDate);
+        // We need to include the end date, so add 1 day to the end date
+        $periodEnd = clone $endDate;
+        $periodEnd->add(new DateInterval('P1D'));
+        $period = new DatePeriod($startDate, $interval, $periodEnd);
         
         foreach ($period as $date) {
             $day = $date->format('Y-m-d');

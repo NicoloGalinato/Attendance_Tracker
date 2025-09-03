@@ -208,8 +208,8 @@ if (isset($_SESSION['check_pending_ir'])) {
     // Get all pending IRs for this employee
     try {
         $stmt = $pdo->prepare("SELECT id, employee_id, full_name, date_of_absent, ir_form FROM absenteeism 
-                              WHERE employee_id = ? AND ir_form LIKE 'PENDING%' 
-                              ORDER BY date_of_absent");
+                      WHERE employee_id = ? AND ir_form LIKE 'PENDING%' 
+                      ORDER BY date_of_absent");
         $stmt->execute([$employeeId]);
         $pendingIRs = $stmt->fetchAll();
         
@@ -445,7 +445,7 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
                                 $standardOptions[$irForm] = $irForm;
                             }
                             // Handle pending dates
-                            elseif (preg_match('/PENDING \/ ([A-Z]{3} [0-9]{1,2})/', $irForm, $matches)) {
+                            elseif (preg_match('/PENDING \/ ([A-Z]{3,4} [0-9]{1,2})/', $irForm, $matches)) {
                                 $dateOnly = "PENDING / " . $matches[1];
                                 $pendingOptions[$dateOnly] = $dateOnly;
                             }
@@ -489,7 +489,7 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
                                 $standardOptions[$irForm] = $irForm;
                             } 
                             // Handle pending dates
-                            elseif (preg_match('/PENDING \/ ([A-Z]{3} [0-9]{1,2})/', $irForm, $matches)) {
+                            elseif (preg_match('/PENDING \/ ([A-Z]{3,4} [0-9]{1,2})/', $irForm, $matches)) {
                                 $dateOnly = "PENDING / " . $matches[1];
                                 $pendingOptions[$dateOnly] = $dateOnly;
                             }

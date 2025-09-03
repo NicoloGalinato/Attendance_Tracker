@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $dateField = strtoupper(sanitizeInput($_POST['date_of_absent']));
             
             // Check if a record already exists for this employee on this date (excluding current record if editing)
-            $duplicateCheck = $pdo->prepare("SELECT id FROM absenteeism WHERE employee_id = ? AND date_of_absent = ? AND id != ?");
+             $duplicateCheck = $pdo->prepare("SELECT id FROM absenteeism WHERE employee_id = ? AND date_of_absent = ? AND id != ?");
             $duplicateCheck->execute([$employeeId, $dateField, $id]);
             $existingRecord = $duplicateCheck->fetch();
             
