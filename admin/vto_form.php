@@ -412,6 +412,12 @@ function calculateWorkTime() {
             }
         }
         
+        // Apply 1-hour deduction for break time in specific cases
+        if ((shiftDuration === 480 && minutesWorked === 300) || 
+            (shiftDuration === 660 && minutesWorked === 360)) {
+            minutesWorked -= 60;
+        }
+        
         // Set the calculated values
         document.getElementById('mins_of_work').value = minutesWorked;
         document.getElementById('vto_mins').value = Math.max(0, shiftDuration - minutesWorked);
