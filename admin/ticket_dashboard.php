@@ -11,6 +11,14 @@ if (!isLoggedIn() || !isAdmin()) {
 
 updateLastActivity();
 
+$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+
+// Get current user's sub_name
+$userStmt = $pdo->prepare("SELECT sub_name FROM users WHERE id = ?");
+$userStmt->execute([$_SESSION['user_id']]);
+$user = $userStmt->fetch();
+$sub_name = $user['sub_name'];
+
 // AJAX Endpoint for updating ticket status
 if (isset($_POST['action']) && $_POST['action'] === 'resolve_ticket') {
     $ticketId = $_POST['id'] ?? null;
@@ -18,11 +26,11 @@ if (isset($_POST['action']) && $_POST['action'] === 'resolve_ticket') {
     $response = ['success' => false, 'message' => 'Invalid request.'];
 
     if ($ticketId) {
-        $query = "UPDATE ticket SET Status = 'RESOLVED', TIME_RESOLVED = NOW(), resolution = ? WHERE id = ?";
+        $query = "UPDATE ticket SET Status = 'RESOLVED', TIME_RESOLVED = NOW(), resolution = ?, SLT_on_DUTY = ? WHERE id = ?";
         $stmt = $con->prepare($query);
         
         if ($stmt) {
-            $stmt->bind_param("si", $resolution, $ticketId);
+            $stmt->bind_param("ssi", $resolution, $sub_name, $ticketId);
             if ($stmt->execute()) {
                 $response['success'] = true;
                 $response['message'] = 'Ticket resolved successfully.';
@@ -137,19 +145,19 @@ $monthsWithData = $monthsResult->fetch_all(MYSQLI_ASSOC);
         
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <a href="#" class="bg-gray-800 border border-gray-700 p-4 rounded-lg shadow-md hover:bg-gray-700 transition duration-300" onclick="filterAndPaginate('all', 1); return false;">
-                <h2 class="text-xl font-semibold text-gray-400">Overall Tickets</h2>
+                <h2 class="text-gray-400 text-sm font-medium">Overall Tickets</h2>
                 <p class="text-3xl font-bold text-white" id="total-tickets-count"><?= $totalTicketsOverall ?></p>
             </a>
             <a href="#" class="bg-gray-800 border border-gray-700 p-4 rounded-lg shadow-md hover:bg-gray-700 transition duration-300" onclick="filterAndPaginate('received_today', 1); return false;">
-                <h2 class="text-xl font-semibold text-gray-400">Received Today</h2>
+                <h2 class="text-gray-400 text-sm font-medium">Received Today</h2>
                 <p class="text-3xl font-bold text-white" id="received-today-count"><?= $ticketsReceivedToday ?></p>
             </a>
             <a href="#" class="bg-gray-800 border border-gray-700 p-4 rounded-lg shadow-md hover:bg-gray-700 transition duration-300" onclick="filterAndPaginate('resolved_today', 1); return false;">
-                <h2 class="text-xl font-semibold text-gray-400">Resolved Today</h2>
+                <h2 class="text-gray-400 text-sm font-medium">Resolved Today</h2>
                 <p class="text-3xl font-bold text-white" id="resolved-today-count"><?= $ticketsResolvedToday ?></p>
             </a>
             <a href="#" class="bg-gray-800 border border-gray-700 p-4 rounded-lg shadow-md hover:bg-gray-700 transition duration-300" onclick="filterAndPaginate('pending', 1); return false;">
-                <h2 class="text-xl font-semibold text-gray-400">Pending Tickets</h2>
+                <h2 class="text-gray-400 text-sm font-medium">Pending Tickets</h2>
                 <p class="text-3xl font-bold text-white" id="pending-tickets-count"><?= $pendingTicketsCount ?></p>
             </a>
         </div>
@@ -361,7 +369,7 @@ $monthsWithData = $monthsResult->fetch_all(MYSQLI_ASSOC);
                         <div><strong>Work Number:</strong> ${ticket.Work_Number}</div>
                         <div><strong>EID:</strong> ${ticket.EID}</div>
                         <div><strong>Site:</strong> ${ticket.Site}</div>
-                        <div><strong>LOB:</strong> ${ticket.LOB}</div>
+                        <div><strong>Department:</strong> ${ticket.LOB}</div>
                     </div>
                 </div>
 
@@ -373,7 +381,7 @@ $monthsWithData = $monthsResult->fetch_all(MYSQLI_ASSOC);
                         <div><strong>Time Received:</strong> ${ticket.TIME_RECEIVED}</div>
                         <div><strong>Time Resolved:</strong> ${ticket.TIME_RESOLVED || 'N/A'}</div>
                         <div><strong>Urgency:</strong> ${ticket.Urgency}</div>
-                        <div><strong>Department:</strong> ${ticket.Department}</div>
+                        <div><strong>Station Number:</strong> ${ticket.Station_Number}</div>
                     </div>
                 </div>
                 

@@ -171,7 +171,16 @@ function renderSidebar($activePage = 'dashboard') {
                 <a href="attendance_statistics.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'attendance_statistics' ? 'active' : '' ?>">
                     <i class="sidebar-icon fas fa-chart-pie mr-3"></i>
                     <span class="sidebar-text">Attendance Statistics</span>
-                </a>             
+                </a>
+                <a href="ticket_dashboard.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'ticket_dashboard' ? 'active' : '' ?>">
+                    <i class="sidebar-icon fas fa-clipboard-list mr-3"></i>
+                    <span class="sidebar-text">Ticket Dashboard</span>
+                </a>
+                
+                <a href="statistics.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'statistics' ? 'active' : '' ?>">
+                    <i class="sidebar-icon fas fa-chart-bar mr-3"></i>
+                    <span class="sidebar-text">Ticket Statistics</span>
+                </a>
                 <a href="employees.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'employees' ? 'active' : '' ?>">
                     <i class="sidebar-icon fas fa-users mr-3"></i>
                     <span class="sidebar-text">Manage Agents</span>
@@ -180,23 +189,6 @@ function renderSidebar($activePage = 'dashboard') {
                     <i class="sidebar-icon fas fa-cog mr-3"></i>
                     <span class="sidebar-text">Management Settings</span>
                 </a>
-                <!-- Disabled Ticket Dashboard with Coming Soon message -->
-                <br>
-                <span class="sidebar-text">Coming soon!</span>
-                <div class="relative group">
-                    <div class="sidebar-item flex items-center px-4 py-3 text-gray-500 cursor-not-allowed opacity-50">
-                        <i class="sidebar-icon fas fa-clipboard-list mr-3"></i>
-                        <span class="sidebar-text">Ticket Dashboard</span>
-                    </div>
-                </div>
-                
-                <!-- Disabled Ticket Statistics with Coming Soon message -->
-                <div class="relative group">
-                    <div class="sidebar-item flex items-center px-4 py-3 text-gray-500 cursor-not-allowed opacity-50">
-                        <i class="sidebar-icon fas fa-chart-bar mr-3"></i>
-                        <span class="sidebar-text">Ticket Statistics</span>
-                    </div>
-                </div>
             </div>
         </div>
     </aside>

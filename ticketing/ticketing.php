@@ -46,7 +46,7 @@ if (isset($_POST['submitEID'])) {
                 exit();
             }
 
-            $stmt = $pdo->prepare("SELECT * FROM ticket_users WHERE EID = :eid");
+            $stmt = $pdo->prepare("SELECT * FROM employees WHERE employee_id = :eid");
             $stmt->execute(['eid' => $eid]);
             $employeeDetails = $stmt->fetch();
 
@@ -67,7 +67,7 @@ if (isset($_POST['submitTix'])) {
     
     if (!$employeeDetails && isset($_POST['EID'])) {
         try {
-            $stmt = $pdo->prepare("SELECT * FROM ticket_users WHERE EID = :eid");
+            $stmt = $pdo->prepare("SELECT * FROM employees WHERE employee_id = :eid");
             $stmt->execute(['eid' => $_POST['EID']]);
             $employeeDetails = $stmt->fetch();
         } catch (PDOException $e) {
@@ -95,13 +95,12 @@ if (isset($_POST['submitTix'])) {
                 'Site' => $site,
                 'urgency' => $urgency,
                 'Timestamp' => $timestamp,
-                'EID' => $employeeDetails['EID'] ?? 'N/A',
+                'EID' => $employeeDetails['employee_id'] ?? 'N/A',
                 'Affected_employee' => 'Individual',
-                'Employee_name' => $employeeDetails['name'] ?? 'N/A',
+                'Employee_name' => $employeeDetails['full_name'] ?? 'N/A',
                 'Email_Address' => $employeeDetails['email'] ?? 'N/A',
-                'Department' => $employeeDetails['department'] ?? 'N/A',
-                'LOB' => $employeeDetails['LOB'] ?? 'N/A',
-                'OM' => $employeeDetails['OM'] ?? 'N/A',
+                'LOB' => $employeeDetails['department'] ?? 'N/A',
+                'OM' => $employeeDetails['operation_manager'] ?? 'N/A',
                 'TIME_RECEIVED' => $timenow,
                 'TIME_RESOLVED' => 'PENDING',
                 'SLT_on_DUTY' => 'PENDING',
@@ -211,7 +210,7 @@ if (isset($_POST['submitTix'])) {
                     </form>
                 <?php else: ?>
                     <div class="text-center mb-6">
-                        <h4 class="text-xl font-semibold text-white"><?= htmlspecialchars($employeeDetails['name'] ?? 'N/A') ?></h4>
+                        <h4 class="text-xl font-semibold text-white"><?= htmlspecialchars($employeeDetails['full_name'] ?? 'N/A') ?></h4>
                         <p class="text-sm text-gray-400"><?= htmlspecialchars($employeeDetails['department'] ?? 'N/A') ?></p>
                         <p class="text-sm text-gray-400"><?= htmlspecialchars($employeeDetails['email'] ?? 'N/A') ?></p>
                     </div>
@@ -219,12 +218,11 @@ if (isset($_POST['submitTix'])) {
                     <hr class="border-gray-700/50 my-6">
 
                     <form id="ticketForm" method="POST" class="space-y-6">
-                        <input type="hidden" name="EID" value="<?= htmlspecialchars($employeeDetails['EID'] ?? '') ?>">
-                        <input type="hidden" name="Employee_name" value="<?= htmlspecialchars($employeeDetails['name'] ?? 'N/A') ?>">
+                        <input type="hidden" name="EID" value="<?= htmlspecialchars($employeeDetails['employee_id'] ?? '') ?>">
+                        <input type="hidden" name="Employee_name" value="<?= htmlspecialchars($employeeDetails['full_name'] ?? 'N/A') ?>">
                         <input type="hidden" name="Email_Address" value="<?= htmlspecialchars($employeeDetails['email'] ?? 'N/A') ?>">
-                        <input type="hidden" name="Department" value="<?= htmlspecialchars($employeeDetails['department'] ?? 'N/A') ?>">
-                        <input type="hidden" name="LOB" value="<?= htmlspecialchars($employeeDetails['LOB'] ?? 'N/A') ?>">
-                        <input type="hidden" name="OM" value="<?= htmlspecialchars($employeeDetails['OM'] ?? 'N/A') ?>">
+                        <input type="hidden" name="LOB" value="<?= htmlspecialchars($employeeDetails['department'] ?? 'N/A') ?>">
+                        <input type="hidden" name="OM" value="<?= htmlspecialchars($employeeDetails['operation_manager'] ?? 'N/A') ?>">
                         <input type="hidden" name="Timestamp" value="<?= htmlspecialchars($timestamp) ?>">
                         <input type="hidden" name="TIME_RECEIVED" value="<?= htmlspecialchars($timenow) ?>">
                         <input type="hidden" name="TIME_RESOLVED" value="PENDING">
