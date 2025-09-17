@@ -96,20 +96,22 @@ try {
             <thead class="bg-gray-700">
                 <tr>
                     <?php if ($type === 'headset'): ?>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Date Issued</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Employee ID</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Full Name</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Dept/OM</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Brand/Model</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">C No</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">YJack Serial</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Extra Foam</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Condition</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Released By</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Release Time</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Return Date/Time</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Remarks</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Date Issued</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-48">Employee ID</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-48">Full Name</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Department</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-48">Operation Manager</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Brand/Model</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">C No</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">YJack Serial</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Extra Foam</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Condition</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Released By</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Release Time</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Received By</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Return Date/Time</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Status</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Remarks</th>
                     <?php else: ?>
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Date</th>
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Station No</th>
@@ -137,42 +139,50 @@ try {
                     <?php foreach ($records as $record): ?>
                     <tr class="hover:bg-gray-700/50">
                         <?php if ($type === 'headset'): ?>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <div class="text-sm text-gray-300"><?= date('M d, Y', strtotime($record['date_issued'])) ?></div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <div class="text-sm font-medium text-gray-100"><?= htmlspecialchars($record['employee_id']) ?></div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <div class="text-sm text-gray-300"><?= htmlspecialchars($record['full_name']) ?></div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['department_operation_manager']) ?></div>
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['department']) ?></div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['operation_manager']) ?></div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <div class="text-sm text-gray-300"><?= htmlspecialchars($record['brand_model_no']) ?></div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <div class="text-sm text-gray-300"><?= htmlspecialchars($record['c_no'] ?? 'N/A') ?></div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <div class="text-sm text-gray-300"><?= htmlspecialchars($record['yjack_serial_no'] ?? 'N/A') ?></div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['w_xtra_foam'] === 'YES' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' ?>">
                                     <?= $record['w_xtra_foam'] ?>
                                 </span>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['condition']) ?></div>
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['_condition']) ?></div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <div class="text-sm text-gray-300"><?= htmlspecialchars($record['release_by']) ?></div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <div class="text-sm text-gray-300"><?= date('g:i A', strtotime($record['release_time'])) ?></div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['received_by'] === 'PENDING' ? 'bg-red-100 text-red-800' : '' ?>">
+                                    <?= $record['received_by'] ?>
+                                </span>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <div class="text-sm text-gray-300">
                                     <?php if ($record['return_date']): ?>
                                         <?= date('M d, Y', strtotime($record['return_date'])) ?> at <?= date('g:i A', strtotime($record['return_time'])) ?>
@@ -181,40 +191,40 @@ try {
                                     <?php endif; ?>
                                 </div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    <?= $record['equipment_status'] === 'ISSUED' ? 'bg-blue-100 text-blue-800' : 
-                                       ($record['equipment_status'] === 'RETURNED' ? 'bg-green-100 text-green-800' : 
-                                       ($record['equipment_status'] === 'DAMAGED' ? 'bg-yellow-100 text-yellow-800' : 
-                                       'bg-red-100 text-red-800')) ?>">
+                                    <?= $record['equipment_status'] === 'WORKING ALL ITEMS' ? 'bg-green-100 text-green-800' : 
+                                       ($record['equipment_status'] === 'NOT WORKING - HEADSET' ? 'bg-red-100 text-red-800' : 
+                                       ($record['equipment_status'] === 'NOT WORKING - YJACK' ? 'bg-red-100 text-red-800' : 
+                                       ($record['equipment_status'] === 'WITH ISSUE' ? 'bg-red-100 text-red-800' : 'bg-red-100 text-red-800'))) ?>">
                                     <?= $record['equipment_status'] ?>
                                 </span>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <div class="text-sm text-gray-300"><?= htmlspecialchars($record['remarks'] ?? 'N/A') ?></div>
                             </td>
                         <?php else: ?>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <div class="text-sm text-gray-300"><?= date('M d, Y', strtotime($record['request_date'])) ?></div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <div class="text-sm font-medium text-gray-100"><?= htmlspecialchars($record['stn_no']) ?></div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <div class="text-sm text-gray-300"><?= htmlspecialchars($record['peripheral_type']) ?></div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <div class="text-sm text-gray-300"><?= htmlspecialchars($record['serial_no'] ?? 'N/A') ?></div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <div class="text-sm text-gray-300"><?= htmlspecialchars($record['issue']) ?></div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['request_form'] === 'YES' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' ?>">
                                     <?= $record['request_form'] ?>
                                 </span>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <?php if (!$record['email_sent']): ?>
                                     <a href="send_peripheral_email.php?send_email=<?= $record['id'] ?>" title="Send Email" class="text-blue-500 hover:text-blue-400 mr-3">
                                         <i class="fas fa-envelope"></i>
@@ -225,20 +235,20 @@ try {
                                     </span>
                                 <?php endif; ?>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <div class="text-sm text-gray-300"><?= htmlspecialchars($record['remarks'] ?? 'N/A') ?></div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['resolved'] === 'YES' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' ?>">
                                     <?= $record['resolved'] ?>
                                 </span>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <div class="text-sm text-gray-300">
                                     <?= $record['date_resolved'] ? date('M d, Y', strtotime($record['date_resolved'])) : 'N/A' ?>
                                 </div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <div class="text-sm text-gray-300"><?= htmlspecialchars($record['slt']) ?></div>
                             </td>
                         <?php endif; ?>
