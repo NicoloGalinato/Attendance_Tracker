@@ -47,6 +47,14 @@ if (isset($_POST['action']) && $_POST['action'] === 'resolve_ticket') {
     exit;
 }
 
+// AJAX endpoint to get pending tickets count (for all pages)
+if (isset($_GET['action']) && $_GET['action'] === 'get_pending_count') {
+    $pendingCount = getPendingTicketsCount();
+    header('Content-Type: application/json');
+    echo json_encode(['pending_count' => $pendingCount]);
+    exit;
+}
+
 // AJAX endpoint to fetch all ticket data
 if (isset($_GET['action']) && $_GET['action'] === 'get_tickets_data') {
     function fetchAllTicketsForRealtime($con) {
@@ -86,10 +94,24 @@ if (isset($_GET['action']) && $_GET['action'] === 'get_resolved_slt_data') {
     exit;
 }
 
+// Function to get pending tickets count
+function getPendingTicketsCount() {
+    global $con;
+    $query = "SELECT COUNT(*) as count FROM ticket WHERE Status = 'PENDING'";
+    $stmt = $con->prepare($query);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    return $row['count'];
+}
+
+// Get pending tickets count for the notification badge
+$pendingTicketsCount = getPendingTicketsCount();
+
 require_once '../components/layout.php';
 renderHead('Ticket Dashboard');
 renderNavbar();
-renderSidebar('ticket_dashboard');
+renderSidebar('ticket_dashboard' , $pendingTicketsCount ?? 0);
 
 // Get counts for dashboard cards
 function getCount($status = null, $date = null) {
@@ -271,6 +293,17 @@ $monthsWithData = $monthsResult->fetch_all(MYSQLI_ASSOC);
         document.getElementById('received-today-count').textContent = receivedTodayCount;
         document.getElementById('resolved-today-count').textContent = resolvedTodayCount;
         document.getElementById('pending-tickets-count').textContent = pendingCount;
+        
+        // Also update the notification badge
+        const badge = document.getElementById('pending-tickets-badge');
+        if (pendingCount > 0) {
+            badge.textContent = pendingCount > 9 ? '9+' : pendingCount;
+            badge.style.display = 'flex';
+            badge.classList.add('animate-pulse');
+        } else {
+            badge.style.display = 'none';
+            badge.classList.remove('animate-pulse');
+        }
     }
 
     function filterAndPaginate(filter, page) {
@@ -514,6 +547,35 @@ $monthsWithData = $monthsResult->fetch_all(MYSQLI_ASSOC);
             updateChart(event.target.value);
         });
     });
+
+    // Function to update the notification badge
+    async function updateNotificationBadge() {
+        try {
+            const response = await fetch('ticket_dashboard.php?action=get_pending_count');
+            const data = await response.json();
+            const badge = document.getElementById('pending-tickets-badge');
+            
+            if (data.pending_count > 0) {
+                badge.textContent = data.pending_count > 9 ? '9+' : data.pending_count;
+                badge.style.display = 'flex';
+                
+                // Add animation class
+                badge.classList.add('animate-pulse');
+            } else {
+                badge.style.display = 'none';
+                badge.classList.remove('animate-pulse');
+            }
+        } catch (error) {
+            console.error('Error updating notification badge:', error);
+        }
+    }
+
+    // Update badge periodically (every 0.5 second)
+    setInterval(updateNotificationBadge, 500);
+
+    // Initial update
+    updateNotificationBadge();
+
 </script>
 
 <?php renderFooter(); ?>

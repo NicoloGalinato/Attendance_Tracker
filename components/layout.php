@@ -32,6 +32,46 @@ function renderHead($title) {
                     }
                 }
             }
+
+            // Function to update the notification badge from all pages
+            async function updateNotificationBadge() {
+                try {
+                    const response = await fetch('ticket_dashboard.php?action=get_pending_count');
+                    const data = await response.json();
+                    const badge = document.getElementById('pending-tickets-badge');
+                    
+                    if (data.pending_count > 0) {
+                        if (!badge) {
+                            // Create badge if it doesn't exist
+                            const iconContainer = document.querySelector('a[href="ticket_dashboard.php"] .relative');
+                            if (iconContainer) {
+                                const newBadge = document.createElement('span');
+                                newBadge.id = 'pending-tickets-badge';
+                                newBadge.className = 'absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs notification-dot';
+                                newBadge.textContent = data.pending_count > 9 ? '9+' : data.pending_count;
+                                iconContainer.appendChild(newBadge);
+                            }
+                        } else {
+                            // Update existing badge
+                            badge.textContent = data.pending_count > 9 ? '9+' : data.pending_count;
+                            badge.style.display = 'flex';
+                            badge.classList.add('animate-pulse');
+                        }
+                    } else if (badge) {
+                        // Hide badge if no pending tickets
+                        badge.style.display = 'none';
+                        badge.classList.remove('animate-pulse');
+                    }
+                } catch (error) {
+                    console.error('Error updating notification badge:', error);
+                }
+            }
+
+            // Update badge on all pages every 30 seconds
+            if (window.location.pathname !== '/ticket_dashboard.php') {
+                setInterval(updateNotificationBadge, 30000);
+                updateNotificationBadge(); // Initial update
+            }
         </script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <style>
@@ -149,7 +189,7 @@ function renderNavbar() {
     <?php
 }
 
-function renderSidebar($activePage = 'dashboard') {
+function renderSidebar($activePage = 'dashboard', $pendingCount = 0) {
     ?>
     <aside id="sidebar" class="bg-gray-800 fixed h-full border-r border-gray-700 z-40">
         <div class="p-4">
@@ -171,9 +211,19 @@ function renderSidebar($activePage = 'dashboard') {
                 <a href="attendance_statistics.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'attendance_statistics' ? 'active' : '' ?>">
                     <i class="sidebar-icon fas fa-chart-pie mr-3"></i>
                     <span class="sidebar-text">Attendance Statistics</span>
-                </a>     
+                </a>   
+
                 <a href="ticket_dashboard.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'ticket_dashboard' ? 'active' : '' ?>">
-                    <i class="sidebar-icon fas fa-clipboard-list mr-3"></i>
+                    <div class="relative">
+                        <i class="sidebar-icon fas fa-clipboard-list mr-3"></i>
+                        <?php if ($pendingCount > 0): ?>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs notification-dot" id="pending-tickets-badge">
+                                <?= $pendingCount > 9 ? '9+' : $pendingCount ?>
+                            </span>
+                        <?php else: ?>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs notification-dot" id="pending-tickets-badge" style="display: none;"></span>
+                        <?php endif; ?>
+                    </div>
                     <span class="sidebar-text">Ticket Dashboard</span>
                 </a>
                 
@@ -231,6 +281,27 @@ function renderSidebar($activePage = 'dashboard') {
     transform: scale(1.3); /* Lumalaki ng 30% */
     font-weight: bold; /* Optional: nagiging bold din */
   }
+
+.notification-dot {
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+    z-index: 10;
+}
+
+.animate-pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+}
 </style>
     <?php
 }
