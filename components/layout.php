@@ -181,13 +181,12 @@ function renderSidebar($activePage = 'dashboard') {
                     <i class="sidebar-icon fas fa-chart-bar mr-3"></i>
                     <span class="sidebar-text">Ticket Statistics</span>
                 </a>     
-
+                <!--
                 <a href="inventory_tracker.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'inventory' ? 'active' : '' ?>">
                     <i class="sidebar-icon fas fa-boxes mr-3"></i>
                     <span class="sidebar-text">SLT Inventory</span>
                 </a>   
-
-
+                -->
                 <a href="employees.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'employees' ? 'active' : '' ?>">
                     <i class="sidebar-icon fas fa-users mr-3"></i>
                     <span class="sidebar-text">Manage Agents</span>
@@ -196,6 +195,17 @@ function renderSidebar($activePage = 'dashboard') {
                     <i class="sidebar-icon fas fa-cog mr-3"></i>
                     <span class="sidebar-text">Management Settings</span>
                 </a>
+
+
+                <!-- Disabled Ticket Dashboard with Coming Soon message -->
+                <br>
+                <span class="sidebar-text">Coming soon!</span>
+                <div class="relative group">
+                    <div class="sidebar-item flex items-center px-4 py-3 text-gray-500 cursor-not-allowed opacity-50">
+                        <i class="sidebar-icon fas fa-boxes mr-3"></i>
+                        <span class="sidebar-text">SLT Inventory</span>
+                    </div>
+                </div>
                 
                 
             </div>
