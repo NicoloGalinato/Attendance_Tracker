@@ -6,27 +6,11 @@ if (!isLoggedIn() || !isAdmin()) {
     redirect(BASE_URL);
 }
 
-// Function to get the Monday of the current week
-function getWeekBeginningDate() {
-    $today = new DateTime();
-    $dayOfWeek = $today->format('w'); // 0 (Sunday) to 6 (Saturday)
-    
-    // Calculate days to subtract to get to Monday
-    $daysToSubtract = ($dayOfWeek == 0) ? 6 : $dayOfWeek - 1;
-    
-    if ($daysToSubtract > 0) {
-        $today->modify("-$daysToSubtract days");
-    }
-    
-    return $today->format('Y-m-d');
-}
-
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $action = $id ? 'edit' : 'create';
 $record = null;
 
 $currentDate = date('Y-m-d');
-$weekBeginningDate = getWeekBeginningDate(); // Get Monday of the current week
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 // Get current user's sub_name
@@ -49,7 +33,6 @@ if ($id) {
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = [
-        'week_beginning' => $weekBeginningDate, // Use the calculated Monday date
         'date_issued' => $currentDate,
         'employee_id' => strtoupper($_POST['employee_id']),
         'full_name' => strtoupper($_POST['full_name']),
@@ -68,10 +51,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         if ($action === 'create') {
-            $sql = "INSERT INTO headset_tracker (week_beginning, date_issued, employee_id, full_name, department, operation_manager, brand_model_no, c_no, yjack_serial_no, w_xtra_foam, _condition, release_by, release_time, equipment_status, remarks) 
-                    VALUES (:week_beginning, :date_issued, :employee_id, :full_name, :department, :operation_manager, :brand_model_no, :c_no, :yjack_serial_no, :w_xtra_foam, :_condition, :release_by, :release_time, :equipment_status, :remarks)";
+            $sql = "INSERT INTO headset_tracker (date_issued, employee_id, full_name, department, operation_manager, brand_model_no, c_no, yjack_serial_no, w_xtra_foam, _condition, release_by, release_time, equipment_status, remarks) 
+                    VALUES (:date_issued, :employee_id, :full_name, :department, :operation_manager, :brand_model_no, :c_no, :yjack_serial_no, :w_xtra_foam, :_condition, :release_by, :release_time, :equipment_status, :remarks)";
         } else {
-            $sql = "UPDATE headset_tracker SET week_beginning = :week_beginning, date_issued = :date_issued, employee_id = :employee_id, full_name = :full_name, department = :department, operation_manager = :operation_manager, brand_model_no = :brand_model_no, c_no = :c_no, yjack_serial_no = :yjack_serial_no, w_xtra_foam = :w_xtra_foam, _condition = :_condition, release_by = :release_by, release_time = :release_time, equipment_status = :equipment_status, remarks = :remarks WHERE id = :id";
+            $sql = "UPDATE headset_tracker SET date_issued = :date_issued, employee_id = :employee_id, full_name = :full_name, department = :department, operation_manager = :operation_manager, brand_model_no = :brand_model_no, c_no = :c_no, yjack_serial_no = :yjack_serial_no, w_xtra_foam = :w_xtra_foam, _condition = :_condition, release_by = :release_by, release_time = :release_time, equipment_status = :equipment_status, remarks = :remarks WHERE id = :id";
             $data['id'] = $id;
         }
 
@@ -135,16 +118,11 @@ renderSidebar('inventory');
                            class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
                            style="text-transform: uppercase;" readonly>
                 </div>
-                
-                <!-- C No Field with Auto-fill -->
-                <div class="relative">
+                <div>
                     <label for="c_no" class="block text-sm font-medium text-gray-300 mb-1">C No</label>
                     <input type="text" id="c_no" name="c_no" value="<?= $record ? htmlspecialchars($record['c_no']) : '' ?>" 
                            class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
-                           style="text-transform: uppercase;"
-                           onchange="fetchHeadsetDetails(this.value)"
-                           autocomplete="off">
-                    <div id="headsetSearchResults" class="hidden absolute z-10 mt-1 w-full max-w-md bg-gray-800 border border-gray-700 rounded-lg shadow-lg"></div>
+                           style="text-transform: uppercase;">
                 </div>
 
                 <div>
@@ -273,49 +251,6 @@ function searchEmployees(query) {
         });
 }
 
-// Search headsets by C No, YJack Serial No, or Headset Serial No
-function searchHeadsets(query) {
-    if (query.length < 1) {
-        document.getElementById('headsetSearchResults').classList.add('hidden');
-        return;
-    }
-
-    fetch('../api/search_headsets.php?query=' + encodeURIComponent(query))
-        .then(response => response.json())
-        .then(data => {
-            const resultsContainer = document.getElementById('headsetSearchResults');
-            resultsContainer.innerHTML = '';
-            
-            if (data.success && data.headsets.length > 0) {
-                data.headsets.forEach(headset => {
-                    const item = document.createElement('div');
-                    item.className = 'px-4 py-2 hover:bg-gray-700 cursor-pointer border-b border-gray-700';
-                    item.innerHTML = `
-                        <div class="font-medium text-gray-200">C No: ${headset.c_no || 'N/A'}</div>
-                        <div class="text-sm text-gray-400">YJack: ${headset.yjack_serial_no || 'N/A'} | Headset: ${headset.headset_serial_no || 'N/A'}</div>
-                        <div class="text-xs text-gray-500">Status: ${headset.status || 'N/A'}</div>
-                    `;
-                    item.addEventListener('click', () => {
-                        document.getElementById('c_no').value = headset.c_no || '';
-                        fetchHeadsetDetails(headset.c_no);
-                        resultsContainer.classList.add('hidden');
-                    });
-                    resultsContainer.appendChild(item);
-                });
-                resultsContainer.classList.remove('hidden');
-            } else {
-                const item = document.createElement('div');
-                item.className = 'px-4 py-2 text-gray-400';
-                item.textContent = 'No headsets found';
-                resultsContainer.appendChild(item);
-                resultsContainer.classList.remove('hidden');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-}
-
 // Add event listeners for search
 document.getElementById('employee_id').addEventListener('input', function() {
     searchEmployees(this.value);
@@ -325,20 +260,11 @@ document.getElementById('full_name').addEventListener('input', function() {
     searchEmployees(this.value);
 });
 
-document.getElementById('c_no').addEventListener('input', function() {
-    searchHeadsets(this.value);
-});
-
 // Hide results when clicking outside
 document.addEventListener('click', function(e) {
     if (!document.getElementById('employee_id').contains(e.target) && 
         !document.getElementById('employeeSearchResults').contains(e.target)) {
         document.getElementById('employeeSearchResults').classList.add('hidden');
-    }
-    
-    if (!document.getElementById('c_no').contains(e.target) && 
-        !document.getElementById('headsetSearchResults').contains(e.target)) {
-        document.getElementById('headsetSearchResults').classList.add('hidden');
     }
 });
 
@@ -346,7 +272,6 @@ document.addEventListener('click', function(e) {
 document.addEventListener('DOMContentLoaded', function() {
     <?php if ($record): ?>
         fetchEmployeeDetails('<?= $record['employee_id'] ?>');
-        fetchHeadsetDetails('<?= $record['c_no'] ?>');
     <?php endif; ?>
 });
 
@@ -366,77 +291,6 @@ function fetchEmployeeDetails(employeeId) {
             console.error('Error:', error);
         });
 }
-
-// Fetch headset details based on C No
-function fetchHeadsetDetails(cNo) {
-    if (!cNo) return;
-    
-    fetch('../api/get_headset.php?c_no=' + encodeURIComponent(cNo))
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.headset) {
-                const headset = data.headset;
-                
-                // Populate the form fields with headset data
-                document.getElementById('brand_model_no').value = headset.brand || '';
-                document.getElementById('yjack_serial_no').value = headset.yjack_serial_no || '';
-                
-                // Set condition based on headset status
-                if (headset.status === 'DEFECTIVE' || headset.status === 'MAINTENANCE') {
-                    document.getElementById('_condition').value = 'DEFECTIVE';
-                } else {
-                    document.getElementById('_condition').value = 'GOOD';
-                }
-                
-                // Set equipment status based on headset status
-                if (headset.status === 'DEFECTIVE') {
-                    document.getElementById('equipment_status').value = 'NOT WORKING - HEADSET';
-                } else if (headset.status === 'AVAILABLE' || headset.status === 'IN_USE') {
-                    document.getElementById('equipment_status').value = 'WORKING ALL ITEMS';
-                }
-                
-                // Set remarks if headset has remarks
-                if (headset.remarks) {
-                    document.getElementById('remarks').value = headset.remarks;
-                }
-                
-                // Set extra foam if available in headset data
-                if (headset.w_xtra_foam) {
-                    document.getElementById('w_xtra_foam').value = headset.w_xtra_foam;
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-}
-
-// Add event listeners for search
-document.addEventListener('DOMContentLoaded', function() {
-    const cNoInput = document.getElementById('c_no');
-    if (cNoInput) {
-        cNoInput.addEventListener('input', function() {
-            searchHeadsets(this.value);
-        });
-    }
-
-    // Auto-fill headset details if editing
-    <?php if ($record && !empty($record['c_no'])): ?>
-        fetchHeadsetDetails('<?= $record['c_no'] ?>');
-    <?php endif; ?>
-
-    // Hide results when clicking outside
-    document.addEventListener('click', function(e) {
-        const headsetResults = document.getElementById('headsetSearchResults');
-        const cNoInput = document.getElementById('c_no');
-        
-        if (headsetResults && cNoInput && 
-            !cNoInput.contains(e.target) && 
-            !headsetResults.contains(e.target)) {
-            headsetResults.classList.add('hidden');
-        }
-    });
-});
 </script>
 
 <?php renderFooter(); ?>
