@@ -2,8 +2,30 @@
 require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/functions.php';
 
+// RETURN FUNCTIONALITY
+if (isset($_GET['return_id']) && isLoggedIn() && isAdmin()) {
+    $return_id = (int)$_GET['return_id'];
+    
+    // Get current user's sub_name
+    $userStmt = $pdo->prepare("SELECT sub_name FROM users WHERE id = ?");
+    $userStmt->execute([$_SESSION['user_id']]);
+    $user = $userStmt->fetch();
+    $sub_name = $user['sub_name'];
+    
+    try {
+        $stmt = $pdo->prepare("UPDATE headset_tracker SET received_by = ?, return_time = CURTIME(), return_date = CURDATE(), status = 'RETURNED' WHERE id = ?");
+        $stmt->execute([$sub_name, $return_id]);
+        
+        $_SESSION['success'] = "Headset marked as returned successfully!";
+        redirect('inventory_tracker.php?tab=headset');
+    } catch (PDOException $e) {
+        $_SESSION['error'] = "Error updating record: " . $e->getMessage();
+        redirect('inventory_tracker.php?tab=headset');
+    }
+}
+
 // Get all filter parameters with proper fallbacks
-$search = isset($_POST['search']) ? trim($_POST['search']) : '';
+$search = isset($_POST['search']) ? trim($_POST['search']) : (isset($_GET['search']) ? trim($_GET['search']) : '');
 $page = isset($_POST['page']) ? (int)$_POST['page'] : (isset($_GET['page']) ? (int)$_GET['page'] : 1);
 $type = isset($_POST['type']) ? $_POST['type'] : (isset($_GET['tab']) ? $_GET['tab'] : 'headset');
 $dateFrom = isset($_POST['date_from']) ? $_POST['date_from'] : (isset($_GET['from']) ? $_GET['from'] : '');
@@ -12,7 +34,16 @@ $statusFilter = isset($_POST['status']) ? $_POST['status'] : (isset($_GET['statu
 
 // Ensure we have the table and type
 if (!isset($type)) $type = 'headset';
-$table = ($type === 'peripherals') ? 'request_peripherals' : 'headset_tracker';
+
+// Determine which table to use
+if ($type === 'peripherals') {
+    $table = 'request_peripherals';
+} elseif ($type === 'headset_inventory') {
+    $table = 'headset_inventory';
+} else {
+    $table = 'headset_tracker';
+}
+
 $perPage = 15;
 
 // Initialize where clauses and parameters
@@ -23,20 +54,22 @@ $params = [];
 if (!empty($search)) {
     if ($type === 'headset') {
         $whereClauses[] = "(employee_id LIKE :search OR full_name LIKE :search)";
+    } elseif ($type === 'headset_inventory') {
+        $whereClauses[] = "(yjack_serial_no LIKE :search OR headset_serial_no LIKE :search)";
     } else {
         $whereClauses[] = "(stn_no LIKE :search OR serial_no LIKE :search)";
     }
     $params[':search'] = "%$search%";
 }
 
-// Add date filter
-if (!empty($dateFrom)) {
+// Add date filter (only for headset and peripherals tabs)
+if (!empty($dateFrom) && $type !== 'headset_inventory') {
     $dateField = ($type === 'peripherals') ? 'request_date' : 'date_issued';
     $whereClauses[] = "$dateField >= :date_from";
     $params[':date_from'] = $dateFrom;
 }
 
-if (!empty($dateTo)) {
+if (!empty($dateTo) && $type !== 'headset_inventory') {
     $dateField = ($type === 'peripherals') ? 'request_date' : 'date_issued';
     $whereClauses[] = "$dateField <= :date_to";
     $params[':date_to'] = $dateTo;
@@ -44,16 +77,8 @@ if (!empty($dateTo)) {
 
 // Add status filter
 if (!empty($statusFilter)) {
-    if ($type === 'headset') {
-        $whereClauses[] = "equipment_status = :status";
-        $params[':status'] = $statusFilter;
-    } else {
-        if ($statusFilter === 'RESOLVED') {
-            $whereClauses[] = "resolved = 'YES'";
-        } else if ($statusFilter === 'PENDING') {
-            $whereClauses[] = "resolved = 'NO'";
-        }
-    }
+    $whereClauses[] = "status = :status";
+    $params[':status'] = $statusFilter;
 }
 
 $searchQuery = empty($whereClauses) ? '' : 'WHERE ' . implode(' AND ', $whereClauses);
@@ -67,6 +92,7 @@ try {
     $totalRecords = $countStmt->fetchColumn();
 } catch (PDOException $e) {
     $totalRecords = 0;
+    error_log("Count error: " . $e->getMessage());
 }
 
 $totalPages = ceil($totalRecords / $perPage);
@@ -74,7 +100,9 @@ $page = min($page, $totalPages);
 $offset = ($page - 1) * $perPage;
 
 try {
-    $query = "SELECT * FROM $table $searchQuery ORDER BY created_at DESC LIMIT :limit OFFSET :offset";
+    // Determine order by clause based on table
+    $orderBy = ($type === 'headset_inventory') ? 'id DESC' : 'created_at DESC';
+    $query = "SELECT * FROM $table $searchQuery ORDER BY $orderBy LIMIT :limit OFFSET :offset";
     $stmt = $pdo->prepare($query);
     
     foreach ($params as $key => $value) {
@@ -87,6 +115,7 @@ try {
     $records = $stmt->fetchAll();
 } catch (PDOException $e) {
     $records = [];
+    error_log("Fetch error: " . $e->getMessage());
 }
 ?>
 
@@ -99,19 +128,29 @@ try {
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Date Issued</th>
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-48">Employee ID</th>
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-48">Full Name</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Department</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-40">Department</th>
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-48">Operation Manager</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Brand/Model</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">C No</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">YJack Serial</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-40">Brand/Model</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-24">C No</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-40">YJack Serial</th>
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Extra Foam</th>
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Condition</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Released By</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-40">Released By</th>
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Release Time</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Received By</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Return Date/Time</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Status</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Remarks</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-48">Equipment Status</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-40">Received By</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Return Time</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Return Date</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-48">Remarks</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-48">Status</th>
+                    <?php elseif ($type === 'headset_inventory'): ?>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">C No</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Brand/Model No</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">YJack Serial No</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Headset Serial No</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Remarks</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Date Created</th>
                     <?php else: ?>
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Date</th>
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Station No</th>
@@ -124,6 +163,7 @@ try {
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Resolved</th>
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Date Resolved</th>
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">SLT</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
                     <?php endif; ?>
                     <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
                 </tr>
@@ -131,7 +171,7 @@ try {
             <tbody class="bg-gray-800 divide-y divide-gray-700">
                 <?php if (empty($records)): ?>
                     <tr>
-                        <td colspan="<?= $type === 'headset' ? 15 : 12 ?>" class="px-6 py-4 text-center text-gray-400">
+                        <td colspan="<?= $type === 'headset' ? 18 : ($type === 'headset_inventory' ? 7 : 12) ?>" class="px-6 py-4 text-center text-gray-400">
                             No records found
                         </td>
                     </tr>
@@ -139,29 +179,30 @@ try {
                     <?php foreach ($records as $record): ?>
                     <tr class="hover:bg-gray-700/50">
                         <?php if ($type === 'headset'): ?>
+                            <!-- Headset Tracker Table Content (same as before) -->
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm text-gray-300"><?= date('M d, Y', strtotime($record['date_issued'])) ?></div>
+                                <div class="text-sm text-gray-300" ><?= date('M d, Y', strtotime($record['date_issued'])) ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm font-medium text-gray-100"><?= htmlspecialchars($record['employee_id']) ?></div>
+                                <div class="text-sm font-medium text-gray-100"  title="<?= htmlspecialchars($record['employee_id'] ?? '') ?>"><?= htmlspecialchars($record['employee_id']) ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['full_name']) ?></div>
+                                <div class="text-sm text-gray-300"  title="<?= htmlspecialchars($record['full_name'] ?? '') ?>"><?= htmlspecialchars($record['full_name']) ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['department']) ?></div>
+                                <div class="text-sm text-gray-300"  title="<?= htmlspecialchars($record['department'] ?? '') ?>"><?= htmlspecialchars($record['department']) ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['operation_manager']) ?></div>
+                                <div class="text-sm text-gray-300"  title="<?= htmlspecialchars($record['operation_manager'] ?? '') ?>"><?= htmlspecialchars($record['operation_manager']) ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['brand_model_no']) ?></div>
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['brand_model_no'] ?? '') ?>"><?= htmlspecialchars($record['brand_model_no']) ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['c_no'] ?? 'N/A') ?></div>
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['c_no'] ?? 'N/A') ?>"><?= htmlspecialchars($record['c_no'] ?? 'N/A') ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['yjack_serial_no'] ?? 'N/A') ?></div>
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['yjack_serial_no'] ?? 'N/A') ?>"><?= htmlspecialchars($record['yjack_serial_no'] ?? 'N/A') ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['w_xtra_foam'] === 'YES' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' ?>">
@@ -169,27 +210,13 @@ try {
                                 </span>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['_condition']) ?></div>
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['yjack_serial_no'] ?? 'N/A') ?>"><?= htmlspecialchars($record['_condition']) ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['release_by']) ?></div>
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['release_by'] ?? '') ?>"><?= htmlspecialchars($record['release_by']) ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <div class="text-sm text-gray-300"><?= date('g:i A', strtotime($record['release_time'])) ?></div>
-                            </td>
-                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['received_by'] === 'PENDING' ? 'bg-red-100 text-red-800' : '' ?>">
-                                    <?= $record['received_by'] ?>
-                                </span>
-                            </td>
-                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm text-gray-300">
-                                    <?php if ($record['return_date']): ?>
-                                        <?= date('M d, Y', strtotime($record['return_date'])) ?> at <?= date('g:i A', strtotime($record['return_time'])) ?>
-                                    <?php else: ?>
-                                        N/A
-                                    <?php endif; ?>
-                                </div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
@@ -201,23 +228,67 @@ try {
                                 </span>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['remarks'] ?? 'N/A') ?></div>
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['received_by'] ?? 'PENDING') ?>"><?= $record['received_by'] ? htmlspecialchars($record['received_by']) : 'PENDING' ?></div>
                             </td>
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['return_time'] ?? 'PENDING') ?>"><?= $record['return_time'] ? date('g:i A', strtotime($record['return_time'])) : 'PENDING' ?></div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['return_date'] ?? 'PENDING') ?>"><?= $record['return_date'] ? date('M d, Y', strtotime($record['return_date'])) : 'PENDING' ?></div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['remarks'] ?? 'PENDING') ?>"><?= htmlspecialchars($record['remarks'] ?? 'PENDING') ?></div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['status'] ?? 'PENDING') ?>"><?= htmlspecialchars($record['status'] ?? 'PENDING') ?></div>
+                            </td>
+                            
+                        <?php elseif ($type === 'headset_inventory'): ?>
+                            <!-- Headset Inventory Table Content -->
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <div class="text-sm font-medium text-gray-100"><?= htmlspecialchars($record['c_no']) ?></div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['brand']) ?></div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['yjack_serial_no'] ?? '') ?>"><?= htmlspecialchars($record['yjack_serial_no']) ?></div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['headset_serial_no'] ?? '') ?>"><?= htmlspecialchars($record['headset_serial_no']) ?></div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    <?= $record['status'] === 'AVAILABLE' ? 'bg-green-100 text-green-800' : 
+                                       ($record['status'] === 'IN_USE' ? 'bg-blue-100 text-blue-800' : 
+                                       ($record['status'] === 'DEFECTIVE' ? 'bg-red-100 text-red-800' : 
+                                       ($record['status'] === 'MAINTENANCE' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'))) ?>">
+                                    <?= $record['status'] ?>
+                                </span>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['remarks'] ?? 'N/A') ?>"><?= htmlspecialchars($record['remarks'] ?? 'N/A') ?></div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <div class="text-sm text-gray-300"><?= date('M d, Y', strtotime($record['date_created'])) ?></div>
+                            </td>
+                            
                         <?php else: ?>
+                            <!-- Peripherals Table Content (same as before) -->
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <div class="text-sm text-gray-300"><?= date('M d, Y', strtotime($record['request_date'])) ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm font-medium text-gray-100"><?= htmlspecialchars($record['stn_no']) ?></div>
+                                <div class="text-sm font-medium text-gray-100" title="<?= htmlspecialchars($record['stn_no'] ?? '') ?>"><?= htmlspecialchars($record['stn_no']) ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['peripheral_type']) ?></div>
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['peripheral_type'] ?? '') ?>"><?= htmlspecialchars($record['peripheral_type']) ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['serial_no'] ?? 'N/A') ?></div>
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['serial_no'] ?? 'N/A') ?>"><?= htmlspecialchars($record['serial_no'] ?? 'N/A') ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['issue']) ?></div>
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['issue'] ?? '') ?>"><?= htmlspecialchars($record['issue']) ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['request_form'] === 'YES' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' ?>">
@@ -236,7 +307,7 @@ try {
                                 <?php endif; ?>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['remarks'] ?? 'N/A') ?></div>
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['remarks'] ?? 'N/A') ?>"><?= htmlspecialchars($record['remarks'] ?? 'N/A') ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['resolved'] === 'YES' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' ?>">
@@ -249,7 +320,10 @@ try {
                                 </div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm text-gray-300"><?= htmlspecialchars($record['slt']) ?></div>
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['slt'] ?? '') ?>"><?= htmlspecialchars($record['slt']) ?></div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['status'] ?? '') ?>"><?= htmlspecialchars($record['status']) ?></div>
                             </td>
                         <?php endif; ?>
                         <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -257,22 +331,25 @@ try {
                                 <a href="headset_form.php?id=<?= $record['id'] ?>" title="Edit record" class="text-primary-500 hover:text-primary-400 mr-3">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <?php if ($record['equipment_status'] !== 'RETURNED'): ?>
-                                    <a href="#" onclick="event.preventDefault(); returnEquipment(<?= $record['id'] ?>)" title="Mark as Returned" class="text-green-500 hover:text-green-400 mr-3">
+                                <?php if ($record['status'] === 'RETURNED'): ?>
+                                    <span title="Returned on <?= $record['return_date'] ? date('M d, Y', strtotime($record['return_date'])) : '' ?> at <?= $record['return_time'] ? date('g:i A', strtotime($record['return_time'])) : '' ?>" class="text-green-500 mr-3">
+                                        <i class="fas fa-check-circle"></i>
+                                    </span>
+                                <?php else: ?>
+                                    <a href="#" onclick="event.preventDefault(); showReturnModal(<?= $record['id'] ?>)" 
+                                    title="Mark as Returned" 
+                                    class="text-purple-500 hover:text-purple-400 mr-3">
                                         <i class="fas fa-undo"></i>
                                     </a>
                                 <?php endif; ?>
-                            <?php else: ?>
-                                <a href="peripherals_form.php?id=<?= $record['id'] ?>" title="Edit record" class="text-primary-500 hover:text-primary-400 mr-3">
+                            <?php elseif ($type === 'headset_inventory'): ?>
+                                <a href="headset_inventory_form.php?id=<?= $record['id'] ?>" title="Edit record" class="text-primary-500 hover:text-primary-400 mr-3">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <?php if ($record['resolved'] !== 'YES'): ?>
-                                    <a href="#" onclick="event.preventDefault(); resolveRequest(<?= $record['id'] ?>)" title="Mark as Resolved" class="text-green-500 hover:text-green-400 mr-3">
-                                        <i class="fas fa-check"></i>
-                                    </a>
-                                <?php endif; ?>
+                            <?php else: ?>
+                                <!-- peripheral actions -->
                             <?php endif; ?>
-                            <a href="#" onclick="event.preventDefault(); showDeleteModal(<?= $record['id'] ?>, '<?= $type === 'headset' ? 'headset' : 'peripherals' ?>')" class="text-red-500 hover:text-red-400" title="Delete record">
+                            <a href="#" onclick="event.preventDefault(); showDeleteModal(<?= $record['id'] ?>, '<?= $type ?>')" class="text-red-500 hover:text-red-400" title="Delete record">
                                 <i class="fas fa-trash"></i>
                             </a>
                         </td>
