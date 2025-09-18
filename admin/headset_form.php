@@ -122,21 +122,22 @@ renderSidebar('inventory');
                     <label for="c_no" class="block text-sm font-medium text-gray-300 mb-1">C No</label>
                     <input type="text" id="c_no" name="c_no" value="<?= $record ? htmlspecialchars($record['c_no']) : '' ?>" 
                            class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
-                           style="text-transform: uppercase;">
+                           style="text-transform: uppercase;"
+                           onchange="fetchHeadsetDetails(this.value)">
                 </div>
 
                 <div>
                     <label for="brand_model_no" class="block text-sm font-medium text-gray-300 mb-1">Brand/Model No</label>
                     <input type="text" id="brand_model_no" name="brand_model_no" value="<?= $record ? htmlspecialchars($record['brand_model_no']) : '' ?>" required 
                            class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
-                           style="text-transform: uppercase;">
+                           style="text-transform: uppercase;" readonly>
                 </div>
 
                 <div>
                     <label for="yjack_serial_no" class="block text-sm font-medium text-gray-300 mb-1">YJack Serial No</label>
                     <input type="text" id="yjack_serial_no" name="yjack_serial_no" value="<?= $record ? htmlspecialchars($record['yjack_serial_no']) : '' ?>" 
                            class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
-                           style="text-transform: uppercase;">
+                           style="text-transform: uppercase;" readonly>
                 </div>
 
                 <div>
@@ -272,6 +273,7 @@ document.addEventListener('click', function(e) {
 document.addEventListener('DOMContentLoaded', function() {
     <?php if ($record): ?>
         fetchEmployeeDetails('<?= $record['employee_id'] ?>');
+        fetchHeadsetDetails('<?= $record['c_no'] ?>');
     <?php endif; ?>
 });
 
@@ -285,6 +287,27 @@ function fetchEmployeeDetails(employeeId) {
                 document.getElementById('full_name').value = data.employee.full_name;
                 document.getElementById('department').value = data.employee.department;
                 document.getElementById('operation_manager').value = data.employee.operation_manager;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
+// NEW FUNCTION: Fetch headset details based on C No
+function fetchHeadsetDetails(cNo) {
+    if (!cNo) return;
+    
+    fetch('../api/get_headset_details.php?c_no=' + encodeURIComponent(cNo))
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('brand_model_no').value = data.headset.brand || '';
+                document.getElementById('yjack_serial_no').value = data.headset.yjack_serial_no || '';
+            } else {
+                // Clear fields if no headset found
+                document.getElementById('brand_model_no').value = '';
+                document.getElementById('yjack_serial_no').value = '';
             }
         })
         .catch(error => {
