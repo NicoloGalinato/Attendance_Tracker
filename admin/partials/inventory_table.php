@@ -12,6 +12,7 @@ if (isset($_GET['return_id']) && isLoggedIn() && isAdmin()) {
     $user = $userStmt->fetch();
     $sub_name = $user['sub_name'];
     
+    
     try {
         $stmt = $pdo->prepare("UPDATE headset_tracker SET received_by = ?, return_time = CURTIME(), return_date = CURDATE(), status = 'RETURNED' WHERE id = ?");
         $stmt->execute([$sub_name, $return_id]);
@@ -205,7 +206,7 @@ try {
                                 <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['yjack_serial_no'] ?? 'N/A') ?>"><?= htmlspecialchars($record['yjack_serial_no'] ?? 'N/A') ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['w_xtra_foam'] === 'YES' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' ?>">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['w_xtra_foam'] === 'YES' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' ?>">
                                     <?= $record['w_xtra_foam'] ?>
                                 </span>
                             </td>
@@ -231,7 +232,9 @@ try {
                                 <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['received_by'] ?? 'PENDING') ?>"><?= $record['received_by'] ? htmlspecialchars($record['received_by']) : 'PENDING' ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['return_time'] ?? 'PENDING') ?>"><?= $record['return_time'] ? date('g:i A', strtotime($record['return_time'])) : 'PENDING' ?></div>
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['return_time'] ?? 'PENDING') ?>">
+                                    <?= $record['return_time'] ? date('g:i A', strtotime($record['return_time'])) : 'PENDING' ?>
+                                </div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['return_date'] ?? 'PENDING') ?>"><?= $record['return_date'] ? date('M d, Y', strtotime($record['return_date'])) : 'PENDING' ?></div>
@@ -240,7 +243,9 @@ try {
                                 <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['remarks'] ?? 'PENDING') ?>"><?= htmlspecialchars($record['remarks'] ?? 'PENDING') ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['status'] ?? 'PENDING') ?>"><?= htmlspecialchars($record['status'] ?? 'PENDING') ?></div>
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['status'] === 'RETURNED' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' ?>">
+                                    <?= $record['status'] ?>
+                                </span>
                             </td>
                             
                         <?php elseif ($type === 'headset_inventory'): ?>

@@ -26,7 +26,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'resolve_ticket') {
     $response = ['success' => false, 'message' => 'Invalid request.'];
 
     if ($ticketId) {
-        $query = "UPDATE ticket SET Status = 'RESOLVED', TIME_RESOLVED = NOW(), resolution = ?, SLT_on_DUTY = ? WHERE id = ?";
+        $query = "UPDATE ticket SET Status = 'RESOLVED', TIME_RESOLVED = DATE_FORMAT(CONVERT_TZ(NOW(), '+00:00', '+08:00'), '%h:%i %p'), resolution = ?, SLT_on_DUTY = ? WHERE id = ?";
         $stmt = $con->prepare($query);
         
         if ($stmt) {
@@ -157,7 +157,7 @@ $monthsWithData = $monthsResult->fetch_all(MYSQLI_ASSOC);
 <div class="pt-2 min-h-screen bg-gray-900 text-white">
     <main class="p-6">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold">Admin Dashboard</h1>
+            <h1 class="text-2xl font-bold">SLT Ticketing</h1>
             <div class="text-sm text-gray-400">
                 <?= date('F j, Y') ?>
             </div>
@@ -186,14 +186,19 @@ $monthsWithData = $monthsResult->fetch_all(MYSQLI_ASSOC);
 
         <div class="bg-gray-800 border border-gray-700 p-6 rounded-lg shadow-md overflow-x-auto">
             <h2 class="text-xl font-semibold mb-4 text-white">All Tickets</h2>
-            <table class="min-w-full divide-y divide-gray-700">
+            <table class="min-w-full divide-y divide-gray-700 w-full" style="zoom:85%">
                 <thead class="bg-gray-700">
                     <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">ID</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Timestamp</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">LOB</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Work Number</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Employee ID</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Employee Name</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Station Number</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Department</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Issues Concerning</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Concern</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Time Received</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">SLT on Duty</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Date</th>
                     </tr>
                 </thead>
                 <tbody id="ticket-table-body" class="bg-gray-800 divide-y divide-gray-700">
@@ -226,15 +231,8 @@ $monthsWithData = $monthsResult->fetch_all(MYSQLI_ASSOC);
         
         <div id="ticketModal" class="fixed inset-0 z-50 overflow-y-auto hidden bg-gray-600 bg-opacity-50 flex items-center justify-center">
             <div class="relative bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl p-6 m-4 text-white">
-                <div class="flex justify-between items-center pb-3 border-b border-gray-700">
-                    <h3 class="text-2xl font-bold">Ticket Details</h3>
-                    <button class="text-gray-400 hover:text-gray-300" onclick="closeModal()">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-                <div id="modalContent" class="py-4 text-gray-300">
+                
+                <div id="modalContent" class="text-gray-300">
                     </div>
                 <div id="modalFooter" class="flex justify-end pt-3 border-t border-gray-700 mt-4">
                     </div>
@@ -339,30 +337,68 @@ $monthsWithData = $monthsResult->fetch_all(MYSQLI_ASSOC);
         renderPagination(totalPages, page);
     }
 
-    function renderTable(ticketsToRender) {
-        const tableBody = document.getElementById('ticket-table-body');
-        let html = '';
-        if (ticketsToRender.length === 0) {
-            html = `<tr><td colspan="5" class="px-6 py-4 text-center text-gray-400">No tickets found.</td></tr>`;
-        } else {
-            ticketsToRender.forEach(ticket => {
-                const statusBadge = ticket.Status === 'PENDING' 
-                    ? `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>`
-                    : `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Resolved</span>`;
-                
-                html += `
-                    <tr class="cursor-pointer hover:bg-gray-700 transition duration-300" onclick="openModal(${JSON.stringify(ticket).replace(/"/g, '&quot;')})">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">${ticket.id}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.Timestamp}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.Department}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">${statusBadge}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.Issues_Concerning}</td>
-                    </tr>
-                `;
-            });
-        }
-        tableBody.innerHTML = html;
+function renderTable(ticketsToRender) {
+    const tableBody = document.getElementById('ticket-table-body');
+    let html = '';
+    if (ticketsToRender.length === 0) {
+        html = `<tr><td colspan="12" class="px-6 py-4 text-center text-gray-400">No tickets found.</td></tr>`;
+    } else {
+        ticketsToRender.forEach(ticket => {
+            const statusBadge = ticket.Status === 'PENDING' 
+                ? `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>`
+                : `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Resolved</span>`;
+            
+            // Format the timestamp
+            const formattedTimestamp = formatTimestamp(ticket.Timestamp);
+            
+            html += `
+                <tr class="cursor-pointer hover:bg-gray-700 transition duration-300" onclick="openModal(${JSON.stringify(ticket).replace(/"/g, '&quot;')})">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.Work_Number}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.EID}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.Employee_name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.Station_Number}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.LOB}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">${statusBadge}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.Issues_Concerning}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.TIME_RECEIVED}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.SLT_on_DUTY}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${formattedTimestamp}</td>
+                </tr>
+            `;
+        });
     }
+    tableBody.innerHTML = html;
+}
+
+// Add this function to format the timestamp
+function formatTimestamp(timestamp) {
+    if (!timestamp) return 'N/A';
+    
+    try {
+        // If timestamp is already a Date object or valid date string
+        const date = new Date(timestamp);
+        
+        // Check if date is valid
+        if (isNaN(date.getTime())) {
+            return 'Invalid Date';
+        }
+        
+        // Format to "Sep 2, 2025 4:00 AM"
+        const options = { 
+            month: 'short', 
+            day: 'numeric', 
+            year: 'numeric',
+            hour: 'numeric', 
+            minute: '2-digit', 
+            hour12: true 
+        };
+        
+        return date.toLocaleString('en-US', options);
+    } catch (error) {
+        console.error('Error formatting timestamp:', error);
+        return timestamp; // Return original if formatting fails
+    }
+}
 
     function renderPagination(totalPages, page) {
         const paginationControls = document.getElementById('pagination-controls');
@@ -390,43 +426,44 @@ $monthsWithData = $monthsResult->fetch_all(MYSQLI_ASSOC);
         
         const detailsHtml = `
             <div class="space-y-4">
-                <div class="space-y-2 pb-4 border-b border-gray-600">
-                    <h4 class="text-xl font-bold text-gray-200">Issue Details</h4>
-                    <p class="mt-2 p-3 text-gray-300 bg-gray-700 rounded-lg whitespace-pre-wrap">${ticket.Issue_Details}</p>
+                <div class="flex justify-between items-center pb-3 border-b border-gray-700">
+                    <h3 class="text-2xl font-bold">Work Number: ${ticket.Work_Number} -  ${ticket.Issues_Concerning}</h3>
+                    <button class="text-gray-400 hover:text-gray-300" onclick="closeModal()">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                 </div>
 
-                <div class="space-y-2 pt-4 pb-4 border-b border-gray-600">
-                    <h4 class="text-xl font-bold text-gray-200">Employee Details</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-gray-300">
-                        <div><strong>Employee Name:</strong> ${ticket.Employee_name}</div>
-                        <div><strong>Work Number:</strong> ${ticket.Work_Number}</div>
-                        <div><strong>EID:</strong> ${ticket.EID}</div>
-                        <div><strong>Site:</strong> ${ticket.Site}</div>
-                        <div><strong>Department:</strong> ${ticket.LOB}</div>
-                    </div>
+                <div class="space-y-2 pt-4 pb-6 border-b border-gray-600">
+                    <h3 class="text-lg font-semibold text-gray-100" id="employee-name">${ticket.Employee_name}</h3>
+                    <p class="text-gray-300">ID: ${ticket.EID} • Dept: ${ticket.LOB}</p>
+                    <p class="text-gray-300 mt-1" id="employee-om">Operation Manager: ${ticket.OM}</p>
+                    <p class="text-gray-300 mt-1" id="employee-site">Site: ${ticket.Site}</p>
+                    <h4 class="text-xl font-bold pt-4 text-gray-200">Issue Details</h4>
+                    <p class="mt-2 p-3 text-gray-300 bg-gray-700 rounded-lg whitespace-pre-wrap h-32 overflow-hidden">${ticket.Issue_Details}</p>
                 </div>
 
-                <div class="space-y-2 pt-4">
-                    <h4 class="text-lg font-semibold text-gray-200">Resolution Details</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-gray-300">
-                        <div><strong>OM:</strong> ${ticket.OM}</div>
-                        <div><strong>SLT on DUTY:</strong> ${ticket.SLT_on_DUTY || 'N/A'}</div>
-                        <div><strong>Time Received:</strong> ${ticket.TIME_RECEIVED}</div>
-                        <div><strong>Time Resolved:</strong> ${ticket.TIME_RESOLVED || 'N/A'}</div>
-                        <div><strong>Urgency:</strong> ${ticket.Urgency}</div>
-                        <div><strong>Station Number:</strong> ${ticket.Station_Number}</div>
+                <div class="space-y-2 pt-4 ">
+                    <h3 class="text-lg font-semibold text-gray-100">SLT on duty: ${ticket.SLT_on_DUTY || 'N/A'}</h3>
+                    <div class="space-y-2 pb-6 border-b border-gray-600 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
+                        <p class="text-gray-300 mt-1">Time Received: ${ticket.TIME_RECEIVED}</p>
+                        <p class="text-gray-300 mt-1">Time Resolved: ${ticket.TIME_RESOLVED || 'N/A'}</p>
+                        <p class="text-gray-300">Station Number: ${ticket.Station_Number}</p>
+                        <p class="text-gray-300 mt-1">Urgency: ${ticket.Urgency || 'N/A'}</p>
                     </div>
                 </div>
                 
                 ${ticket.Status === 'PENDING' ? `
-                    <div class="mt-4">
+                    <div class="pt-4">
+                        <h4 class="text-xl font-bold text-gray-200">Resolution Details</h4>
                         <label for="resolution_details" class="block text-sm font-medium text-gray-400 mb-2">What did you do to fix the issue?</label>
                         <textarea id="resolution_details" rows="4" class="block w-full rounded-md bg-gray-700 text-white border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"></textarea>
                     </div>
                 ` : `
                     <div class="mt-4">
                         <h4 class="text-lg font-semibold text-gray-200">Resolution Notes</h4>
-                        <p class="mt-2 p-3 text-gray-300 bg-gray-700 rounded-lg whitespace-pre-wrap">${ticket.resolution || 'No resolution details provided.'}</p>
+                        <p class="mt-2 p-3 text-gray-300 bg-gray-700 rounded-lg whitespace-pre-wrap h-32 overflow-hidden">${ticket.resolution || 'No resolution details provided.'}</p>
                     </div>
                 `}
             </div>

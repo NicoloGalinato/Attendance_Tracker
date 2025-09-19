@@ -64,6 +64,23 @@ try {
             return $timeA - $timeB;
         });
         
+    } elseif ($type === 'headset_tracker') {
+        $stmt = $pdo->prepare("SELECT * FROM headset_tracker ORDER BY date_issued ASC");
+        $stmt->execute();
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        usort($data, function($a, $b) {
+            $timeA = strtotime($a['created_at']);
+            $timeB = strtotime($b['created_at']);
+
+            $dateCompare = strcmp($a['date_issued'], $b['date_issued']);
+            if ($dateCompare !== 0) {
+                return $dateCompare;
+            }
+            
+            return $timeA - $timeB;
+        });
+        
     } else {
         throw new Exception("Invalid data type requested");
     }

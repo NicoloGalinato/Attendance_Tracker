@@ -92,9 +92,9 @@ if (isset($_POST['return_with_remarks'])) {
     $sub_name = $user['sub_name'];
     
     try {
-        $stmt = $pdo->prepare("UPDATE headset_tracker SET received_by = ?, return_time = CURTIME(), return_date = CURDATE(), status = 'RETURNED', remarks = ? WHERE id = ?");
+        $stmt = $pdo->prepare("UPDATE headset_tracker SET received_by = ?, return_time = CONVERT_TZ(CURTIME(), '+00:00', '+08:00'), return_date = CURDATE(), status = 'RETURNED', remarks = ? WHERE id = ?");
         $stmt->execute([$sub_name, $remarks, $return_id]);
-        
+
         $_SESSION['success'] = "Headset marked as returned successfully!";
         redirect('inventory_tracker.php?tab=headset');
     } catch (PDOException $e) {

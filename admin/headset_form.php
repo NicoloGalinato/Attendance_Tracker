@@ -6,11 +6,30 @@ if (!isLoggedIn() || !isAdmin()) {
     redirect(BASE_URL);
 }
 
+// Function to get the Monday of the current week
+function getWeekBeginningDate() {
+    $today = new DateTime();
+    $dayOfWeek = $today->format('w'); // 0 (Sunday) to 6 (Saturday)
+    
+    // Calculate days to subtract to get to Monday
+    $daysToSubtract = ($dayOfWeek == 0) ? 6 : $dayOfWeek - 1;
+    
+    if ($daysToSubtract > 0) {
+        $today->modify("-$daysToSubtract days");
+    }
+    
+    return $today->format('Y-m-d');
+}
+
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $action = $id ? 'edit' : 'create';
 $record = null;
 
 $currentDate = date('Y-m-d');
+$currentMonth = date('M Y');
+$currentTime = date('H:i');
+
+$weekBeginningDate = getWeekBeginningDate(); // Get Monday of the current week
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 // Get current user's sub_name
@@ -33,6 +52,7 @@ if ($id) {
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = [
+        'week_beginning' => $weekBeginningDate, // Use the calculated Monday date
         'date_issued' => $currentDate,
         'employee_id' => strtoupper($_POST['employee_id']),
         'full_name' => strtoupper($_POST['full_name']),
@@ -51,10 +71,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         if ($action === 'create') {
-            $sql = "INSERT INTO headset_tracker (date_issued, employee_id, full_name, department, operation_manager, brand_model_no, c_no, yjack_serial_no, w_xtra_foam, _condition, release_by, release_time, equipment_status, remarks) 
-                    VALUES (:date_issued, :employee_id, :full_name, :department, :operation_manager, :brand_model_no, :c_no, :yjack_serial_no, :w_xtra_foam, :_condition, :release_by, :release_time, :equipment_status, :remarks)";
+            $sql = "INSERT INTO headset_tracker (week_beginning, date_issued, employee_id, full_name, department, operation_manager, brand_model_no, c_no, yjack_serial_no, w_xtra_foam, _condition, release_by, release_time, equipment_status, remarks) 
+                    VALUES (:week_beginning, :date_issued, :employee_id, :full_name, :department, :operation_manager, :brand_model_no, :c_no, :yjack_serial_no, :w_xtra_foam, :_condition, :release_by, :release_time, :equipment_status, :remarks)";
         } else {
-            $sql = "UPDATE headset_tracker SET date_issued = :date_issued, employee_id = :employee_id, full_name = :full_name, department = :department, operation_manager = :operation_manager, brand_model_no = :brand_model_no, c_no = :c_no, yjack_serial_no = :yjack_serial_no, w_xtra_foam = :w_xtra_foam, _condition = :_condition, release_by = :release_by, release_time = :release_time, equipment_status = :equipment_status, remarks = :remarks WHERE id = :id";
+            $sql = "UPDATE headset_tracker SET week_beginning = :week_beginning, date_issued = :date_issued, employee_id = :employee_id, full_name = :full_name, department = :department, operation_manager = :operation_manager, brand_model_no = :brand_model_no, c_no = :c_no, yjack_serial_no = :yjack_serial_no, w_xtra_foam = :w_xtra_foam, _condition = :_condition, release_by = :release_by, release_time = :release_time, equipment_status = :equipment_status, remarks = :remarks WHERE id = :id";
             $data['id'] = $id;
         }
 
@@ -168,20 +188,6 @@ renderSidebar('inventory');
                 </div>
 
                 <div>
-                    <label for="return_date" class="block text-sm font-medium text-gray-300 mb-1">Return Date</label>
-                    <input type="date" id="return_date" name="return_date" value="<?= $record ? htmlspecialchars($record['return_date']) : '' ?>" 
-                           class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
-                           style="text-transform: uppercase;">
-                </div>
-
-                <div>
-                    <label for="return_time" class="block text-sm font-medium text-gray-300 mb-1">Return Time</label>
-                    <input type="text" id="return_time" name="return_time" value="<?= $record ? htmlspecialchars($record['return_time']) : '' ?>" 
-                           class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
-                           style="text-transform: uppercase;">
-                </div>
-
-                <div>
                     <label for="equipment_status" class="block text-sm font-medium text-gray-300 mb-1">Equipment Status</label>
                     <select id="equipment_status" name="equipment_status" required 
                             class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
@@ -193,12 +199,6 @@ renderSidebar('inventory');
                     </select>
                 </div>
 
-                <div class="md:col-span-2">
-                    <label for="remarks" class="block text-sm font-medium text-gray-300 mb-1">Remarks</label>
-                    <textarea id="remarks" name="remarks" 
-                              class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
-                              style="text-transform: uppercase;"><?= $record ? htmlspecialchars($record['remarks']) : '' ?></textarea>
-                </div>
             </div>
 
             <div class="mt-8 flex justify-end">
