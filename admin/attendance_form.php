@@ -326,7 +326,7 @@ renderSidebar('attendance');
                         </div>
                         
                         <div>
-                            <label for="follow_call_in_procedure" class="block text-sm font-medium text-gray-300 mb-2">Followed Call-in Procedure?</label>
+                            <label for="follow_call_in_procedure" class="block text-sm font-medium text-gray-300 mb-2">Received advise in SLT number:</label>
                             <input type="text" id="follow_call_in_procedure" name="follow_call_in_procedure" style="text-transform: uppercase;"
                                    class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
                                    value="<?= $record ? htmlspecialchars($record['follow_call_in_procedure']) : '' ?>">

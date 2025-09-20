@@ -36,6 +36,17 @@ if (isset($_GET['delete'])) {
             $table = 'headset_inventory';
         } else {
             $table = 'headset_tracker';
+            
+            // NEW: If deleting a headset_tracker record with PENDING status, update inventory status
+            $getCNo = $pdo->prepare("SELECT c_no, status FROM headset_tracker WHERE id = ?");
+            $getCNo->execute([$id]);
+            $headsetRecord = $getCNo->fetch();
+            
+            if ($headsetRecord && !empty($headsetRecord['c_no']) && $headsetRecord['status'] === 'PENDING') {
+                // Update headset inventory status to AVAILABLE
+                $updateInventory = $pdo->prepare("UPDATE headset_inventory SET status = 'AVAILABLE' WHERE c_no = ?");
+                $updateInventory->execute([$headsetRecord['c_no']]);
+            }
         }
         
         $stmt = $pdo->prepare("DELETE FROM $table WHERE id = ?");
@@ -148,7 +159,7 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'headset';
                 <a href="?tab=headset_inventory" class="<?= $currentTab === 'headset_inventory' ? 'border-primary-500 text-primary-400' : 'border-transparent text-gray-400 hover:text-gray-300' ?> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
                     Headset Inventory
                 </a>
-                <a href="?tab=peripherals" class="<?= $currentTab === 'peripherals' ? 'border-primary-500 text-primary-400' : 'border-transparent text-gray-400 hover:text-gray-300' ?> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                <a href="?tab=peripherals" class="<?= $currentTab === 'peripherals' ? 'border-primary-500 text-primary-400' : 'border-transparent text-gray-400 hover:text-gray-300' ?> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" style="display:none;">
                     Request Peripherals
                 </a>
             </nav>
@@ -164,7 +175,7 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'headset';
                 <input type="hidden" name="search" value="<?= htmlspecialchars($_GET['search']) ?>">
             <?php endif; ?>
             <?php if (!empty($_GET['from'])): ?>
-                <input type="hidden" name="from" value="<?= htmlspecialchars($_GET['from']) ?>">
+                <input type="hidden" name="from", value="<?= htmlspecialchars($_GET['from']) ?>">
             <?php endif; ?>
             <?php if (!empty($_GET['to'])): ?>
                 <input type="hidden" name="to", value="<?= htmlspecialchars($_GET['to']) ?>">
@@ -260,7 +271,7 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'headset';
                         Mark as Returned
                     </button>
                 </div>
-            </form>
+                </form>
         </div>
     </div>
 </div>

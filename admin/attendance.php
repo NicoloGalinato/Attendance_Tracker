@@ -52,8 +52,7 @@ try {
             $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE ir_form NOT REGEXP '^(YES|NO NEED)'");
             $stats['pending_ir'] = $stmt->fetchColumn();
         } else {
-            // Modified query to exclude EXPIRED status for tardiness
-            $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE ir_form NOT REGEXP '^(YES|FOR ACCUMULATION|NO NEED|EXPIRED)' AND ir_form != 'EXPIRED'");
+            $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE ir_form NOT REGEXP '^(YES|FOR ACCUMULATION|NO NEED|EXPIRED)'");
             $stats['pending_ir'] += $stmt->fetchColumn();
         }
     } else {
@@ -61,8 +60,7 @@ try {
         $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE ir_form NOT REGEXP '^(YES|NO NEED)'");
         $stats['pending_ir'] += $stmt->fetchColumn();
 
-        // Modified query to exclude EXPIRED status for tardiness
-        $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE ir_form NOT REGEXP '^(YES|FOR ACCUMULATION|NO NEED|EXPIRED)' AND ir_form != 'EXPIRED'");
+        $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE ir_form NOT REGEXP '^(YES|FOR ACCUMULATION|NO NEED)'");
         $stats['pending_ir'] += $stmt->fetchColumn();
     }
 
@@ -440,7 +438,7 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
                             $irForm = $row['ir_form'];
                             
                             // Categorize the IR forms
-                            if ($irForm === 'FOR IR' || $irForm === 'FOR ACCUMULATION' || $irForm === 'EXPIRED') {
+                            if ($irForm === 'FOR IR' || $irForm === 'FOR ACCUMULATION') {
                                 $standardOptions[$irForm] = $irForm;
                             } 
                             elseif ($irForm === 'PENDING') {
@@ -456,7 +454,7 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
                         // Sort pending options in descending order
                         krsort($pendingOptions);
                         
-                        // Display standard options first (FOR IR, FOR ACCUMULATION, EXPIRED, PENDING)
+                        // Display standard options first (FOR IR, FOR ACCUMULATION, PENDING)
                         foreach ($standardOptions as $value => $label) {
                             $selected = (isset($_GET['ir']) && $_GET['ir'] === $value) ? 'selected' : '';
                             echo '<option value="'.htmlspecialchars($value).'" '.$selected.'>'.htmlspecialchars($label).'</option>';
@@ -470,7 +468,7 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
                         
                         // If no specific options found, still show the standard ones
                         if (empty($standardOptions) && empty($pendingOptions)) {
-                            $defaultOptions = ['FOR IR', 'FOR ACCUMULATION', 'EXPIRED', 'PENDING'];
+                            $defaultOptions = ['FOR IR', 'FOR ACCUMULATION', 'PENDING'];
                             foreach ($defaultOptions as $option) {
                                 $selected = (isset($_GET['ir']) && $_GET['ir'] === $option) ? 'selected' : '';
                                 echo '<option value="'.htmlspecialchars($option).'" '.$selected.'>'.htmlspecialchars($option).'</option>';
@@ -487,7 +485,7 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
                             $irForm = $row['ir_form'];
                             
                             // Categorize the IR forms
-                            if ($irForm === 'FOR IR' || $irForm === 'NO NEED' || $irForm === 'EXPIRED') {
+                            if ($irForm === 'FOR IR' || $irForm === 'NO NEED') {
                                 $standardOptions[$irForm] = $irForm;
                             } 
                             // Handle pending dates
@@ -500,7 +498,7 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
                         // Sort pending options in descending order
                         krsort($pendingOptions);
                         
-                        // Display standard options first (FOR IR, NO NEED, EXPIRED)
+                        // Display standard options first (FOR IR, NO NEED)
                         foreach ($standardOptions as $value => $label) {
                             $selected = (isset($_GET['ir']) && $_GET['ir'] === $value) ? 'selected' : '';
                             echo '<option value="'.htmlspecialchars($value).'" '.$selected.'>'.htmlspecialchars($label).'</option>';
@@ -514,7 +512,7 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
                         
                         // If no specific options found, still show the standard ones
                         if (empty($standardOptions) && empty($pendingOptions)) {
-                            $defaultOptions = ['FOR IR', 'NO NEED', 'EXPIRED'];
+                            $defaultOptions = ['FOR IR', 'NO NEED'];
                             foreach ($defaultOptions as $option) {
                                 $selected = (isset($_GET['ir']) && $_GET['ir'] === $option) ? 'selected' : '';
                                 echo '<option value="'.htmlspecialchars($option).'" '.$selected.'>'.htmlspecialchars($option).'</option>';

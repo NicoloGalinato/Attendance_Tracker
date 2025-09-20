@@ -129,9 +129,6 @@ if (!empty($irFilter)) {
         elseif ($irFilter === 'FOR ACCUMULATION') {
             $whereClauses[] = "ir_form = 'FOR ACCUMULATION'";
         }
-        elseif ($irFilter === 'EXPIRED') {
-            $whereClauses[] = "ir_form = 'EXPIRED'";
-        }
         elseif ($irFilter === 'PENDING') {
             $whereClauses[] = "ir_form LIKE 'PENDING%'";
         }
@@ -149,9 +146,6 @@ if (!empty($irFilter)) {
         elseif ($irFilter === 'NO NEED') {
             $whereClauses[] = "ir_form = 'NO NEED'";
         }
-        elseif ($irFilter === 'EXPIRED') {
-            $whereClauses[] = "ir_form = 'EXPIRED'";
-        }
         // Handle specific pending dates for absenteeism
         elseif (preg_match('/PENDING \/ ([A-Z]{3,4} [0-9]{1,2})/', $irFilter, $matches)) {
             $datePart = $matches[1];
@@ -161,7 +155,7 @@ if (!empty($irFilter)) {
     }
     
     // Add this condition to exclude "YES" records when filtering for specific IR statuses in tardiness
-    if ($type === 'tardiness' && in_array($irFilter, ['FOR IR', 'FOR ACCUMULATION', 'EXPIRED', 'PENDING'])) {
+    if ($type === 'tardiness' && in_array($irFilter, ['FOR IR', 'FOR ACCUMULATION', 'PENDING'])) {
         $whereClauses[] = "ir_form != 'YES'";
     }
 }

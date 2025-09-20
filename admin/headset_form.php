@@ -81,6 +81,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['error'] = "This headset (C No: " . $_POST['c_no'] . ") is already in use and cannot be issued again.";
                 redirect('headset_form.php?action=create');
             }
+            
+            // NEW: Validation - Check if headset is DEFECTIVE or in MAINTENANCE
+            if ($headsetStatus && in_array($headsetStatus['status'], ['DEFECTIVE', 'MAINTENANCE'])) {
+                $_SESSION['error'] = "Cannot track headset that is " . $headsetStatus['status'];
+                redirect('headset_form.php?action=create');
+            }
         }
 
         if ($action === 'create') {
@@ -361,6 +367,8 @@ function checkHeadsetStatus(cNo) {
                     statusMessage.innerHTML = '<span class="text-red-500">⚠️ This headset is currently IN USE and cannot be issued!</span>';
                 } else if (data.status === 'AVAILABLE') {
                     statusMessage.innerHTML = '<span class="text-green-500">✓ This headset is available for issuance</span>';
+                } else if (data.status === 'DEFECTIVE' || data.status === 'MAINTENANCE') {
+                    statusMessage.innerHTML = `<span class="text-red-500">❌ This headset is ${data.status} and cannot be issued!</span>`;
                 } else {
                     statusMessage.innerHTML = `<span class="text-yellow-500">Headset status: ${data.status}</span>`;
                 }

@@ -6,6 +6,19 @@ if (!isLoggedIn() || !isAdmin()) {
     redirect(BASE_URL);
 }
 
+// Check if headset is in use and disable editing
+if (isset($_GET['id'])) {
+    $id = (int)$_GET['id'];
+    $stmt = $pdo->prepare("SELECT status FROM headset_inventory WHERE id = ?");
+    $stmt->execute([$id]);
+    $headset = $stmt->fetch();
+    
+    if ($headset && $headset['status'] === 'IN USE') {
+        $_SESSION['error'] = "Cannot edit headset that is currently IN USE";
+        redirect('inventory_tracker.php?tab=headset_inventory');
+    }
+}
+
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $action = $id ? 'edit' : 'create';
 $record = null;
@@ -28,21 +41,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'brand' => strtoupper($_POST['brand']),
         'yjack_serial_no' => strtoupper($_POST['yjack_serial_no']),
         'headset_serial_no' => strtoupper($_POST['headset_serial_no']),
-        'status' => strtoupper($_POST['status']),
+        'status' => $_POST['status'],
         'remarks' => strtoupper($_POST['remarks'])
     ];
 
     try {
         if ($action === 'create') {
-            $sql = "INSERT INTO headset_inventory (c_no, brand, yjack_serial_no, headset_serial_no, status, remarks) 
-                    VALUES (:c_no, :brand, :yjack_serial_no, :headset_serial_no, :status, :remarks)";
+            $sql = "INSERT INTO headset_inventory (c_no, brand, yjack_serial_no, headset_serial_no, status, remarks, date_created) 
+                    VALUES (:c_no, :brand, :yjack_serial_no, :headset_serial_no, :status, :remarks, NOW())";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($data);
         } else {
             $sql = "UPDATE headset_inventory SET c_no = :c_no, brand = :brand, yjack_serial_no = :yjack_serial_no, headset_serial_no = :headset_serial_no, status = :status, remarks = :remarks WHERE id = :id";
             $data['id'] = $id;
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($data);
         }
-
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($data);
 
         $_SESSION['success'] = "Record " . ($action === 'create' ? 'created' : 'updated') . " successfully!";
         redirect('inventory_tracker.php?tab=headset_inventory');
@@ -71,49 +85,51 @@ renderSidebar('inventory');
 
         <form method="post" class="bg-gray-800 rounded-xl border border-gray-700 p-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- First Row -->
                 <div>
                     <label for="c_no" class="block text-sm font-medium text-gray-300 mb-1">C No</label>
                     <input type="text" id="c_no" name="c_no" value="<?= $record ? htmlspecialchars($record['c_no']) : '' ?>" required 
-                        class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
-                        style="text-transform: uppercase;">
+                           class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                           style="text-transform: uppercase;">
                 </div>
+
                 <div>
                     <label for="brand" class="block text-sm font-medium text-gray-300 mb-1">Brand/Model No</label>
                     <input type="text" id="brand" name="brand" value="<?= $record ? htmlspecialchars($record['brand']) : '' ?>" required 
-                        class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
-                        style="text-transform: uppercase;">
+                           class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                           style="text-transform: uppercase;">
                 </div>
+
                 <div>
                     <label for="yjack_serial_no" class="block text-sm font-medium text-gray-300 mb-1">YJack Serial No</label>
-                    <input type="text" id="yjack_serial_no" name="yjack_serial_no" value="<?= $record ? htmlspecialchars($record['yjack_serial_no']) : '' ?>" required 
-                        class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
-                        style="text-transform: uppercase;">
+                    <input type="text" id="yjack_serial_no" name="yjack_serial_no" value="<?= $record ? htmlspecialchars($record['yjack_serial_no']) : '' ?>" 
+                           class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                           style="text-transform: uppercase;">
                 </div>
+
+                <div>
+                    <label for="headset_serial_no" class="block text-sm font-medium text-gray-300 mb-1">Headset Serial No</label>
+                    <input type="text" id="headset_serial_no" name="headset_serial_no" value="<?= $record ? htmlspecialchars($record['headset_serial_no']) : '' ?>" 
+                           class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                           style="text-transform: uppercase;">
+                </div>
+
                 <div>
                     <label for="status" class="block text-sm font-medium text-gray-300 mb-1">Status</label>
                     <select id="status" name="status" required 
                             class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
                             style="text-transform: uppercase;">
                         <option value="AVAILABLE" <?= $record && $record['status'] === 'AVAILABLE' ? 'selected' : '' ?>>AVAILABLE</option>
-                        <option value="IN_USE" <?= $record && $record['status'] === 'IN_USE' ? 'selected' : '' ?>>IN USE</option>
+                        <option value="IN USE" <?= $record && $record['status'] === 'IN USE' ? 'selected' : '' ?>>IN USE</option>
                         <option value="DEFECTIVE" <?= $record && $record['status'] === 'DEFECTIVE' ? 'selected' : '' ?>>DEFECTIVE</option>
                         <option value="MAINTENANCE" <?= $record && $record['status'] === 'MAINTENANCE' ? 'selected' : '' ?>>MAINTENANCE</option>
                     </select>
                 </div>
 
-                <!-- Second Row -->
-                <div>
-                    <label for="headset_serial_no" class="block text-sm font-medium text-gray-300 mb-1">Headset Serial No</label>
-                    <textarea id="headset_serial_no" name="headset_serial_no" 
-                            class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
-                            style="text-transform: uppercase;"><?= $record ? htmlspecialchars($record['headset_serial_no']) : '' ?></textarea>
-                </div>
                 <div>
                     <label for="remarks" class="block text-sm font-medium text-gray-300 mb-1">Remarks</label>
-                    <textarea id="remarks" name="remarks" 
-                            class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
-                            style="text-transform: uppercase;"><?= $record ? htmlspecialchars($record['remarks']) : '' ?></textarea>
+                    <textarea id="remarks" name="remarks" rows="3" 
+                              class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                              style="text-transform: uppercase;"><?= $record ? htmlspecialchars($record['remarks']) : '' ?></textarea>
                 </div>
             </div>
 
