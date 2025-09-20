@@ -32,8 +32,8 @@ function renderHead($title) {
                     }
                 }
             }
-
-            // Function to update the notification badge from all pages
+            
+                        // Function to update the notification badge from all pages
             async function updateNotificationBadge() {
                 try {
                     const response = await fetch('ticket_dashboard.php?action=get_pending_count');
@@ -211,8 +211,7 @@ function renderSidebar($activePage = 'dashboard', $pendingCount = 0) {
                 <a href="attendance_statistics.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'attendance_statistics' ? 'active' : '' ?>">
                     <i class="sidebar-icon fas fa-chart-pie mr-3"></i>
                     <span class="sidebar-text">Attendance Statistics</span>
-                </a>   
-
+                </a>
                 <a href="ticket_dashboard.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'ticket_dashboard' ? 'active' : '' ?>">
                     <div class="relative">
                         <i class="sidebar-icon fas fa-clipboard-list mr-3"></i>
@@ -224,13 +223,13 @@ function renderSidebar($activePage = 'dashboard', $pendingCount = 0) {
                             <span class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs notification-dot" id="pending-tickets-badge" style="display: none;"></span>
                         <?php endif; ?>
                     </div>
-                    <span class="sidebar-text">Ticket Dashboard</span>
+                    <span class="sidebar-text">SLT Ticketing</span>
                 </a>
                 
                 <a href="statistics.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'statistics' ? 'active' : '' ?>">
                     <i class="sidebar-icon fas fa-chart-bar mr-3"></i>
                     <span class="sidebar-text">Ticket Statistics</span>
-                </a>     
+                </a>
                 <a href="inventory_tracker.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'inventory' ? 'active' : '' ?>">
                     <i class="sidebar-icon fas fa-boxes mr-3"></i>
                     <span class="sidebar-text">SLT Inventory</span>
@@ -245,7 +244,7 @@ function renderSidebar($activePage = 'dashboard', $pendingCount = 0) {
                 </a>
 
 
-                <!-- Disabled Ticket Dashboard with Coming Soon message -->
+                <!-- Disabled Ticket Dashboard with Coming Soon message 
                 <br>
                 <span class="sidebar-text">Coming soon!</span>
                 <div class="relative group">
@@ -254,8 +253,7 @@ function renderSidebar($activePage = 'dashboard', $pendingCount = 0) {
                         <span class="sidebar-text">SLT Inventory</span>
                     </div>
                 </div>
-                
-                
+                -->
             </div>
         </div>
     </aside>
@@ -281,6 +279,7 @@ function renderSidebar($activePage = 'dashboard', $pendingCount = 0) {
     transform: scale(1.3); /* Lumalaki ng 30% */
     font-weight: bold; /* Optional: nagiging bold din */
   }
+  
 
 .notification-dot {
     box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
