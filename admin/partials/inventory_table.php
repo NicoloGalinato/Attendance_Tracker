@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/functions.php';
 
-// RETURN FUNCTIONALITY
+// In inventory_table.php, in the return functionality section
 if (isset($_GET['return_id']) && isLoggedIn() && isAdmin()) {
     $return_id = (int)$_GET['return_id'];
     
@@ -12,10 +12,22 @@ if (isset($_GET['return_id']) && isLoggedIn() && isAdmin()) {
     $user = $userStmt->fetch();
     $sub_name = $user['sub_name'];
     
-    
     try {
+        // First get the C_NO before updating
+        $getCNo = $pdo->prepare("SELECT c_no FROM headset_tracker WHERE id = ?");
+        $getCNo->execute([$return_id]);
+        $headsetRecord = $getCNo->fetch();
+        $c_no = $headsetRecord['c_no'];
+        
+        // Update the tracker record
         $stmt = $pdo->prepare("UPDATE headset_tracker SET received_by = ?, return_time = CURTIME(), return_date = CURDATE(), status = 'RETURNED' WHERE id = ?");
         $stmt->execute([$sub_name, $return_id]);
+        
+        // NEW: Update headset inventory status to AVAILABLE
+        if (!empty($c_no)) {
+            $updateInventory = $pdo->prepare("UPDATE headset_inventory SET status = 'AVAILABLE' WHERE c_no = ?");
+            $updateInventory->execute([$c_no]);
+        }
         
         $_SESSION['success'] = "Headset marked as returned successfully!";
         redirect('inventory_tracker.php?tab=headset');
@@ -265,9 +277,9 @@ try {
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                     <?= $record['status'] === 'AVAILABLE' ? 'bg-green-100 text-green-800' : 
-                                       ($record['status'] === 'IN_USE' ? 'bg-blue-100 text-blue-800' : 
+                                       ($record['status'] === 'IN USE' ? 'bg-yellow-100 text-yellow-800' : 
                                        ($record['status'] === 'DEFECTIVE' ? 'bg-red-100 text-red-800' : 
-                                       ($record['status'] === 'MAINTENANCE' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'))) ?>">
+                                       ($record['status'] === 'MAINTENANCE' ? 'bg-orange-100 text-orange-800' : 'bg-gray-100 text-gray-800'))) ?>">
                                     <?= $record['status'] ?>
                                 </span>
                             </td>

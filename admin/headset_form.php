@@ -66,20 +66,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'release_by' => $sub_name,
         'release_time' => $_POST['release_time'],
         'equipment_status' => $_POST['equipment_status'],
-        'remarks' => strtoupper($_POST['remarks'])
+        'remarks' => strtoupper($_POST['remarks']),
+        'status' => 'PENDING' // NEW: Set initial status to PENDING
     ];
 
     try {
-        if ($action === 'create') {
-            $sql = "INSERT INTO headset_tracker (week_beginning, date_issued, employee_id, full_name, department, operation_manager, brand_model_no, c_no, yjack_serial_no, w_xtra_foam, _condition, release_by, release_time, equipment_status, remarks) 
-                    VALUES (:week_beginning, :date_issued, :employee_id, :full_name, :department, :operation_manager, :brand_model_no, :c_no, :yjack_serial_no, :w_xtra_foam, :_condition, :release_by, :release_time, :equipment_status, :remarks)";
-        } else {
-            $sql = "UPDATE headset_tracker SET week_beginning = :week_beginning, date_issued = :date_issued, employee_id = :employee_id, full_name = :full_name, department = :department, operation_manager = :operation_manager, brand_model_no = :brand_model_no, c_no = :c_no, yjack_serial_no = :yjack_serial_no, w_xtra_foam = :w_xtra_foam, _condition = :_condition, release_by = :release_by, release_time = :release_time, equipment_status = :equipment_status, remarks = :remarks WHERE id = :id";
-            $data['id'] = $id;
+        // NEW: Validation - Check if headset is already in use (for new records only)
+        if ($action === 'create' && !empty($_POST['c_no'])) {
+            $checkHeadset = $pdo->prepare("SELECT status FROM headset_inventory WHERE c_no = ?");
+            $checkHeadset->execute([$_POST['c_no']]);
+            $headsetStatus = $checkHeadset->fetch();
+            
+            if ($headsetStatus && $headsetStatus['status'] === 'IN USE') {
+                $_SESSION['error'] = "This headset (C No: " . $_POST['c_no'] . ") is already in use and cannot be issued again.";
+                redirect('headset_form.php?action=create');
+            }
         }
 
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($data);
+        if ($action === 'create') {
+            $sql = "INSERT INTO headset_tracker (week_beginning, date_issued, employee_id, full_name, department, operation_manager, brand_model_no, c_no, yjack_serial_no, w_xtra_foam, _condition, release_by, release_time, equipment_status, remarks, status) 
+                    VALUES (:week_beginning, :date_issued, :employee_id, :full_name, :department, :operation_manager, :brand_model_no, :c_no, :yjack_serial_no, :w_xtra_foam, :_condition, :release_by, :release_time, :equipment_status, :remarks, :status)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($data);
+            
+            // NEW: Update headset inventory status to IN USE
+            if (!empty($_POST['c_no'])) {
+                $updateInventory = $pdo->prepare("UPDATE headset_inventory SET status = 'IN USE' WHERE c_no = ?");
+                $updateInventory->execute([$_POST['c_no']]);
+            }
+        } else {
+            $sql = "UPDATE headset_tracker SET week_beginning = :week_beginning, date_issued = :date_issued, employee_id = :employee_id, full_name = :full_name, department = :department, operation_manager = :operation_manager, brand_model_no = :brand_model_no, c_no = :c_no, yjack_serial_no = :yjack_serial_no, w_xtra_foam = :w_xtra_foam, _condition = :_condition, release_by = :release_by, release_time = :release_time, equipment_status = :equipment_status, remarks = :remarks, status = :status WHERE id = :id";
+            $data['id'] = $id;
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($data);
+            
+            // NEW: Update headset inventory status based on tracker status
+            if (!empty($_POST['c_no'])) {
+                $status = ($record && $record['status'] === 'RETURNED') ? 'AVAILABLE' : 'IN USE';
+                $updateInventory = $pdo->prepare("UPDATE headset_inventory SET status = ? WHERE c_no = ?");
+                $updateInventory->execute([$status, $_POST['c_no']]);
+            }
+        }
 
         $_SESSION['success'] = "Record " . ($action === 'create' ? 'created' : 'updated') . " successfully!";
         redirect('inventory_tracker.php?tab=headset');
@@ -144,6 +171,7 @@ renderSidebar('inventory');
                            class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
                            style="text-transform: uppercase;"
                            onchange="fetchHeadsetDetails(this.value)">
+                    <div id="headsetStatusMessage" class="text-sm mt-1 hidden"></div>
                 </div>
 
                 <div>
@@ -304,16 +332,51 @@ function fetchHeadsetDetails(cNo) {
             if (data.success) {
                 document.getElementById('brand_model_no').value = data.headset.brand || '';
                 document.getElementById('yjack_serial_no').value = data.headset.yjack_serial_no || '';
+                
+                // NEW: Check headset status and show message
+                checkHeadsetStatus(cNo);
             } else {
                 // Clear fields if no headset found
                 document.getElementById('brand_model_no').value = '';
                 document.getElementById('yjack_serial_no').value = '';
+                document.getElementById('headsetStatusMessage').classList.add('hidden');
             }
         })
         .catch(error => {
             console.error('Error:', error);
         });
 }
+
+// NEW FUNCTION: Check headset status
+function checkHeadsetStatus(cNo) {
+    if (!cNo) return;
+    
+    fetch('../api/check_headset_status.php?c_no=' + encodeURIComponent(cNo))
+        .then(response => response.json())
+        .then(data => {
+            const statusMessage = document.getElementById('headsetStatusMessage');
+            if (data.success) {
+                statusMessage.classList.remove('hidden');
+                if (data.status === 'IN USE') {
+                    statusMessage.innerHTML = '<span class="text-red-500">⚠️ This headset is currently IN USE and cannot be issued!</span>';
+                } else if (data.status === 'AVAILABLE') {
+                    statusMessage.innerHTML = '<span class="text-green-500">✓ This headset is available for issuance</span>';
+                } else {
+                    statusMessage.innerHTML = `<span class="text-yellow-500">Headset status: ${data.status}</span>`;
+                }
+            } else {
+                statusMessage.classList.add('hidden');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
+// NEW: Add event listener to check headset status when C No changes
+document.getElementById('c_no').addEventListener('input', function() {
+    checkHeadsetStatus(this.value);
+});
 </script>
 
 <?php renderFooter(); ?>

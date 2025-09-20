@@ -80,7 +80,7 @@ if (isset($_GET['send_email'])) {
     redirect('inventory_tracker.php?tab=' . $type);
 }
 
-// Handle return with remarks
+// In inventory_tracker.php, in the return with remarks section
 if (isset($_POST['return_with_remarks'])) {
     $return_id = (int)$_POST['return_id'];
     $remarks = trim(strtoupper($_POST['remarks']));
@@ -92,8 +92,21 @@ if (isset($_POST['return_with_remarks'])) {
     $sub_name = $user['sub_name'];
     
     try {
+        // First get the C_NO before updating
+        $getCNo = $pdo->prepare("SELECT c_no FROM headset_tracker WHERE id = ?");
+        $getCNo->execute([$return_id]);
+        $headsetRecord = $getCNo->fetch();
+        $c_no = $headsetRecord['c_no'];
+        
+        // Update the tracker record
         $stmt = $pdo->prepare("UPDATE headset_tracker SET received_by = ?, return_time = CONVERT_TZ(CURTIME(), '+00:00', '+08:00'), return_date = CURDATE(), status = 'RETURNED', remarks = ? WHERE id = ?");
         $stmt->execute([$sub_name, $remarks, $return_id]);
+
+        // NEW: Update headset inventory status to AVAILABLE
+        if (!empty($c_no)) {
+            $updateInventory = $pdo->prepare("UPDATE headset_inventory SET status = 'AVAILABLE' WHERE c_no = ?");
+            $updateInventory->execute([$c_no]);
+        }
 
         $_SESSION['success'] = "Headset marked as returned successfully!";
         redirect('inventory_tracker.php?tab=headset');
@@ -237,7 +250,7 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'headset';
                 <input type="hidden" name="return_id" id="returnId">
                 <div class="mb-4">
                     <label for="remarks" class="block text-sm font-medium text-gray-300 mb-2">Remarks:</label>
-                    <textarea name="remarks" id="remarks" rows="3" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-200" placeholder="Enter remarks about the returned equipment"></textarea>
+                    <textarea name="remarks" id="remarks" rows="3" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-200" placeholder="Enter remarks about the returned equipment" required></textarea>
                 </div>
                 <div class="flex justify-end space-x-3">
                     <button type="button" onclick="closeReturnModal()" class="px-4 py-2 bg-gray-600 text-gray-100 rounded-md hover:bg-gray-500">

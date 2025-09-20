@@ -230,6 +230,7 @@ if (isset($_POST['submitTix'])) {
                         <input type="hidden" name="Week_Beginning" value="<?= htmlspecialchars($mondayDate) ?>">
                         <input type="hidden" name="Status" value="PENDING">
                         <input type="hidden" name="Affected_employee" value="Individual">
+                        <input type="hidden" name="urgency" id="urgency" value="">
 
                         <div>
                             <label for="stationNumber" class="block text-sm font-medium text-gray-300 mb-2">Station Number</label>
@@ -251,6 +252,7 @@ if (isset($_POST['submitTix'])) {
                                 <option value="Windows tools error">Windows tools error</option>
                                 <option value="Other">Other</option>
                             </select>
+                            <div id="urgency-display" class="mt-2 text-sm text-primary-400 font-medium"></div>
                             <div id="troubleshootingTip" class="mt-2 p-3 text-sm bg-primary-900/40 border-l-4 border-primary-500 text-gray-300 rounded-md" style="display: none;"></div>
                         </div>
 
@@ -259,22 +261,13 @@ if (isset($_POST['submitTix'])) {
                             <textarea class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition" id="issueDetails" name="Issue_Details" rows="4" placeholder="Please describe your issue in detail, e.g., 'My mouse is not responding, I've tried restarting the PC but it didn't help.'" required></textarea>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
                             <div>
                                 <label for="site" class="block text-sm font-medium text-gray-300 mb-2">Site</label>
                                 <select class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition" id="site" name="Site" required>
                                     <option value="" selected disabled>Select your site...</option>
                                     <option value="KAWIT">KAWIT</option>
                                     <option value="BACOOR">BACOOR</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="urgency" class="block text-sm font-medium text-gray-300 mb-2">Urgency Level</label>
-                                <select class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition" id="urgency" name="urgency" required>
-                                    <option value="" selected disabled>Select urgency...</option>
-                                    <option value="High">Priority</option>
-                                    <option value="Medium">Moderate</option>
-                                    <option value="Low">Minimal</option>
                                 </select>
                             </div>
                         </div>
@@ -314,9 +307,32 @@ if (isset($_POST['submitTix'])) {
                 });
             }
 
-            // Handle the issue dropdown to show troubleshooting tips
+            // Function to set urgency based on selected issue
+            function setUrgencyBasedOnIssue(issue) {
+                const lowUrgency = ['Keyboard', 'Mouse', 'Headset', 'Monitor'];
+                const mediumUrgency = ['Full Storage', 'Windows tools error', 'Other'];
+                const highUrgency = ['Internet', 'NT Login Issue', 'Client Tool/System Issue'];
+                
+                if (lowUrgency.includes(issue)) {
+                    return 'LOW';
+                } else if (mediumUrgency.includes(issue)) {
+                    return 'MEDIUM';
+                } else if (highUrgency.includes(issue)) {
+                    return 'HIGH';
+                }
+                return 'MEDIUM'; // Default if not found
+            }
+            
+            // Set urgency when issue changes
             $('#issues').on('change', function() {
                 var selectedIssue = $(this).val();
+                var urgency = setUrgencyBasedOnIssue(selectedIssue);
+                $('#urgency').val(urgency);
+                
+                // Show the assigned urgency to the user
+                $('#urgency-display').text('Assigned Urgency: ' + urgency);
+                
+                // Show troubleshooting tip
                 var tipContainer = $('#troubleshootingTip');
                 var tips = {
                     'Monitor': "Tip: No display? Check if it's turned on. If the problem continues, our team will check it for you.",
@@ -336,6 +352,14 @@ if (isset($_POST['submitTix'])) {
                     tipContainer.slideUp();
                 }
             });
+
+            // Initialize urgency on page load if an issue is already selected
+            if ($('#issues').val()) {
+                var selectedIssue = $('#issues').val();
+                var urgency = setUrgencyBasedOnIssue(selectedIssue);
+                $('#urgency').val(urgency);
+                $('#urgency-display').text('Assigned Urgency: ' + urgency);
+            }
         });
     </script>
 </body>
