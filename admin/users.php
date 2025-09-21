@@ -272,7 +272,7 @@ function updateOnlineStatuses() {
 
 // Update online status immediately and then every 5 seconds
 updateOnlineStatuses();
-setInterval(updateOnlineStatuses, 1);
+setInterval(updateOnlineStatuses, 1000);
 </script>
 
 <?php renderFooter(); ?>
