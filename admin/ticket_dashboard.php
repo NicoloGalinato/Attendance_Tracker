@@ -26,7 +26,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'resolve_ticket') {
     $response = ['success' => false, 'message' => 'Invalid request.'];
 
     if ($ticketId) {
-        $query = "UPDATE ticket SET Status = 'RESOLVED', TIME_RESOLVED = DATE_FORMAT(CONVERT_TZ(NOW(), '+00:00', '+08:00'), '%h:%i %p'), resolution = ?, SLT_on_DUTY = ? WHERE id = ?";
+        $query = "UPDATE ticket SET Status = 'RESOLVED', TIME_RESOLVED = DATE_FORMAT(CONVERT_TZ(NOW(), '+00:00', '+08:00'), '%l:%i %p'), resolution = ?, SLT_on_DUTY = ? WHERE id = ?";
         $stmt = $con->prepare($query);
         
         if ($stmt) {

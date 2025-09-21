@@ -86,27 +86,70 @@ function renderHead($title) {
                 background-color: rgba(255, 255, 255, 0.05);
             }
             
-            /* Sidebar hover styles */
-            #sidebar {
-                width: 5rem;
-                transition: all 0.3s ease;
-                overflow: hidden;
-            }
-            
-            #sidebar:hover {
-                width: 16rem;
-            }
-            
-            #sidebar:hover .sidebar-text {
-                opacity: 1;
-                transition: opacity 0.3s ease 0.2s;
-            }
-            
-            .sidebar-text {
-                opacity: 0;
-                transition: opacity 0.1s ease;
-                white-space: nowrap;
-            }
+            /* Sidebar styles */
+        #sidebar {
+            width: 5rem;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        #sidebar:hover {
+            width: 16rem;
+        }
+        
+        #sidebar:hover .sidebar-text {
+            opacity: 1;
+            transition: opacity 0.3s ease 0.2s;
+        }
+        
+        .sidebar-text {
+            opacity: 0;
+            transition: opacity 0.1s ease;
+            white-space: nowrap;
+        }
+        
+        /* Adjust main content margin */
+        .main-content {
+            margin-left: 5rem;
+            transition: margin-left 0.3s ease;
+        }
+        
+        #sidebar:hover ~ .main-content {
+            margin-left: 16rem;
+        }
+        
+        /* Sidebar item styles */
+        .sidebar-item.active {
+            background-color: rgba(14, 165, 233, 0.2);
+            border-left: 3px solid #0ea5e9;
+        }
+        
+        .sidebar-item.active .sidebar-icon {
+            color: #0ea5e9;
+        }
+        
+        .sidebar-item:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Icon centering solution */
+        .sidebar-icon-container {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        /* Center the sidebar content */
+        .sidebar-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
             
             /* Adjust main content margin */
             .main-content {
@@ -191,7 +234,7 @@ function renderNavbar() {
 
 function renderSidebar($activePage = 'dashboard', $pendingCount = 0) {
     ?>
-    <aside id="sidebar" class="bg-gray-800 fixed h-full border-r border-gray-700 z-40">
+<aside id="sidebar" class="bg-gray-800 fixed h-full border-r border-gray-700 z-40">
         <div class="p-4">
             <div class="flex items-center space-x-4">
                 <div class="logo-container">
@@ -200,46 +243,72 @@ function renderSidebar($activePage = 'dashboard', $pendingCount = 0) {
             </div>
             <div class="border-t border-gray-700 my-4"></div>
             <div class="space-y-1 mt-6">
+                <!-- Add a fixed-width container for all icons -->
+                <style>
+                    .sidebar-icon-container {
+                        width: 24px;
+                        height: 24px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        margin-right: 12px;
+                    }
+                </style>
+                
                 <a href="dashboard.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'dashboard' ? 'active' : '' ?>">
-                    <i class="sidebar-icon fas fa-tachometer-alt mr-3"></i>
+                    <div class="sidebar-icon-container">
+                        <i class="sidebar-icon fas fa-tachometer-alt"></i>
+                    </div>
                     <span class="sidebar-text">Dashboard</span>
                 </a>
                 <a href="attendance.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'attendance' ? 'active' : '' ?>">
-                    <i class="sidebar-icon fas fa-chart-line mr-3"></i>
+                    <div class="sidebar-icon-container">
+                        <i class="sidebar-icon fas fa-chart-line"></i>
+                    </div>
                     <span class="sidebar-text">Tracker</span>
                 </a>
                 <a href="attendance_statistics.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'attendance_statistics' ? 'active' : '' ?>">
-                    <i class="sidebar-icon fas fa-chart-pie mr-3"></i>
+                    <div class="sidebar-icon-container">
+                        <i class="sidebar-icon fas fa-chart-pie"></i>
+                    </div>
                     <span class="sidebar-text">Attendance Statistics</span>
                 </a>
                 <a href="ticket_dashboard.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'ticket_dashboard' ? 'active' : '' ?>">
-                    <div class="relative">
-                        <i class="sidebar-icon fas fa-clipboard-list mr-3"></i>
+                    <div class="sidebar-icon-container relative">
+                        <i class="sidebar-icon fas fa-clipboard-list"></i>
                         <?php if ($pendingCount > 0): ?>
-                            <span class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs notification-dot" id="pending-tickets-badge">
+                            <span class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs notification-dot" id="pending-tickets-badge">
                                 <?= $pendingCount > 9 ? '9+' : $pendingCount ?>
                             </span>
                         <?php else: ?>
-                            <span class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs notification-dot" id="pending-tickets-badge" style="display: none;"></span>
+                            <span class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs notification-dot" id="pending-tickets-badge" style="display: none;"></span>
                         <?php endif; ?>
                     </div>
                     <span class="sidebar-text">SLT Ticketing</span>
                 </a>
                 
                 <a href="statistics.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'statistics' ? 'active' : '' ?>">
-                    <i class="sidebar-icon fas fa-chart-bar mr-3"></i>
+                    <div class="sidebar-icon-container">
+                        <i class="sidebar-icon fas fa-chart-bar"></i>
+                    </div>
                     <span class="sidebar-text">Ticket Statistics</span>
                 </a>
                 <a href="inventory_tracker.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'inventory' ? 'active' : '' ?>">
-                    <i class="sidebar-icon fas fa-boxes mr-3"></i>
+                    <div class="sidebar-icon-container">
+                        <i class="sidebar-icon fas fa-boxes"></i>
+                    </div>
                     <span class="sidebar-text">SLT Inventory</span>
                 </a>   
                 <a href="employees.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'employees' ? 'active' : '' ?>">
-                    <i class="sidebar-icon fas fa-users mr-3"></i>
+                    <div class="sidebar-icon-container">
+                        <i class="sidebar-icon fas fa-users"></i>
+                    </div>
                     <span class="sidebar-text">Manage Agents</span>
                 </a>
                 <a href="users.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'users' ? 'active' : '' ?>">
-                    <i class="sidebar-icon fas fa-cog mr-3"></i>
+                    <div class="sidebar-icon-container">
+                        <i class="sidebar-icon fas fa-cog"></i>
+                    </div>
                     <span class="sidebar-text">Management Settings</span>
                 </a>
 

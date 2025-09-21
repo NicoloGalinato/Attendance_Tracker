@@ -29,21 +29,38 @@ if ($isAjax && $isEmployeeStatsRequest) {
     ];
     
     try {
-        // Get employee details
-        $stmt = $pdo->prepare("SELECT DISTINCT full_name, employee_id, department, operation_manager FROM absenteeism WHERE employee_id = ? UNION SELECT DISTINCT full_name, employee_id, department, operation_manager FROM tardiness WHERE employee_id = ? LIMIT 1");
+        // Get employee details - only if employee is active
+        $stmt = $pdo->prepare("SELECT DISTINCT a.full_name, a.employee_id, a.department, a.operation_manager 
+                              FROM absenteeism a 
+                              INNER JOIN employees e ON a.employee_id = e.employee_id 
+                              WHERE a.employee_id = ? AND e.is_active = 1 
+                              UNION 
+                              SELECT DISTINCT t.full_name, t.employee_id, t.department, t.operation_manager 
+                              FROM tardiness t 
+                              INNER JOIN employees e ON t.employee_id = e.employee_id 
+                              WHERE t.employee_id = ? AND e.is_active = 1 
+                              LIMIT 1");
         $stmt->execute([$employeeId, $employeeId]);
         $employee = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($employee) {
             $response['employee'] = $employee;
         }
 
-        // Get absenteeism history
-        $stmt = $pdo->prepare("SELECT date_of_absent, reason FROM absenteeism WHERE employee_id = ? AND date_of_absent BETWEEN ? AND ? ORDER BY date_of_absent DESC");
+        // Get absenteeism history - only for active employees
+        $stmt = $pdo->prepare("SELECT a.date_of_absent, a.reason 
+                              FROM absenteeism a 
+                              INNER JOIN employees e ON a.employee_id = e.employee_id 
+                              WHERE a.employee_id = ? AND a.date_of_absent BETWEEN ? AND ? AND e.is_active = 1 
+                              ORDER BY a.date_of_absent DESC");
         $stmt->execute([$employeeId, $startDate, $endDate]);
         $response['absenteeism'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        // Get tardiness history
-        $stmt = $pdo->prepare("SELECT date_of_incident, minutes_late FROM tardiness WHERE employee_id = ? AND date_of_incident BETWEEN ? AND ? ORDER BY date_of_incident DESC");
+        // Get tardiness history - only for active employees
+        $stmt = $pdo->prepare("SELECT t.date_of_incident, t.minutes_late 
+                              FROM tardiness t 
+                              INNER JOIN employees e ON t.employee_id = e.employee_id 
+                              WHERE t.employee_id = ? AND t.date_of_incident BETWEEN ? AND ? AND e.is_active = 1 
+                              ORDER BY t.date_of_incident DESC");
         $stmt->execute([$employeeId, $startDate, $endDate]);
         $response['tardiness'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
@@ -104,29 +121,46 @@ $stats = [
 ];
 
 try {
-    // Get departments for filter
-    $stmt = $pdo->query("SELECT DISTINCT department FROM absenteeism UNION SELECT DISTINCT department FROM tardiness ORDER BY department");
+    // Get departments for filter - only from active employees
+    $stmt = $pdo->query("SELECT DISTINCT a.department 
+                        FROM absenteeism a 
+                        INNER JOIN employees e ON a.employee_id = e.employee_id 
+                        WHERE e.is_active = 1 
+                        UNION 
+                        SELECT DISTINCT t.department 
+                        FROM tardiness t 
+                        INNER JOIN employees e ON t.employee_id = e.employee_id 
+                        WHERE e.is_active = 1 
+                        ORDER BY department");
     $stats['departments'] = $stmt->fetchAll(PDO::FETCH_COLUMN);
     
-    // Get operation managers for tabs
-    $stmt = $pdo->query("SELECT DISTINCT operation_manager FROM absenteeism WHERE operation_manager != '' ORDER BY operation_manager");
+    // Get operation managers for tabs - only from active employees
+    $stmt = $pdo->query("SELECT DISTINCT a.operation_manager 
+                        FROM absenteeism a 
+                        INNER JOIN employees e ON a.employee_id = e.employee_id 
+                        WHERE a.operation_manager != '' AND e.is_active = 1 
+                        ORDER BY a.operation_manager");
     $stats['operation_managers'] = $stmt->fetchAll(PDO::FETCH_COLUMN);
     
-    // Get operation manager statistics for charts
+    // Get operation manager statistics for charts - only for active employees
     $omQuery = "SELECT 
-        operation_manager,
+        a.operation_manager,
         COUNT(*) as total_absences,
         (SELECT COUNT(*) FROM tardiness t 
+         INNER JOIN employees e ON t.employee_id = e.employee_id 
          WHERE t.operation_manager = a.operation_manager 
-         AND t.date_of_incident BETWEEN :start_date AND :end_date) as total_tardiness
+         AND t.date_of_incident BETWEEN :start_date AND :end_date 
+         AND e.is_active = 1) as total_tardiness
     FROM absenteeism a
-    WHERE a.operation_manager != '' AND a.date_of_absent BETWEEN :start_date AND :end_date";
+    INNER JOIN employees e ON a.employee_id = e.employee_id
+    WHERE a.operation_manager != '' AND a.date_of_absent BETWEEN :start_date AND :end_date 
+    AND e.is_active = 1";
     
     if (!empty($department)) {
         $omQuery .= " AND a.department = :department";
     }
     
-    $omQuery .= " GROUP BY operation_manager
+    $omQuery .= " GROUP BY a.operation_manager
                  ORDER BY total_absences DESC, total_tardiness DESC";
     
     $stmt = $pdo->prepare($omQuery);
@@ -140,7 +174,7 @@ try {
     $stmt->execute();
     $stats['om_stats'] = $stmt->fetchAll();
     
-    // Get top absenteeism
+    // Get top absenteeism - only for active employees
     $absentQuery = "SELECT 
         a.employee_id, 
         a.full_name, 
@@ -148,7 +182,9 @@ try {
         a.operation_manager,
         COUNT(*) as absence_count
     FROM absenteeism a
-    WHERE a.date_of_absent BETWEEN :start_date AND :end_date";
+    INNER JOIN employees e ON a.employee_id = e.employee_id
+    WHERE a.date_of_absent BETWEEN :start_date AND :end_date 
+    AND e.is_active = 1";
     
     $params = [
         ':start_date' => $dateRange['start'],
@@ -177,7 +213,7 @@ try {
     $stmt->execute();
     $stats['absenteeism'] = $stmt->fetchAll();
     
-    // Get top tardiness
+    // Get top tardiness - only for active employees
     $tardyQuery = "SELECT 
         t.employee_id, 
         t.full_name, 
@@ -186,7 +222,9 @@ try {
         COUNT(*) as tardiness_count,
         SUM(t.minutes_late) as total_minutes_late
     FROM tardiness t
-    WHERE t.date_of_incident BETWEEN :start_date AND :end_date";
+    INNER JOIN employees e ON t.employee_id = e.employee_id
+    WHERE t.date_of_incident BETWEEN :start_date AND :end_date 
+    AND e.is_active = 1";
     
     $params = [
         ':start_date' => $dateRange['start'],
@@ -215,15 +253,19 @@ try {
     $stmt->execute();
     $stats['tardiness'] = $stmt->fetchAll();
     
-    // Get department statistics
+    // Get department statistics - only for active employees
     $deptQuery = "SELECT 
-        department,
+        a.department,
         COUNT(*) as total_absences,
         (SELECT COUNT(*) FROM tardiness t 
+         INNER JOIN employees e ON t.employee_id = e.employee_id 
          WHERE t.department = a.department 
-         AND t.date_of_incident BETWEEN :start_date AND :end_date) as total_tardiness
+         AND t.date_of_incident BETWEEN :start_date AND :end_date 
+         AND e.is_active = 1) as total_tardiness
     FROM absenteeism a
-    WHERE a.date_of_absent BETWEEN :start_date AND :end_date";
+    INNER JOIN employees e ON a.employee_id = e.employee_id
+    WHERE a.date_of_absent BETWEEN :start_date AND :end_date 
+    AND e.is_active = 1";
     
     if (!empty($department)) {
         $deptQuery .= " AND a.department = :department";
@@ -233,7 +275,7 @@ try {
         $deptQuery .= " AND a.operation_manager = :operation_manager";
     }
     
-    $deptQuery .= " GROUP BY department
+    $deptQuery .= " GROUP BY a.department
     ORDER BY total_absences DESC, total_tardiness DESC";
     
     $stmt = $pdo->prepare($deptQuery);
@@ -700,7 +742,7 @@ function updateUI(data) {
     
     // Update department statistics
     const deptStatsContainer = document.querySelector('#dept-stats-container > div .p-6');
-    if (data.deptStats.length > 0) {
+    if (data.deptStats && data.deptStats.length > 0) {
         let html = `
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-700">
@@ -750,17 +792,9 @@ function updateUI(data) {
         `;
     }
     
-    // Update the card titles with current filters
-    // This part of the code is not changing and works as intended
-    
     // Update operation manager charts if we're in overall view
     const omChartsContainer = document.getElementById('om-charts-container');
     if (data.om_tab === 'overall' && data.om_stats && data.om_stats.length > 0) {
-        // Prepare data for charts
-        const omLabels = data.om_stats.map(stat => stat.operation_manager);
-        const absencesData = data.om_stats.map(stat => stat.total_absences);
-        const tardinessData = data.om_stats.map(stat => stat.total_tardiness);
-        
         let chartsHTML = `
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow">
@@ -791,111 +825,9 @@ function updateUI(data) {
         
         omChartsContainer.innerHTML = chartsHTML;
         
-        // Destroy existing charts if they exist
-        if (absencesChart) {
-            absencesChart.destroy();
-        }
-        if (tardinessChart) {
-            tardinessChart.destroy();
-        }
-        
         // Create new charts after a small delay to allow DOM to update
         setTimeout(() => {
-            // Absences by Operation Manager Chart
-            const absencesCtx = document.getElementById('absencesByOmChart').getContext('2d');
-            absencesChart = new Chart(absencesCtx, {
-                type: 'bar',
-                data: {
-                    labels: omLabels,
-                    datasets: [{
-                        label: 'Absences',
-                        data: absencesData,
-                        backgroundColor: 'rgba(239, 68, 68, 0.7)',
-                        borderColor: 'rgba(239, 68, 68, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                color: '#9ca3af'
-                            },
-                            grid: {
-                                color: 'rgba(156, 163, 175, 0.2)'
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                color: '#9ca3af',
-                                maxRotation: 45,
-                                minRotation: 45
-                            },
-                            grid: {
-                                display: false
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#9ca3af'
-                            }
-                        }
-                    }
-                }
-            });
-            
-            // Tardiness by Operation Manager Chart
-            const tardinessCtx = document.getElementById('tardinessByOmChart').getContext('2d');
-            tardinessChart = new Chart(tardinessCtx, {
-                type: 'bar',
-                data: {
-                    labels: omLabels,
-                    datasets: [{
-                        label: 'Tardiness',
-                        data: tardinessData,
-                        backgroundColor: 'rgba(234, 179, 8, 0.7)',
-                        borderColor: 'rgba(234, 179, 8, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                color: '#9ca3af'
-                            },
-                            grid: {
-                                color: 'rgba(156, 163, 175, 0.2)'
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                color: '#9ca3af',
-                                maxRotation: 45,
-                                minRotation: 45
-                            },
-                            grid: {
-                                display: false
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#9ca3af'
-                            }
-                        }
-                    }
-                }
-            });
+            createOmCharts(data.om_stats);
         }, 100);
     } else {
         omChartsContainer.innerHTML = '';
@@ -908,6 +840,124 @@ function updateUI(data) {
             tardinessChart.destroy();
             tardinessChart = null;
         }
+    }
+}
+
+// Function to create operation manager charts
+function createOmCharts(omStats) {
+    // Prepare data for charts
+    const omLabels = omStats.map(stat => stat.operation_manager);
+    const absencesData = omStats.map(stat => stat.total_absences);
+    const tardinessData = omStats.map(stat => stat.total_tardiness);
+    
+    // Destroy existing charts if they exist
+    if (absencesChart) {
+        absencesChart.destroy();
+    }
+    if (tardinessChart) {
+        tardinessChart.destroy();
+    }
+    
+    // Create new charts
+    const absencesCanvas = document.getElementById('absencesByOmChart');
+    const tardinessCanvas = document.getElementById('tardinessByOmChart');
+    
+    if (absencesCanvas) {
+        const absencesCtx = absencesCanvas.getContext('2d');
+        absencesChart = new Chart(absencesCtx, {
+            type: 'bar',
+            data: {
+                labels: omLabels,
+                datasets: [{
+                    label: 'Absences',
+                    data: absencesData,
+                    backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                    borderColor: 'rgba(239, 68, 68, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#9ca3af'
+                        },
+                        grid: {
+                            color: 'rgba(156, 163, 175, 0.2)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#9ca3af',
+                            maxRotation: 45,
+                            minRotation: 45
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#9ca3af'
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    if (tardinessCanvas) {
+        const tardinessCtx = tardinessCanvas.getContext('2d');
+        tardinessChart = new Chart(tardinessCtx, {
+            type: 'bar',
+            data: {
+                labels: omLabels,
+                datasets: [{
+                    label: 'Tardiness',
+                    data: tardinessData,
+                    backgroundColor: 'rgba(234, 179, 8, 0.7)',
+                    borderColor: 'rgba(234, 179, 8, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#9ca3af'
+                        },
+                        grid: {
+                            color: 'rgba(156, 163, 175, 0.2)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#9ca3af',
+                            maxRotation: 45,
+                            minRotation: 45
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#9ca3af'
+                        }
+                    }
+                }
+            }
+        });
     }
 }
 
@@ -930,13 +980,19 @@ function fetchData() {
     // Show loading indicator
     document.getElementById('stats-cards-container').style.opacity = '0.7';
     document.getElementById('dept-stats-container').style.opacity = '0.7';
+    document.getElementById('om-charts-container').style.opacity = '0.7';
     
     fetch('attendance_statistics.php?' + params.toString(), {
         headers: {
             'X-Requested-With': 'XMLHttpRequest'
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.error) {
             alert('Error: ' + data.error);
@@ -953,6 +1009,7 @@ function fetchData() {
         // Hide loading indicator
         document.getElementById('stats-cards-container').style.opacity = '1';
         document.getElementById('dept-stats-container').style.opacity = '1';
+        document.getElementById('om-charts-container').style.opacity = '1';
     });
 }
 
@@ -1003,7 +1060,12 @@ function fetchEmployeeStats(employeeId, startDate, endDate) {
             'X-Requested-With': 'XMLHttpRequest'
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.error) {
             alert('Error: ' + data.error);
@@ -1173,110 +1235,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize charts on first load if in overall view
     <?php if ($operationManagerTab === 'overall' && !empty($stats['om_stats'])): ?>
-    const omLabels = <?= json_encode(array_map(function($stat) { return $stat['operation_manager']; }, $stats['om_stats'])) ?>;
-    const absencesData = <?= json_encode(array_map(function($stat) { return $stat['total_absences']; }, $stats['om_stats'])) ?>;
-    const tardinessData = <?= json_encode(array_map(function($stat) { return $stat['total_tardiness']; }, $stats['om_stats'])) ?>;
-    
-    // Absences by Operation Manager Chart
-    const absencesCtx = document.getElementById('absencesByOmChart').getContext('2d');
-    absencesChart = new Chart(absencesCtx, {
-        type: 'bar',
-        data: {
-            labels: omLabels,
-            datasets: [{
-                label: 'Absences',
-                data: absencesData,
-                backgroundColor: 'rgba(239, 68, 68, 0.7)',
-                borderColor: 'rgba(239, 68, 68, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        color: '#9ca3af'
-                    },
-                    grid: {
-                        color: 'rgba(156, 163, 175, 0.2)'
-                    }
-                },
-                x: {
-                    ticks: {
-                        color: '#9ca3af',
-                        maxRotation: 45,
-                        minRotation: 45
-                    },
-                    grid: {
-                        display: false
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    labels: {
-                        color: '#9ca3af'
-                    }
-                }
-            }
-        }
-    });
-    
-    // Tardiness by Operation Manager Chart
-    const tardinessCtx = document.getElementById('tardinessByOmChart').getContext('2d');
-    tardinessChart = new Chart(tardinessCtx, {
-        type: 'bar',
-        data: {
-            labels: omLabels,
-            datasets: [{
-                label: 'Tardiness',
-                data: tardinessData,
-                backgroundColor: 'rgba(234, 179, 8, 0.7)',
-                borderColor: 'rgba(234, 179, 8, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        color: '#9ca3af'
-                    },
-                    grid: {
-                        color: 'rgba(156, 163, 175, 0.2)'
-                    }
-                },
-                x: {
-                    ticks: {
-                        color: '#9ca3af',
-                        maxRotation: 45,
-                        minRotation: 45
-                    },
-                    grid: {
-                        display: false
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    labels: {
-                        color: '#9ca3af'
-                    }
-                }
-            }
-        }
-    });
+    setTimeout(() => {
+        createOmCharts(<?= json_encode($stats['om_stats']) ?>);
+    }, 100);
     <?php endif; ?>
 });
-
 </script>
-
 
 <?php
 renderFooter();
