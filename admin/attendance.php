@@ -262,7 +262,10 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <!-- Pending Emails -->
-            <button type="button" name="filter" value="pending_emails" class="filter-button bg-gray-800 rounded-xl border border-gray-700 p-6 shadow hover:border-primary-500 transition-colors duration-200 text-left">
+            <button type="button" name="filter" value="pending_emails" 
+                class="filter-button bg-gray-800 rounded-xl border border-gray-700 p-6 shadow hover:border-blue-500 transition-colors duration-200 text-left 
+                    <?= ($currentTab === 'vto') ? 'opacity-50 cursor-not-allowed' : '' ?>" 
+                <?= ($currentTab === 'vto') ? 'disabled' : '' ?>>
                 <div class="flex items-center justify-between">
                     <div>
                         <h3 class="text-gray-400 text-sm font-medium">Pending Emails</h3>
@@ -276,7 +279,10 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
             </button>
         
             <!-- Pending IR Forms -->
-            <button type="button" name="filter" value="pending_ir" class="filter-button bg-gray-800 rounded-xl border border-gray-700 p-6 shadow hover:border-yellow-500 transition-colors duration-200 text-left">
+            <button type="button" name="filter" value="pending_ir" 
+                class="filter-button bg-gray-800 rounded-xl border border-gray-700 p-6 shadow hover:border-blue-500 transition-colors duration-200 text-left 
+                    <?= ($currentTab === 'vto') ? 'opacity-50 cursor-not-allowed' : '' ?>" 
+                <?= ($currentTab === 'vto') ? 'disabled' : '' ?>>
                 <div class="flex items-center justify-between">
                     <div>
                         <h3 class="text-gray-400 text-sm font-medium">Pending IR Forms</h3>
@@ -290,8 +296,10 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
             </button>
         
             <!-- Pending Coverage -->
-            <button type="button" name="filter" value="pending_coverage" class="filter-button bg-gray-800 rounded-xl border border-gray-700 p-6 shadow hover:border-orange-500 transition-colors duration-200 text-left <?= $currentTab === 'tardiness' ? 'opacity-50 cursor-not-allowed' : '' ?>" 
-                <?= $currentTab === 'tardiness' ? 'disabled' : '' ?>>
+            <button type="button" name="filter" value="pending_coverage" 
+                class="filter-button bg-gray-800 rounded-xl border border-gray-700 p-6 shadow hover:border-blue-500 transition-colors duration-200 text-left 
+                    <?= ($currentTab === 'tardiness' || $currentTab === 'vto') ? 'opacity-50 cursor-not-allowed' : '' ?>" 
+                <?= ($currentTab === 'tardiness' || $currentTab === 'vto') ? 'disabled' : '' ?>>
                 <div class="flex items-center justify-between">
                     <div>
                         <h3 class="text-gray-400 text-sm font-medium">Pending Coverage</h3>
@@ -305,8 +313,10 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
             </button>
         
             <!-- Uncovered Shift -->
-            <button type="button" name="filter" value="uncovered_shift" class="filter-button bg-gray-800 rounded-xl border border-gray-700 p-6 shadow hover:border-red-500 transition-colors duration-200 text-left <?= $currentTab === 'tardiness' ? 'opacity-50 cursor-not-allowed' : '' ?>" 
-                <?= $currentTab === 'tardiness' ? 'disabled' : '' ?>>
+            <button type="button" name="filter" value="uncovered_shift" 
+                class="filter-button bg-gray-800 rounded-xl border border-gray-700 p-6 shadow hover:border-blue-500 transition-colors duration-200 text-left 
+                    <?= ($currentTab === 'tardiness' || $currentTab === 'vto') ? 'opacity-50 cursor-not-allowed' : '' ?>" 
+                <?= ($currentTab === 'tardiness' || $currentTab === 'vto') ? 'disabled' : '' ?>>
                 <div class="flex items-center justify-between">
                     <div>
                         <h3 class="text-gray-400 text-sm font-medium">Uncovered Shift</h3>
@@ -365,7 +375,7 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
             <!-- Search Input -->
             <div class="relative sm:col-span-2 lg:col-span-1">
                 <input type="text" id="searchInput" 
-                    class="w-full pl-10 pr-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                    class="w-full pl-10 pr-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200 shadow hover:border-blue-500 transition-colors duration-200 text-left"
                     placeholder="Search by employee ID or name..."
                     value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
                 <div class="absolute left-3 top-2.5 text-gray-400">
@@ -377,14 +387,14 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
             <div class="flex gap-2 sm:col-span-2 lg:col-span-1">
                 <div class="relative flex-grow">
                     <input type="date" id="dateFrom" 
-                        class="w-full px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200"
+                        class="w-full px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200 shadow hover:border-blue-500 transition-colors duration-200 text-left"
                         value="<?= isset($_GET['from']) ? htmlspecialchars($_GET['from']) : '' ?>">
                 </div>
             </div>
             <div class="flex gap-2 sm:col-span-2 lg:col-span-1">
                 <div class="relative flex-grow">
                     <input type="date" id="dateTo" 
-                        class="w-full px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200"
+                        class="w-full px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200 shadow hover:border-blue-500 transition-colors duration-200 text-left"
                         value="<?= isset($_GET['to']) ? htmlspecialchars($_GET['to']) : '' ?>">
                 </div>
             </div>
@@ -392,7 +402,7 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
             <!-- Department Filter -->
             <div class="relative sm:col-span-1 lg:col-span-1">
                 <select id="departmentFilter" 
-                        class="w-full px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200 appearance-none">
+                        class="w-full px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200 appearance-none shadow hover:border-blue-500 transition-colors duration-200 text-left">
                     <option value="">ALL DEPARTMENTS</option>
                     <?php
                     $stmt = $pdo->query("SELECT DISTINCT department FROM absenteeism UNION SELECT DISTINCT department FROM tardiness ORDER BY department");
@@ -410,7 +420,9 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
             <!-- Coverage Filter -->
             <div class="relative sm:col-span-1 lg:col-span-1">
                 <select id="coverageFilter" 
-                        class="w-full px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200 appearance-none">
+                        class="w-full px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200 appearance-none shadow hover:border-blue-500 transition-colors duration-200 text-left 
+                    <?= ($currentTab === 'tardiness' || $currentTab === 'vto') ? 'opacity-50 cursor-not-allowed' : '' ?>" 
+                <?= ($currentTab === 'tardiness' || $currentTab === 'vto') ? 'disabled' : '' ?>>
                     <option value="">ALL COVERAGE</option>
                     <?php
                     // Define the specific values we want to show in the filter
@@ -429,7 +441,9 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
 
             <!-- IR Filter -->
             <div class="relative sm:col-span-1 lg:col-span-1">
-                <select id="irFilter" class="w-full px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200 appearance-none">
+                <select id="irFilter" class="w-full px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200 appearance-none shadow hover:border-blue-500 transition-colors duration-200 text-left 
+                    <?= ($currentTab === 'vto') ? 'opacity-50 cursor-not-allowed' : '' ?>" 
+                <?= ($currentTab === 'vto') ? 'disabled' : '' ?>>
                     <option value="">ALL INCIDENT REPORTS</option>
                     <?php
                     // Get the current tab to determine which options to show
