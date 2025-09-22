@@ -98,13 +98,13 @@ if (!empty($search)) {
 }
 
 if (!empty($dateFrom)) {
-    $dateField = ($type === 'tardiness') ? 'date_of_incident' : ($type === 'vto' ? 'timestamp' : 'date_of_absent');
+    $dateField = ($type === 'tardiness') ? 'date_of_incident' : ($type === 'vto' ? 'shift_date' : 'date_of_absent');
     $whereClauses[] = "$dateField >= :date_from";
     $params[':date_from'] = $dateFrom;
 }
 
 if (!empty($dateTo)) {
-    $dateField = ($type === 'tardiness') ? 'date_of_incident' : ($type === 'vto' ? 'timestamp' : 'date_of_absent');
+    $dateField = ($type === 'tardiness') ? 'date_of_incident' : ($type === 'vto' ? 'shift_date' : 'date_of_absent');
     $whereClauses[] = "$dateField <= :date_to";
     $params[':date_to'] = $dateTo;
 }
@@ -421,8 +421,8 @@ try {
                                 <div class="text-sm text-gray-300"><?= htmlspecialchars($record['vto_mins'] ?? '') ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800" title="<?= htmlspecialchars($record['vto_type'] ?? '') ?>">
-                                    <?= htmlspecialchars($record['vto_type'] ?? '') ?>
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['vto_type'] === 'REALTIME' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' ?>" title="<?= htmlspecialchars($record['vto_type'] ?? '') ?>">
+                                    <?= htmlspecialchars($record['vto_type'] ?? '') ?> 
                                 </span>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">

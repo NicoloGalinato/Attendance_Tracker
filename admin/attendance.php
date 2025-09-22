@@ -60,7 +60,7 @@ try {
         $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE ir_form NOT REGEXP '^(YES|NO NEED)'");
         $stats['pending_ir'] += $stmt->fetchColumn();
 
-        $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE ir_form NOT REGEXP '^(YES|FOR ACCUMULATION|NO NEED)'");
+        $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE ir_form NOT REGEXP '^(YES|FOR ACCUMULATION|NO NEED|EXPIRED)'");
         $stats['pending_ir'] += $stmt->fetchColumn();
     }
 
@@ -87,7 +87,8 @@ $chartData = [
     'absenteeism' => [],
     'tardiness' => [],
     'absenteeism_percentage' => [],
-    'tardiness_percentage' => []
+    'tardiness_percentage' => [],
+    'vto_percentage' => []
 ];
 
 try {
@@ -126,6 +127,13 @@ try {
         $tardyCount = $stmt->fetchColumn();
         $chartData['tardiness'][] = $tardyCount;
         $chartData['tardiness_percentage'][] = round(($tardyCount / $totalActiveAgents) * 100, 2);
+
+        // VTO
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM vto_tracker WHERE shift_date BETWEEN ? AND ?");
+        $stmt->execute([$startDate, $endDate]);
+        $vtoCount = $stmt->fetchColumn();
+        $chartData['vto'][] = $vtoCount;
+        $chartData['vto_percentage'][] = round(($vtoCount / $totalActiveAgents) * 100, 2);
     }
 } catch (PDOException $e) {
     // Log error if needed
