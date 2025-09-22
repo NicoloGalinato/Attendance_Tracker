@@ -53,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'mins_of_work' => (int)$_POST['mins_of_work'],
             'vto_mins' => (int)$_POST['vto_mins'],
             'vto_type' => strtoupper(sanitizeInput($_POST['vto_type'])),
+            'approved_by' => strtoupper(sanitizeInput($_POST['approved_by'])),
             'timestamp' => $currentTime,
             'sub_name' => $sub_name
         ];
@@ -76,7 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 vto_mins = :vto_mins,
                 vto_type = :vto_type,
                 timestamp = :timestamp,
-                sub_name = :sub_name
+                sub_name = :sub_name,
+                approved_by = :approved_by
                 WHERE id = :id");
             
             $data['id'] = $id;
@@ -89,11 +91,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("INSERT INTO vto_tracker 
                 (month, employee_id, full_name, department, supervisor, operation_manager, 
                 shift, shift_date, coverage, coverage_type, time_in, time_out, mins_of_work, vto_mins, 
-                vto_type, timestamp, sub_name)
+                vto_type, timestamp, sub_name, approved_by)
                 VALUES 
                 (:month, :employee_id, :full_name, :department, :supervisor, :operation_manager,
                 :shift, :shift_date, :coverage, :coverage_type, :time_in, :time_out, :mins_of_work, :vto_mins,
-                :vto_type, :timestamp, :sub_name)");
+                :vto_type, :timestamp, :sub_name, :approved_by)");
             
             $stmt->execute($data);
             $recordId = $pdo->lastInsertId();
@@ -152,7 +154,7 @@ renderSidebar('attendance');
             <form method="POST">
                 <input type="hidden" name="id" value="<?= $id ?>">
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                         <label for="employee_id" class="block text-sm font-medium text-gray-300 mb-2">Employee ID</label>
                         <input type="text" id="employee_id" name="employee_id" style="text-transform: uppercase;"
@@ -197,12 +199,13 @@ renderSidebar('attendance');
                                class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
                                value="<?= $record ? htmlspecialchars($record['shift']) : '' ?>" required>
                     </div>
-<div>
-                            <label for="shift_date" class="block text-sm font-medium text-gray-300 mb-2">Shift Date</label>
-                            <input type="date" id="shift_date" name="shift_date" style="text-transform: uppercase;"
-                                   class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
-                                   value="<?= $record ? htmlspecialchars($record['shift_date']) : '' ?>" required>
-                        </div>
+
+                    <div>
+                        <label for="shift_date" class="block text-sm font-medium text-gray-300 mb-2">Shift Date</label>
+                        <input type="date" id="shift_date" name="shift_date" style="text-transform: uppercase;"
+                                class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                                value="<?= $record ? htmlspecialchars($record['shift_date']) : '' ?>" required>
+                    </div>
                     
                     <div>
                         <label for="coverage" class="block text-sm font-medium text-gray-300 mb-2">Coverage</label>
@@ -225,6 +228,10 @@ renderSidebar('attendance');
                             <option value="AGENT MODE" <?= $record && $record['coverage_type'] === 'AGENT MODE' ? 'selected' : '' ?>>AGENT MODE</option>
                         </select>
                     </div>
+                </div>
+
+                <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+
                     
                     <div>
                         <label for="time_in" class="block text-sm font-medium text-gray-300 mb-2">Time In</label>
@@ -261,6 +268,12 @@ renderSidebar('attendance');
                             <option value="REALTIME" <?= $record && $record['vto_type'] === 'REALTIME' ? 'selected' : '' ?>>REALTIME</option>
                             <option value="PRE APPROVED" <?= $record && $record['vto_type'] === 'PRE APPROVED' ? 'selected' : '' ?>>PRE APPROVED</option>
                         </select>
+                    </div>
+                    <div>
+                        <label for="approved_by" class="block text-sm font-medium text-gray-300 mb-2">Approved By</label>
+                        <input type="text" id="approved_by" name="approved_by" style="text-transform: uppercase;"
+                               class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" 
+                               value="<?= $record ? htmlspecialchars($record['approved_by']) : '' ?>" required>
                     </div>
                 </div>
                 
