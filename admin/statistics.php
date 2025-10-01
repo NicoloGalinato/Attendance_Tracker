@@ -460,7 +460,7 @@ renderSidebar('statistics');
                                 <tr class="border-b border-gray-600 hover:bg-gray-600">
                                     <td class="py-3 px-6 text-left whitespace-nowrap"><?= htmlspecialchars($ticket['id']) ?></td>
                                     <td class="py-3 px-6 text-left"><?= htmlspecialchars($ticket['Employee_name']) ?></td>
-                                    <td class="py-3 px-6 text-left"><?= htmlspecialchars($ticket['Department']) ?></td>
+                                    <td class="py-3 px-6 text-left"><?= htmlspecialchars($ticket['LOB']) ?></td>
                                     <td class="py-3 px-6 text-left"><?= htmlspecialchars($ticket['Issues_Concerning']) ?></td>
                                     <td class="py-3 px-6 text-left">
                                         <span class="<?= $ticket['Status'] == 'RESOLVED' ? 'bg-green-700' : ($ticket['Status'] == 'PENDING' ? 'bg-yellow-700' : 'bg-red-700') ?> text-white py-1 px-3 rounded-full text-xs">
@@ -564,7 +564,7 @@ renderSidebar('statistics');
                                 <tr class="border-b border-gray-600 hover:bg-gray-600">
                                     <td class="py-3 px-6 text-left whitespace-nowrap"><?= htmlspecialchars($ticket['id']) ?></td>
                                     <td class="py-3 px-6 text-left"><?= htmlspecialchars($ticket['Employee_name']) ?></td>
-                                    <td class="py-3 px-6 text-left"><?= htmlspecialchars($ticket['Department']) ?></td>
+                                    <td class="py-3 px-6 text-left"><?= htmlspecialchars($ticket['LOB']) ?></td>
                                     <td class="py-3 px-6 text-left"><?= htmlspecialchars($ticket['Issues_Concerning']) ?></td>
                                     <td class="py-3 px-6 text-left">
                                         <span class="<?= $ticket['Status'] == 'RESOLVED' ? 'bg-green-700' : ($ticket['Status'] == 'PENDING' ? 'bg-yellow-700' : 'bg-red-700') ?> text-white py-1 px-3 rounded-full text-xs">
@@ -1064,7 +1064,7 @@ renderSidebar('statistics');
                     <tr class="border-b border-gray-600 hover:bg-gray-600">
                         <td class="py-3 px-6 text-left whitespace-nowrap">${ticket.id}</td>
                         <td class="py-3 px-6 text-left">${employeeOrOm}</td>
-                        <td class="py-3 px-6 text-left">${ticket.Department}</td>
+                        <td class="py-3 px-6 text-left">${ticket.LOB}</td>
                         <td class="py-3 px-6 text-left">${ticket.Issues_Concerning}</td>
                         <td class="py-3 px-6 text-left">
                             <span class="${statusClass} text-white py-1 px-3 rounded-full text-xs">
@@ -1097,7 +1097,7 @@ renderSidebar('statistics');
                     <tr class="border-b border-gray-600 hover:bg-gray-600">
                         <td class="py-3 px-6 text-left whitespace-nowrap">${ticket.id}</td>
                         <td class="py-3 px-6 text-left">${ticket.Employee_name}</td>
-                        <td class="py-3 px-6 text-left">${ticket.Department}</td>
+                        <td class="py-3 px-6 text-left">${ticket.LOB}</td>
                         <td class="py-3 px-6 text-left">
                             <span class="${statusClass} text-white py-1 px-3 rounded-full text-xs">
                                 ${ticket.Status}

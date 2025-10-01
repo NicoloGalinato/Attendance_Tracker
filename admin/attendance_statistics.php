@@ -429,7 +429,7 @@ renderSidebar('attendance_statistics');
                 <div class="bg-gray-700 px-6 py-4 border-b border-gray-600">
                     <h2 class="text-lg font-semibold text-gray-100 flex items-center">
                         <i class="fas fa-user-times mr-2 text-red-400"></i>
-                        Top <?= $limit ?> Absences
+                        Top Absences
                         <span class="ml-auto text-sm text-gray-400 font-normal">
                             <?= 
                                 $period === 'weekly' ? date('M j', strtotime($dateRange['start'])) . ' - ' . date('M j, Y', strtotime($dateRange['end'])) : 
@@ -477,7 +477,7 @@ renderSidebar('attendance_statistics');
                 <div class="bg-gray-700 px-6 py-4 border-b border-gray-600">
                     <h2 class="text-lg font-semibold text-gray-100 flex items-center">
                         <i class="fas fa-clock mr-2 text-yellow-400"></i>
-                        Top <?= $limit ?> Tardiness
+                        Top Tardiness
                         <span class="ml-auto text-sm text-gray-400 font-normal">
                             <?= 
                                 $period === 'weekly' ? date('M j', strtotime($dateRange['start'])) . ' - ' . date('M j, Y', strtotime($dateRange['end'])) : 
