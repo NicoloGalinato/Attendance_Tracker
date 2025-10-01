@@ -362,11 +362,12 @@ renderSidebar('statistics');
 <div class="pt-2 min-h-screen text-white">
     <main class="p-6">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold">Ticket Statistics</h1>
-            <div class="text-sm text-gray-400">
-                <?= date('F j, Y') ?>
+            <h1 class="text-2xl font-bold">Dashboard</h1>
+            <div class="text-sm text-gray-400 text-right">
+                <div><?= date('F j, Y') ?></div>
+                <div id="realtime-clock" class="text-s text-gray-500"></div>
             </div>
-        </div>
+        </div>  
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="bg-gray-800 rounded-xl border border-gray-700 p-6 shadow ticket-count-card" data-status-filter="total">
@@ -734,6 +735,23 @@ renderSidebar('statistics');
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    // Simple real-time Manila clock
+    function updateManilaClock() {
+        const now = new Date();
+        const manilaTime = now.toLocaleTimeString('en-US', {
+            timeZone: 'Asia/Manila',
+            hour12: true,
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+        document.getElementById('realtime-clock').textContent = manilaTime ;
+    }
+
+    updateManilaClock();
+    setInterval(updateManilaClock, 1000);
+
+
     let topSubmittersChart = null;
     let topOMsChart = null;
     let overallOMsChart = null;

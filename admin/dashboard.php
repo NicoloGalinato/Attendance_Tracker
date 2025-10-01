@@ -169,8 +169,9 @@ renderSidebar('dashboard');
     <main class="p-6">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold">Dashboard</h1>
-            <div class="text-sm text-gray-400">
-                <?= date('F j, Y') ?>
+            <div class="text-sm text-gray-400 text-right">
+                <div><?= date('F j, Y') ?></div>
+                <div id="realtime-clock" class="text-s text-gray-500"></div>
             </div>
         </div>
 
@@ -347,6 +348,21 @@ renderSidebar('dashboard');
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    // Simple real-time Manila clock
+    function updateManilaClock() {
+        const now = new Date();
+        const manilaTime = now.toLocaleTimeString('en-US', {
+            timeZone: 'Asia/Manila',
+            hour12: true,
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+        document.getElementById('realtime-clock').textContent = manilaTime ;
+    }
+
+    updateManilaClock();
+    setInterval(updateManilaClock, 1000);
 document.addEventListener('DOMContentLoaded', function() {
     // Absenteeism Chart
     const absentCtx = document.getElementById('absenteeismChart').getContext('2d');
