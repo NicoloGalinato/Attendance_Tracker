@@ -79,37 +79,74 @@ if ($isAjax && $isEmployeeStatsRequest) {
 }
 
 // Get filter parameters
-$period = isset($_GET['period']) ? $_GET['period'] : 'monthly';
 $department = isset($_GET['department']) ? $_GET['department'] : '';
 $operationManagerTab = isset($_GET['om_tab']) ? $_GET['om_tab'] : 'overall';
 $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 5;
+$startDateFilter = isset($_GET['start_date']) ? $_GET['start_date'] : '';
+$endDateFilter = isset($_GET['end_date']) ? $_GET['end_date'] : '';
 
-// Calculate date ranges based on period
-$dateRange = [];
-$currentDate = new DateTime();
-
-switch ($period) {
-    case 'weekly':
-        $startDate = clone $currentDate;
-        $startDate->modify('this week');
-        $endDate = clone $startDate;
-        $endDate->modify('+6 days');
-        $dateRange['start'] = $startDate->format('Y-m-d');
-        $dateRange['end'] = $endDate->format('Y-m-d');
-        break;
-    case 'monthly':
-        $startDate = clone $currentDate;
-        $startDate->modify('first day of this month');
-        $endDate = clone $currentDate;
-        $endDate->modify('last day of this month');
-        $dateRange['start'] = $startDate->format('Y-m-d');
-        $dateRange['end'] = $endDate->format('Y-m-d');
-        break;
-    default: // overall
-        $dateRange['start'] = '2000-01-01'; // A very early date
-        $dateRange['end'] = $currentDate->format('Y-m-d');
-        break;
+// Get the earliest date from the database to use as default start date
+$defaultStartDate = '2000-01-01'; // fallback default
+try {
+    // Get earliest date from both absenteeism and tardiness tables for active employees
+    $stmt = $pdo->query("SELECT MIN(earliest_date) as min_date FROM (
+        SELECT MIN(a.date_of_absent) as earliest_date 
+        FROM absenteeism a 
+        INNER JOIN employees e ON a.employee_id = e.employee_id 
+        WHERE e.is_active = 1
+        UNION 
+        SELECT MIN(t.date_of_incident) as earliest_date 
+        FROM tardiness t 
+        INNER JOIN employees e ON t.employee_id = e.employee_id 
+        WHERE e.is_active = 1
+    ) as dates");
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($result && $result['min_date']) {
+        $defaultStartDate = $result['min_date'];
+    }
+} catch (PDOException $e) {
+    error_log("Error getting earliest date: " . $e->getMessage());
+    // Use fallback default
 }
+
+// Calculate date ranges - use custom dates or overall if empty
+$dateRange = [];
+
+// Use custom dates if provided, otherwise use overall range
+if (!empty($startDateFilter) && !empty($endDateFilter)) {
+    // Both dates provided - use them
+    $startDate = $startDateFilter;
+    $endDate = $endDateFilter;
+} elseif (!empty($startDateFilter)) {
+    // Only start date provided - use start date to today
+    $startDate = $startDateFilter;
+    $endDate = date('Y-m-d');
+} elseif (!empty($endDateFilter)) {
+    // Only end date provided - use default start to end date
+    $startDate = $defaultStartDate;
+    $endDate = $endDateFilter;
+} else {
+    // No dates provided - use overall range
+    $startDate = $defaultStartDate;
+    $endDate = date('Y-m-d');
+}
+
+// Validate dates
+if (!DateTime::createFromFormat('Y-m-d', $startDate) || !DateTime::createFromFormat('Y-m-d', $endDate)) {
+    $startDate = $defaultStartDate;
+    $endDate = date('Y-m-d');
+}
+
+// Ensure start date is before end date
+if (strtotime($startDate) > strtotime($endDate)) {
+    $temp = $startDate;
+    $startDate = $endDate;
+    $endDate = $temp;
+}
+
+$dateRange['start'] = $startDate;
+$dateRange['end'] = $endDate;
+$dateRange['default_start'] = $defaultStartDate; // For debugging
 
 // Get statistics data
 $stats = [
@@ -310,10 +347,10 @@ if ($isAjax) {
         'tardiness' => $stats['tardiness'],
         'om_stats' => $stats['om_stats'],
         'deptStats' => $deptStats,
-        'period' => $period,
         'department' => $department,
         'limit' => $limit,
-        'om_tab' => $operationManagerTab
+        'om_tab' => $operationManagerTab,
+        'dateRange' => $dateRange
     ];
     
     header('Content-Type: application/json');
@@ -326,6 +363,12 @@ require_once '../components/layout.php';
 renderHead('Attendance Statistics');
 renderNavbar();
 renderSidebar('attendance_statistics');
+
+// Check if we have custom date filter
+$hasDateFilter = !empty($startDateFilter) || !empty($endDateFilter);
+$displayDateRange = $hasDateFilter ? 
+    date('M j, Y', strtotime($dateRange['start'])) . ' - ' . date('M j, Y', strtotime($dateRange['end'])) : 
+    'Overall';
 ?>
 
 <div class="pt-2 min-h-screen">
@@ -358,16 +401,21 @@ renderSidebar('attendance_statistics');
         
         <div class="bg-gray-800 rounded-xl border border-gray-700 p-6 mb-6">
             <h2 class="text-lg font-semibold mb-4">Filter Statistics</h2>
-            <form id="filter-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <form id="filter-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <input type="hidden" name="om_tab" id="om-tab-input" value="<?= $operationManagerTab ?>">
                 
                 <div>
-                    <label for="period" class="block text-sm font-medium text-gray-300 mb-1">Time Period</label>
-                    <select id="period" name="period" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200">
-                        <option value="weekly" <?= $period === 'weekly' ? 'selected' : '' ?>>Weekly</option>
-                        <option value="monthly" <?= $period === 'monthly' ? 'selected' : '' ?>>Monthly</option>
-                        <option value="overall" <?= $period === 'overall' ? 'selected' : '' ?>>Overall</option>
-                    </select>
+                    <label for="start_date" class="block text-sm font-medium text-gray-300 mb-1">Start Date</label>
+                    <input type="date" id="start_date" name="start_date" 
+                           value="<?= $startDateFilter ?>" 
+                           class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200">
+                </div>
+                
+                <div>
+                    <label for="end_date" class="block text-sm font-medium text-gray-300 mb-1">End Date</label>
+                    <input type="date" id="end_date" name="end_date" 
+                           value="<?= $endDateFilter ?>" 
+                           class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200">
                 </div>
                 
                 <div>
@@ -431,10 +479,7 @@ renderSidebar('attendance_statistics');
                         <i class="fas fa-user-times mr-2 text-red-400"></i>
                         Top Absences
                         <span class="ml-auto text-sm text-gray-400 font-normal">
-                            <?= 
-                                $period === 'weekly' ? date('M j', strtotime($dateRange['start'])) . ' - ' . date('M j, Y', strtotime($dateRange['end'])) : 
-                                ($period === 'monthly' ? date('F Y', strtotime($dateRange['start'])) : 'Overall') 
-                            ?> 
+                            <?= $displayDateRange ?>
                             <?= !empty($department) ? '• ' . htmlspecialchars($department) : '' ?>
                             <?= $operationManagerTab !== 'overall' ? '• ' . htmlspecialchars($operationManagerTab) : '' ?>
                         </span>
@@ -479,10 +524,7 @@ renderSidebar('attendance_statistics');
                         <i class="fas fa-clock mr-2 text-yellow-400"></i>
                         Top Tardiness
                         <span class="ml-auto text-sm text-gray-400 font-normal">
-                            <?= 
-                                $period === 'weekly' ? date('M j', strtotime($dateRange['start'])) . ' - ' . date('M j, Y', strtotime($dateRange['end'])) : 
-                                ($period === 'monthly' ? date('F Y', strtotime($dateRange['start'])) : 'Overall') 
-                            ?> 
+                            <?= $displayDateRange ?>
                             <?= !empty($department) ? '• ' . htmlspecialchars($department) : '' ?>
                             <?= $operationManagerTab !== 'overall' ? '• ' . htmlspecialchars($operationManagerTab) : '' ?>
                         </span>
@@ -576,6 +618,9 @@ renderSidebar('attendance_statistics');
     </main>
 </div>
 
+<!-- Rest of the code remains the same for employee modal and JavaScript -->
+<!-- ... (employee modal and JavaScript code remains unchanged) ... -->
+
 <div id="employee-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-gray-800 rounded-xl border border-gray-700 w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-lg">
         <div class="flex justify-between items-center p-6 border-b border-gray-700">
@@ -664,8 +709,23 @@ let currentEmployeeId = null;
 
 // Function to update UI with new data
 function updateUI(data) {
+    // Get date range for display
+    const startDate = data.dateRange ? data.dateRange.start : '';
+    const endDate = data.dateRange ? data.dateRange.end : '';
+    const hasDateFilter = startDate && endDate && (startDate !== '2000-01-01' || endDate !== new Date().toISOString().split('T')[0]);
+    
     // Update absenteeism list
     const absenteeismContainer = document.querySelector('#stats-cards-container > div:first-child .p-6');
+    const absenteeismHeader = document.querySelector('#stats-cards-container > div:first-child .ml-auto');
+    
+    if (absenteeismHeader) {
+        absenteeismHeader.innerHTML = `
+            ${hasDateFilter ? formatDisplayDate(startDate) + ' - ' + formatDisplayDate(endDate) : 'Overall'}
+            ${data.department ? '• ' + escapeHtml(data.department) : ''}
+            ${data.om_tab !== 'overall' ? '• ' + escapeHtml(data.om_tab) : ''}
+        `;
+    }
+    
     if (data.absenteeism.length > 0) {
         let html = '<div class="space-y-4">';
         data.absenteeism.forEach((record, index) => {
@@ -703,6 +763,16 @@ function updateUI(data) {
     
     // Update tardiness list
     const tardinessContainer = document.querySelector('#stats-cards-container > div:last-child .p-6');
+    const tardinessHeader = document.querySelector('#stats-cards-container > div:last-child .ml-auto');
+    
+    if (tardinessHeader) {
+        tardinessHeader.innerHTML = `
+            ${hasDateFilter ? formatDisplayDate(startDate) + ' - ' + formatDisplayDate(endDate) : 'Overall'}
+            ${data.department ? '• ' + escapeHtml(data.department) : ''}
+            ${data.om_tab !== 'overall' ? '• ' + escapeHtml(data.om_tab) : ''}
+        `;
+    }
+    
     if (data.tardiness.length > 0) {
         let html = '<div class="space-y-4">';
         data.tardiness.forEach((record, index) => {
@@ -961,6 +1031,12 @@ function createOmCharts(omStats) {
     }
 }
 
+// Helper function to format date for display
+function formatDisplayDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
 // Function to escape HTML to prevent XSS
 function escapeHtml(unsafe) {
     if (unsafe === null || unsafe === undefined) return '';
@@ -1197,7 +1273,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Filter form changes
-    document.getElementById('period').addEventListener('change', fetchData);
+    document.getElementById('start_date').addEventListener('change', fetchData);
+    document.getElementById('end_date').addEventListener('change', fetchData);
     document.getElementById('department').addEventListener('change', fetchData);
     document.getElementById('limit').addEventListener('change', fetchData);
     

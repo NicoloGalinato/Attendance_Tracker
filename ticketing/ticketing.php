@@ -1,4 +1,5 @@
 <?php
+session_start();
 
 $host = "localhost";
 $dbname = "auth_system";
@@ -30,6 +31,11 @@ $currentDate = new DateTime();
 $currentDate->modify('this week monday');
 $mondayDate = $currentDate->format('m/d/Y');
 
+// Check for success parameter in URL
+if (isset($_GET['success'])) {
+    $lastId = $_GET['success'];
+    $successMessage = "Your ticket has been submitted successfully! We'll get back to you shortly. Your Ticket ID is #". htmlspecialchars($lastId) . ".";
+}
 
 if (isset($_POST['submitEID'])) {
     $eid = trim($_POST['eid'] ?? '');
@@ -111,10 +117,10 @@ if (isset($_POST['submitTix'])) {
                 $ticketSubmissionResult = submit_ticket($pdo, $ticketData);
                 if ($ticketSubmissionResult === true) {
                     $lastId = $pdo->lastInsertId();
-                    $successMessage = "Your ticket has been submitted successfully! We'll get back to you shortly. Your Ticket ID is #". $lastId . ".";
                     
-                    $employeeDetails = null;
-                    $_POST = [];
+                    // REDIRECT instead of showing message directly
+                    header("Location: " . $_SERVER['PHP_SELF'] . "?success=" . urlencode($lastId));
+                    exit();
                 } else {
                     $error = $ticketSubmissionResult ?: "Failed to submit ticket. Please try again.";
                 }
