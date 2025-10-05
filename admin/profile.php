@@ -25,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $nickname_ed = strtoupper(sanitizeInput($_POST['nickname_ed']));
             $fullname_ed = strtoupper(sanitizeInput($_POST['fullname_ed']));
             $slt_email_ed = sanitizeInput($_POST['slt_email_ed']);
+            $username_ed = sanitizeInput($_POST['username_ed']);
 
             $fullname = strtoupper(sanitizeInput($_POST['fullname']));
             $nickname = strtoupper(sanitizeInput($_POST['nickname']));
@@ -40,8 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($stmt->rowCount() > 0) {
                 // Update existing profile
-                $stmt = $pdo->prepare("UPDATE users SET fullname = ?, slt_email = ?, sub_name = ?, is_active = ? WHERE id = ?");
-                $stmt->execute([$fullname_ed, $slt_email_ed, $nickname_ed, $is_active, $userId]);
+                $stmt = $pdo->prepare("UPDATE users SET username = ?, fullname = ?, slt_email = ?, sub_name = ?, is_active = ? WHERE id = ?");
+                $stmt->execute([$username_ed, $fullname_ed, $slt_email_ed, $nickname_ed, $is_active, $userId]);
             } else {
                 // Insert new profile
                 $stmt = $pdo->prepare("INSERT INTO users (fullname, sub_name, slt_email, username, password, role, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)");
@@ -141,8 +142,8 @@ renderSidebar('users');
                     <?php if ($type === 'users'): ?>
                         <?php if ($userId): ?>
                             <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">Username</label>
-                                <input type="text" class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" value="<?= htmlspecialchars($record['username']) ?>" readonly>
+                                <label for="username_ed" class="block text-sm font-medium text-gray-300 mb-2">Username</label>
+                                <input type="text" style="text-transform: uppercase;" class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-200" id="username_ed" name="username_ed" value="<?= htmlspecialchars($record['username']) ?>" required>
                             </div>
 
                             <div>

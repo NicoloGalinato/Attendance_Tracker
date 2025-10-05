@@ -39,7 +39,7 @@ if (isset($_GET['delete'])) {
             $_SESSION['error'] = "Record not found";
         }
     } catch (PDOException $e) {
-        $_SESSION['error'] = "Error deleting record: " . $e->getMessage();
+        $_SESSION['error'] = "Cannot delete record: Record of this user could not be deleted. It has a history record in the tracker. Kindly contact the developer.";
     }
     
     redirect('users.php?tab=' . $type);
