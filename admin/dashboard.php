@@ -323,7 +323,7 @@ renderSidebar('dashboard');
                 <i class="fas fa-bolt text-green-500 mr-2"></i>
                 Quick Actions
             </h3>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <a href="attendance.php?tab=absenteeism" class="bg-gray-700 hover:bg-gray-600 text-white p-4 rounded-lg flex flex-col items-center justify-center transition-colors">
                     <i class="fas fa-bed text-red-500 text-2xl mb-2"></i>
                     <span>Absenteeism</span>
@@ -331,6 +331,10 @@ renderSidebar('dashboard');
                 <a href="attendance.php?tab=tardiness" class="bg-gray-700 hover:bg-gray-600 text-white p-4 rounded-lg flex flex-col items-center justify-center transition-colors">
                     <i class="fas fa-clock text-yellow-500 text-2xl mb-2"></i>
                     <span>Tardiness</span>
+                </a>
+                <a href="attendance.php?tab=vto" class="bg-gray-700 hover:bg-gray-600 text-white p-4 rounded-lg flex flex-col items-center justify-center transition-colors">
+                    <i class="fas fa-user-clock text-green-500 text-2xl mb-2"></i>
+                    <span>VTO</span>
                 </a>
                 <a href="users.php" class="bg-gray-700 hover:bg-gray-600 text-white p-4 rounded-lg flex flex-col items-center justify-center transition-colors">
                     <i class="fas fa-users text-primary-500 text-2xl mb-2"></i>

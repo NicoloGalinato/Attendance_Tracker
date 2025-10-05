@@ -114,13 +114,12 @@ try {
                                 <div class="flex items-center">
                                     <div class="text-sm font-medium text-gray-100" style="text-transform: uppercase;"><?= htmlspecialchars($record['username']) ?></div>
                                     <?php if ($type === 'users'): ?>
-                                        <span class="ml-2 relative flex h-3 w-3" title="Online status">
+                                        <span class="ml-2 relative flex h-3 w-3"">
                                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 online-indicator" 
                                                 data-user-id="<?= $record[$idColumn] ?>" 
                                                 style="display: none;"></span>
                                             <span class="relative inline-flex rounded-full h-3 w-3 bg-gray-400 online-status" 
-                                                data-user-id="<?= $record[$idColumn] ?>"
-                                                title="Offline"></span>
+                                                data-user-id="<?= $record[$idColumn] ?>"></span>
                                         </span>
                                     <?php endif; ?>
                                 </div>
