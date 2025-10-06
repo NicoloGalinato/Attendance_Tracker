@@ -33,15 +33,17 @@ function renderHead($title) {
                 }
             }
             
-                        // Function to update the notification badge from all pages
+            // Function to update the notification badge from all pages
             async function updateNotificationBadge() {
                 try {
                     const response = await fetch('ticket_dashboard.php?action=get_pending_count');
                     const data = await response.json();
-                    const badge = document.getElementById('pending-tickets-badge');
+                    const mainBadge = document.getElementById('pending-tickets-badge');
+                    const submenuBadge = document.getElementById('pending-tickets-submenu-badge');
                     
                     if (data.pending_count > 0) {
-                        if (!badge) {
+                        // Update main badge
+                        if (!mainBadge) {
                             // Create badge if it doesn't exist
                             const iconContainer = document.querySelector('a[href="ticket_dashboard.php"] .relative');
                             if (iconContainer) {
@@ -53,14 +55,38 @@ function renderHead($title) {
                             }
                         } else {
                             // Update existing badge
-                            badge.textContent = data.pending_count > 9 ? '9+' : data.pending_count;
-                            badge.style.display = 'flex';
-                            badge.classList.add('animate-pulse');
+                            mainBadge.textContent = data.pending_count > 9 ? '9+' : data.pending_count;
+                            mainBadge.style.display = 'flex';
+                            mainBadge.classList.add('animate-pulse');
                         }
-                    } else if (badge) {
-                        // Hide badge if no pending tickets
-                        badge.style.display = 'none';
-                        badge.classList.remove('animate-pulse');
+                        
+                        // Update submenu badge (red dot only)
+                        if (!submenuBadge) {
+                            // Create badge if it doesn't exist
+                            const submenuIconContainer = document.querySelector('a[href="ticket_dashboard.php"] .sidebar-icon-container.relative');
+                            if (submenuIconContainer) {
+                                const newSubmenuBadge = document.createElement('span');
+                                newSubmenuBadge.id = 'pending-tickets-submenu-badge';
+                                newSubmenuBadge.className = 'absolute -top-1 -right-1 bg-red-500 rounded-full w-2 h-2 flex items-center justify-center text-xs notification-dot';
+                                newSubmenuBadge.style.display = 'flex';
+                                newSubmenuBadge.classList.add('animate-pulse');
+                                submenuIconContainer.appendChild(newSubmenuBadge);
+                            }
+                        } else {
+                            // Update existing submenu badge
+                            submenuBadge.style.display = 'flex';
+                            submenuBadge.classList.add('animate-pulse');
+                        }
+                    } else {
+                        // Hide badges if no pending tickets
+                        if (mainBadge) {
+                            mainBadge.style.display = 'none';
+                            mainBadge.classList.remove('animate-pulse');
+                        }
+                        if (submenuBadge) {
+                            submenuBadge.style.display = 'none';
+                            submenuBadge.classList.remove('animate-pulse');
+                        }
                     }
                 } catch (error) {
                     console.error('Error updating notification badge:', error);
@@ -310,8 +336,13 @@ function renderSidebar($activePage = 'dashboard', $pendingCount = 0) {
                         <ul class="ml-4 mt-1 space-y-1 overflow-hidden max-h-0 group-hover:max-h-32 transition-all duration-300 ease-in-out border-l border-gray-700">
                             <li>
                                 <a href="ticket_dashboard.php" class="sidebar-item flex items-center px-4 py-2 text-gray-300 hover:text-white <?= $activePage === 'ticket_dashboard' ? 'active' : '' ?>">
-                                    <div class="sidebar-icon-container">
+                                    <div class="sidebar-icon-container relative">
                                         <i class="sidebar-icon fas fa-ticket-alt text-xs"></i>
+                                        <?php if ($pendingCount > 0): ?>
+                                            <span class="absolute -top-1 -right-1 bg-red-500 rounded-full w-2 h-2 flex items-center justify-center text-xs notification-dot" id="pending-tickets-submenu-badge"></span>
+                                        <?php else: ?>
+                                            <span class="absolute -top-1 -right-1 bg-red-500 rounded-full w-2 h-2 flex items-center justify-center text-xs notification-dot" id="pending-tickets-submenu-badge" style="display: none;"></span>
+                                        <?php endif; ?>
                                     </div>
                                     <span class="sidebar-text text-sm">Ticketing</span>
                                 </a>
@@ -327,7 +358,7 @@ function renderSidebar($activePage = 'dashboard', $pendingCount = 0) {
                         </ul>
                     </li>
                     
-                    <!-- Incident Report -->
+                    <!-- Incident Report 
                     <li>
                         <a href="incident_report.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'incident_report' ? 'active' : '' ?>">
                             <div class="sidebar-icon-container">
@@ -336,6 +367,7 @@ function renderSidebar($activePage = 'dashboard', $pendingCount = 0) {
                             <span class="sidebar-text">Incident Report</span>
                         </a>
                     </li>
+                    -->
                     
                     <!-- Management Settings with submenu -->
                     <li class="relative group">
@@ -375,6 +407,27 @@ function renderSidebar($activePage = 'dashboard', $pendingCount = 0) {
                                 </a>
                             </li>
                         </ul>
+                    </li>
+                    <li>
+                        <br>
+                        <span class="sidebar-text">Coming soon!</span>
+                        <div class="relative group">
+                            <div class="sidebar-item flex items-center px-4 py-3 text-gray-500 cursor-not-allowed opacity-50">
+                                <div class="sidebar-icon-container">
+                                    <i class="sidebar-icon fas fa-exclamation-triangle"></i>
+                                </div>
+                                <span class="sidebar-text">Incident Report</span>
+                            </div>
+                        </div>
+                        <div class="relative group">
+                            <div class="sidebar-item flex items-center px-4 py-3 text-gray-500 cursor-not-allowed opacity-50">
+                                <div class="sidebar-icon-container">
+                                    <i class="sidebar-icon fas fa-clock"></i>
+                                </div>
+                                <span class="sidebar-text">Time keeping</span>
+                            </div>
+                        </div>
+
                     </li>
                 </ul>
             </nav>
