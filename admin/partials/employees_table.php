@@ -2,24 +2,113 @@
 require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/functions.php';
 
-$search = isset($_POST['search']) ? trim($_POST['search']) : (isset($_GET['search']) ? trim($_GET['search']) : '');
-$page = isset($_POST['page']) ? (int)$_POST['page'] : (isset($_GET['page']) ? (int)$_GET['page'] : 1);
-$page = max($page, 1);
-
-$perPage = 10;
-$searchQuery = '';
-$params = [];
-
-if (!empty($search)) {
-    $searchQuery = "WHERE employee_id LIKE :search OR full_name LIKE :search OR email LIKE :search";
-    $params[':search'] = "%$search%";
+// Handle AJAX requests for table data
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $search = $_POST['search'] ?? '';
+    $department = $_POST['department'] ?? '';
+    $supervisor = $_POST['supervisor'] ?? '';
+    $operationManager = $_POST['operation_manager'] ?? '';
+    $status = $_POST['status'] ?? '';
+    $page = isset($_POST['page']) ? (int)$_POST['page'] : 1;
+    
+    // Get previously selected employees from AJAX
+    $selectedEmployees = [];
+    if (!empty($_POST['selected_employees_json'])) {
+        $selectedEmployees = json_decode($_POST['selected_employees_json'], true) ?? [];
+    }
+    
+    // Build query with filters
+    $whereConditions = [];
+    $params = [];
+    
+    if (!empty($search)) {
+        $whereConditions[] = "(employee_id LIKE ? OR full_name LIKE ? OR email LIKE ?)";
+        $searchTerm = "%$search%";
+        $params[] = $searchTerm;
+        $params[] = $searchTerm;
+        $params[] = $searchTerm;
+    }
+    
+    if (!empty($department)) {
+        $whereConditions[] = "department = ?";
+        $params[] = $department;
+    }
+    
+    if (!empty($supervisor)) {
+        $whereConditions[] = "supervisor = ?";
+        $params[] = $supervisor;
+    }
+    
+    if (!empty($operationManager)) {
+        $whereConditions[] = "operation_manager = ?";
+        $params[] = $operationManager;
+    }
+    
+    if ($status !== '') {
+        $whereConditions[] = "is_active = ?";
+        $params[] = $status;
+    }
+    
+    $whereClause = '';
+    if (!empty($whereConditions)) {
+        $whereClause = 'WHERE ' . implode(' AND ', $whereConditions);
+    }
+} else {
+    // Handle GET requests (initial page load)
+    $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+    $department = isset($_GET['department']) ? trim($_GET['department']) : '';
+    $supervisor = isset($_GET['supervisor']) ? trim($_GET['supervisor']) : '';
+    $operationManager = isset($_GET['operation_manager']) ? trim($_GET['operation_manager']) : '';
+    $status = isset($_GET['status']) ? trim($_GET['status']) : '';
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $selectedEmployees = [];
+    
+    // Build query with filters for GET request
+    $whereConditions = [];
+    $params = [];
+    
+    if (!empty($search)) {
+        $whereConditions[] = "(employee_id LIKE ? OR full_name LIKE ? OR email LIKE ?)";
+        $searchTerm = "%$search%";
+        $params[] = $searchTerm;
+        $params[] = $searchTerm;
+        $params[] = $searchTerm;
+    }
+    
+    if (!empty($department)) {
+        $whereConditions[] = "department = ?";
+        $params[] = $department;
+    }
+    
+    if (!empty($supervisor)) {
+        $whereConditions[] = "supervisor = ?";
+        $params[] = $supervisor;
+    }
+    
+    if (!empty($operationManager)) {
+        $whereConditions[] = "operation_manager = ?";
+        $params[] = $operationManager;
+    }
+    
+    if ($status !== '') {
+        $whereConditions[] = "is_active = ?";
+        $params[] = $status;
+    }
+    
+    $whereClause = '';
+    if (!empty($whereConditions)) {
+        $whereClause = 'WHERE ' . implode(' AND ', $whereConditions);
+    }
 }
 
+$page = max($page, 1);
+$perPage = 10;
+
 try {
-    $countStmt = $pdo->prepare("SELECT COUNT(*) FROM employees $searchQuery");
-    if (!empty($search)) {
+    $countStmt = $pdo->prepare("SELECT COUNT(*) FROM employees $whereClause");
+    if (!empty($params)) {
         foreach ($params as $key => $value) {
-            $countStmt->bindValue($key, $value);
+            $countStmt->bindValue($key + 1, $value);
         }
     }
     $countStmt->execute();
@@ -33,16 +122,21 @@ $page = min($page, $totalPages);
 $offset = ($page - 1) * $perPage;
 
 try {
-    $stmt = $pdo->prepare("SELECT * FROM employees $searchQuery ORDER BY created_at DESC LIMIT :limit OFFSET :offset");
+    $stmt = $pdo->prepare("SELECT * FROM employees $whereClause ORDER BY created_at DESC LIMIT ? OFFSET ?");
     
-    if (!empty($search)) {
-        foreach ($params as $key => $value) {
-            $stmt->bindValue($key, $value);
+    // Bind where clause parameters
+    $paramIndex = 1;
+    if (!empty($params)) {
+        foreach ($params as $value) {
+            $stmt->bindValue($paramIndex, $value);
+            $paramIndex++;
         }
     }
     
-    $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
-    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    // Bind limit and offset
+    $stmt->bindValue($paramIndex, $perPage, PDO::PARAM_INT);
+    $stmt->bindValue($paramIndex + 1, $offset, PDO::PARAM_INT);
+    
     $stmt->execute();
     $employees = $stmt->fetchAll();
 } catch (PDOException $e) {
@@ -55,6 +149,9 @@ try {
         <table class="min-w-full divide-y divide-gray-700 w-full" style="zoom:85%">
             <thead class="bg-gray-700">
                 <tr>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        <input type="checkbox" id="selectAll" onchange="selectAllEmployees(this)" class="rounded border-gray-600 bg-gray-700 text-primary-600 focus:ring-primary-500">
+                    </th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">CXI Number</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Full Name</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Department</th>
@@ -69,13 +166,19 @@ try {
             <tbody class="bg-gray-800 divide-y divide-gray-700">
                 <?php if (empty($employees)): ?>
                     <tr>
-                        <td colspan="8" class="px-6 py-4 text-center text-gray-400">
+                        <td colspan="10" class="px-6 py-4 text-center text-gray-400">
                             No agents found
                         </td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($employees as $employee): ?>
                     <tr class="hover:bg-gray-700/50">
+                        <td class="px-4 py-4 whitespace-nowrap">
+                            <input type="checkbox" name="selected_employees[]" value="<?= $employee['id'] ?>" 
+                                   class="employee-checkbox rounded border-gray-600 bg-gray-700 text-primary-600 focus:ring-primary-500"
+                                   onchange="toggleEditTeamButton()"
+                                   <?= in_array($employee['id'], $selectedEmployees) ? 'checked' : '' ?>>
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm font-medium text-gray-100" style="text-transform: uppercase;"><?= htmlspecialchars($employee['employee_id']) ?></div>
                         </td>
