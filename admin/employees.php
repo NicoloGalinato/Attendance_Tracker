@@ -85,38 +85,61 @@ if (isset($_POST['import'])) {
                 // Skip header row
                 fgetcsv($handle);
                 
-                $stmt = $pdo->prepare("INSERT INTO employees 
+                $insertStmt = $pdo->prepare("INSERT INTO employees 
                     (employee_id, full_name, department, supervisor, operation_manager, email, is_active) 
                     VALUES 
-                    (:employee_id, :full_name, :department, :supervisor, :operation_manager, :email, :is_active)
-                    ON DUPLICATE KEY UPDATE
-                    full_name = VALUES(full_name),
-                    department = VALUES(department),
-                    supervisor = VALUES(supervisor),
-                    operation_manager = VALUES(operation_manager),
-                    email = VALUES(email),
-                    is_active = VALUES(is_active)");
+                    (:employee_id, :full_name, :department, :supervisor, :operation_manager, :email, :is_active)");
+                
+                $updateStmt = $pdo->prepare("UPDATE employees SET
+                    department = :department,
+                    supervisor = :supervisor,
+                    operation_manager = :operation_manager,
+                    email = :email,
+                    is_active = :is_active,
+                    updated_at = NOW()
+                    WHERE employee_id = :employee_id AND full_name = :full_name");
+                
+                $checkStmt = $pdo->prepare("SELECT id FROM employees WHERE employee_id = ? AND full_name = ?");
                 
                 $imported = 0;
+                $updated = 0;
                 $skipped = 0;
                 
                 while (($data = fgetcsv($handle)) !== FALSE) {
                     if (count($data) >= 6) {
                         $employeeData = [
-                            ':employee_id' => isset($data[0]) ? strtoupper(trim($data[0])) : '',
-                            ':full_name' => isset($data[1]) ? strtoupper(trim($data[1])) : '',
-                            ':department' => isset($data[2]) ? strtoupper(trim($data[2])) : '',
-                            ':supervisor' => isset($data[3]) ? strtoupper(trim($data[3])) : '',
-                            ':operation_manager' => isset($data[4]) ? strtoupper(trim($data[4])) : '',
-                            ':email' => isset($data[5]) ? strtolower(trim($data[5])) : '',
-                            ':is_active' => isset($data[6]) ? (int)$data[6] : 1
+                            'employee_id' => isset($data[0]) ? strtoupper(trim($data[0])) : '',
+                            'full_name' => isset($data[1]) ? strtoupper(trim($data[1])) : '',
+                            'department' => isset($data[2]) ? strtoupper(trim($data[2])) : '',
+                            'supervisor' => isset($data[3]) ? strtoupper(trim($data[3])) : '',
+                            'operation_manager' => isset($data[4]) ? strtoupper(trim($data[4])) : '',
+                            'email' => isset($data[5]) ? strtolower(trim($data[5])) : '',
+                            'is_active' => isset($data[6]) ? (int)$data[6] : 1
                         ];
                         
+                        // Skip if required fields are empty
+                        if (empty($employeeData['employee_id']) || empty($employeeData['full_name'])) {
+                            $skipped++;
+                            continue;
+                        }
+                        
                         try {
-                            $stmt->execute($employeeData);
-                            $imported++;
+                            // Check if employee already exists
+                            $checkStmt->execute([$employeeData['employee_id'], $employeeData['full_name']]);
+                            $existingEmployee = $checkStmt->fetch();
+                            
+                            if ($existingEmployee) {
+                                // UPDATE existing employee
+                                $updateStmt->execute($employeeData);
+                                $updated++;
+                            } else {
+                                // INSERT new employee
+                                $insertStmt->execute($employeeData);
+                                $imported++;
+                            }
                         } catch (PDOException $e) {
                             $skipped++;
+                            error_log("Import error for {$employeeData['employee_id']}: " . $e->getMessage());
                             continue;
                         }
                     }
@@ -125,7 +148,11 @@ if (isset($_POST['import'])) {
                 fclose($handle);
                 $pdo->commit();
                 
-                $_SESSION['success'] = "Import completed! $imported records imported successfully" . ($skipped > 0 ? ", $skipped records skipped." : ".");
+                $message = "Import completed! ";
+                if ($imported > 0) $message .= "$imported new records imported. ";
+                if ($updated > 0) $message .= "$updated existing records updated. ";
+                
+                $_SESSION['success'] = trim($message);
             } catch (Exception $e) {
                 $pdo->rollBack();
                 $_SESSION['error'] = "Error during import: " . $e->getMessage();
