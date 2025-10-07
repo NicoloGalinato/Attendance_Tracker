@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../includes/functions.php';
 $search = isset($_POST['search']) ? trim($_POST['search']) : (isset($_GET['search']) ? trim($_GET['search']) : '');
 $page = isset($_POST['page']) ? (int)$_POST['page'] : (isset($_GET['page']) ? (int)$_GET['page'] : 1);
 $type = isset($_POST['type']) ? $_POST['type'] : (isset($_GET['tab']) ? $_GET['tab'] : 'users');
-$page = max($page, 1); // Ensure page is at least 1
+$page = max($page, 1);
 
 // Determine which table to query
 $table = 'users';
@@ -54,7 +54,7 @@ try {
 }
 
 $totalPages = ceil($totalRecords / $perPage);
-$page = min($page, $totalPages); // Ensure page doesn't exceed total pages
+$page = min($page, $totalPages);
 $offset = ($page - 1) * $perPage;
 
 // Get paginated records
@@ -77,10 +77,10 @@ try {
 }
 ?>
 
-<div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow">
+<div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-lg">
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-700 w-full" style="zoom:85%">
-            <thead class="bg-gray-700 ">
+            <thead class="bg-gray-700">
                 <tr>
                     <?php if ($type === 'users'): ?>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Username</th>
@@ -102,23 +102,25 @@ try {
             <tbody class="bg-gray-800 divide-y divide-gray-700">
                 <?php if (empty($records)): ?>
                     <tr>
-                        <td colspan="<?= $type === 'users' ? 8 : 7 ?>" class="px-6 py-4 text-center text-gray-400">
-                            No records found
+                        <td colspan="<?= $type === 'users' ? 8 : 7 ?>" class="px-6 py-8 text-center text-gray-400">
+                            <i class="fas fa-users-slash text-3xl mb-3 opacity-50"></i>
+                            <p class="text-lg">No records found</p>
+                            <p class="text-sm mt-1"><?= !empty($search) ? 'Try adjusting your search' : 'No team members found' ?></p>
                         </td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($records as $record): ?>
-                    <tr class="hover:bg-gray-700/50">
+                    <tr class="hover:bg-gray-700/50 transition-colors duration-150">
                         <?php if ($type === 'users'): ?>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
-                                    <div class="text-sm font-medium text-gray-100" style="text-transform: uppercase;"><?= htmlspecialchars($record['username']) ?></div>
+                                    <div class="text-sm font-medium text-gray-100 uppercase tracking-wide"><?= htmlspecialchars($record['username']) ?></div>
                                     <?php if ($type === 'users'): ?>
-                                        <span class="ml-2 relative flex h-3 w-3"">
+                                        <span class="ml-2 relative flex h-3 w-3">
                                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 online-indicator" 
                                                 data-user-id="<?= $record[$idColumn] ?>" 
                                                 style="display: none;"></span>
-                                            <span class="relative inline-flex rounded-full h-3 w-3 bg-gray-400 online-status" 
+                                            <span class="relative inline-flex rounded-full h-3 w-3 bg-gray-400 online-status transition-colors duration-300" 
                                                 data-user-id="<?= $record[$idColumn] ?>"></span>
                                         </span>
                                     <?php endif; ?>
@@ -131,45 +133,45 @@ try {
                                 <div class="text-sm text-gray-300"><?= htmlspecialchars($record['fullname']) ?></div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['slt_email']) ?></div>
+                                <div class="text-sm text-gray-300 lowercase"><?= htmlspecialchars($record['slt_email']) ?></div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap" style="display: none;">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['role'] === 'admin' ? 'bg-primary-100 text-primary-800' : 'bg-green-100 text-green-800' ?>" style="text-transform: uppercase;">
+                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['role'] === 'admin' ? 'bg-primary-500/20 text-primary-300 border border-primary-500/30' : 'bg-green-500/20 text-green-300 border border-green-500/30' ?> transition-colors duration-200 uppercase">
                                     <?= ucfirst($record['role']) ?>
                                 </span>
                             </td>
                             
                         <?php else: ?>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-100" style="text-transform: uppercase;"><?= htmlspecialchars($record['cxi_id']) ?></div>
+                                <div class="text-sm font-medium text-gray-100 uppercase tracking-wide"><?= htmlspecialchars($record['cxi_id']) ?></div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['fullname']) ?></div>
+                                <div class="text-sm text-gray-300 uppercase tracking-wide"><?= htmlspecialchars($record['fullname']) ?></div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['department']) ?></div>
+                                <div class="text-sm text-gray-300 uppercase tracking-wide"><?= htmlspecialchars($record['department']) ?></div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($record['email'] ?? '') ?></div>
+                                <div class="text-sm text-gray-300 lowercase"><?= htmlspecialchars($record['email'] ?? '') ?></div>
                             </td>
                         <?php endif; ?>
                         
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300 uppercase tracking-wide">
                             <?= date('M j, Y g:i A', strtotime($record['created_at'])) ?>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['is_active'] ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' ?>">
+                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['is_active'] ? 'bg-green-500/20 text-green-300 border border-green-500/30' : 'bg-red-500/20 text-red-300 border border-red-500/30' ?> transition-colors duration-200">
                                 <?= $record['is_active'] ? 'Active' : 'Inactive' ?>
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <a href="profile.php?id=<?= $record[$idColumn] ?>&type=<?= $type ?>" title="Edit record" class="text-primary-500 hover:text-primary-400 mr-3">
+                            <a href="profile.php?id=<?= $record[$idColumn] ?>&type=<?= $type ?>" title="Edit record" class="text-primary-500 hover:text-primary-400 mr-4 transition-colors duration-200">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <a href="users.php?toggle_status=<?= $record[$idColumn] ?>&type=<?= $type ?>" class="text-yellow-500 hover:text-yellow-400 mr-3" title="Status update" onclick="return confirm('Are you sure you want to <?= $record['is_active'] ? 'deactivate' : 'activate' ?> this record?')">
+                            <a href="users.php?toggle_status=<?= $record[$idColumn] ?>&type=<?= $type ?>" class="text-yellow-500 hover:text-yellow-400 mr-4 transition-colors duration-200" title="Status update" onclick="return confirm('Are you sure you want to <?= $record['is_active'] ? 'deactivate' : 'activate' ?> this record?')">
                                 <i class="fas fa-<?= $record['is_active'] ? 'times' : 'check' ?>"></i>
                             </a>
-                            <a href="#" onclick="event.preventDefault(); showDeleteModal(<?= $record[$idColumn] ?>, '<?= $type ?>')" class="text-red-500 hover:text-red-400" title="Delete record">
+                            <a href="#" onclick="event.preventDefault(); showDeleteModal(<?= $record[$idColumn] ?>, '<?= $type ?>')" class="text-red-500 hover:text-red-400 transition-colors duration-200" title="Delete record">
                                 <i class="fas fa-trash"></i>
                             </a>
                         </td>
@@ -189,30 +191,29 @@ try {
     </div>
     <div class="flex gap-1">
         <?php if ($page > 1): ?>
-            <a href="#" data-page="1" class="pagination-link px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700">
+            <a href="#" data-page="1" class="pagination-link px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700 hover:border-gray-500 transition-colors duration-200">
                 <i class="fas fa-angle-double-left"></i>
             </a>
-            <a href="#" data-page="<?= $page - 1 ?>" class="pagination-link px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700">
+            <a href="#" data-page="<?= $page - 1 ?>" class="pagination-link px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700 hover:border-gray-500 transition-colors duration-200">
                 <i class="fas fa-angle-left"></i>
             </a>
         <?php endif; ?>
 
         <?php 
-        // Show page numbers
         $startPage = max(1, $page - 2);
         $endPage = min($totalPages, $page + 2);
         
         for ($i = $startPage; $i <= $endPage; $i++): ?>
-            <a href="#" data-page="<?= $i ?>" class="pagination-link px-3 py-1 rounded-lg border <?= $i == $page ? 'bg-primary-600 border-primary-600 text-white' : 'border-gray-600 text-gray-300 hover:bg-gray-700' ?>">
+            <a href="#" data-page="<?= $i ?>" class="pagination-link px-3 py-1 rounded-lg border <?= $i == $page ? 'bg-primary-600 border-primary-600 text-white' : 'border-gray-600 text-gray-300 hover:bg-gray-700 hover:border-gray-500' ?> transition-colors duration-200">
                 <?= $i ?>
             </a>
         <?php endfor; ?>
 
         <?php if ($page < $totalPages): ?>
-            <a href="#" data-page="<?= $page + 1 ?>" class="pagination-link px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700">
+            <a href="#" data-page="<?= $page + 1 ?>" class="pagination-link px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700 hover:border-gray-500 transition-colors duration-200">
                 <i class="fas fa-angle-right"></i>
             </a>
-            <a href="#" data-page="<?= $totalPages ?>" class="pagination-link px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700">
+            <a href="#" data-page="<?= $totalPages ?>" class="pagination-link px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700 hover:border-gray-500 transition-colors duration-200">
                 <i class="fas fa-angle-double-right"></i>
             </a>
         <?php endif; ?>

@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 }
 
-// Build query efficiently
+// Optimized query building
 $whereConditions = [];
 $params = [];
 
@@ -80,7 +80,7 @@ try {
 $totalPages = ceil($totalEmployees / $perPage);
 $page = min($page, max($totalPages, 1));
 
-// Optimized data query
+// Optimized data query with field selection
 try {
     $sql = "SELECT id, employee_id, full_name, department, supervisor, operation_manager, email, created_at, is_active 
             FROM employees 
@@ -90,7 +90,7 @@ try {
     
     $stmt = $pdo->prepare($sql);
     
-    // Bind all parameters
+    // Bind all parameters efficiently
     $paramIndex = 1;
     foreach ($params as $param) {
         $stmt->bindValue($paramIndex, $param);
@@ -108,13 +108,13 @@ try {
 }
 ?>
 
-<div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow">
+<div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-lg">
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-700 w-full" style="zoom:85%">
             <thead class="bg-gray-700">
                 <tr>
                     <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                        <input type="checkbox" id="selectAll" onchange="selectAllEmployees(this)" class="rounded border-gray-600 bg-gray-700 text-primary-600 focus:ring-primary-500">
+                        <input type="checkbox" id="selectAll" onchange="selectAllEmployees(this)" class="rounded border-gray-600 bg-gray-700 text-primary-600 focus:ring-primary-500 focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 transition-colors duration-200">
                     </th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">CXI Number</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Full Name</th>
@@ -130,53 +130,55 @@ try {
             <tbody class="bg-gray-800 divide-y divide-gray-700">
                 <?php if (empty($employees)): ?>
                     <tr>
-                        <td colspan="10" class="px-6 py-4 text-center text-gray-400">
-                            No agents found
+                        <td colspan="10" class="px-6 py-8 text-center text-gray-400">
+                            <i class="fas fa-users-slash text-3xl mb-3 opacity-50"></i>
+                            <p class="text-lg">No agents found</p>
+                            <p class="text-sm mt-1">Try adjusting your search filters</p>
                         </td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($employees as $employee): ?>
-                    <tr class="hover:bg-gray-700/50">
+                    <tr class="hover:bg-gray-700/50 transition-colors duration-150">
                         <td class="px-4 py-4 whitespace-nowrap">
                             <input type="checkbox" name="selected_employees[]" value="<?= $employee['id'] ?>" 
-                                   class="employee-checkbox rounded border-gray-600 bg-gray-700 text-primary-600 focus:ring-primary-500"
+                                   class="employee-checkbox rounded border-gray-600 bg-gray-700 text-primary-600 focus:ring-primary-500 focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 transition-colors duration-200"
                                    onchange="toggleEditTeamButton()"
                                    <?= in_array($employee['id'], $selectedEmployees) ? 'checked' : '' ?>>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-100" style="text-transform: uppercase;"><?= htmlspecialchars($employee['employee_id']) ?></div>
+                            <div class="text-sm font-medium text-gray-100 uppercase tracking-wide"><?= htmlspecialchars($employee['employee_id']) ?></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-300"><?= htmlspecialchars($employee['full_name']) ?></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($employee['department']) ?></div>
+                            <div class="text-sm text-gray-300 uppercase tracking-wide"><?= htmlspecialchars($employee['department']) ?></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($employee['supervisor']) ?></div>
+                            <div class="text-sm text-gray-300 uppercase tracking-wide"><?= htmlspecialchars($employee['supervisor']) ?></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($employee['operation_manager']) ?></div>
+                            <div class="text-sm text-gray-300 uppercase tracking-wide"><?= htmlspecialchars($employee['operation_manager']) ?></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= htmlspecialchars($employee['email'] ?? '') ?></div>
+                            <div class="text-sm text-gray-300 lowercase"><?= htmlspecialchars($employee['email'] ?? '') ?></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                           <div class="text-sm text-gray-300" style="text-transform: uppercase;"><?= date('M j, Y g:i A', strtotime($employee['created_at'])) ?></div>
+                           <div class="text-sm text-gray-300 uppercase tracking-wide"><?= date('M j, Y g:i A', strtotime($employee['created_at'])) ?></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $employee['is_active'] ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' ?>">
+                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full <?= $employee['is_active'] ? 'bg-green-500/20 text-green-300 border border-green-500/30' : 'bg-red-500/20 text-red-300 border border-red-500/30' ?> transition-colors duration-200">
                                 <?= $employee['is_active'] ? 'Active' : 'Inactive' ?>
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <a href="employee.php?id=<?= $employee['id'] ?>" title="Edit record" class="text-primary-500 hover:text-primary-400 mr-3">
+                            <a href="employee.php?id=<?= $employee['id'] ?>" title="Edit record" class="text-primary-500 hover:text-primary-400 mr-4 transition-colors duration-200">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <a href="employees.php?toggle_status=<?= $employee['id'] ?>" class="text-yellow-500 hover:text-yellow-400 mr-3" title="Status update" onclick="return confirm('Are you sure you want to <?= $employee['is_active'] ? 'deactivate' : 'activate' ?> this agent?')">
+                            <a href="employees.php?toggle_status=<?= $employee['id'] ?>" class="text-yellow-500 hover:text-yellow-400 mr-4 transition-colors duration-200" title="Status update" onclick="return confirm('Are you sure you want to <?= $employee['is_active'] ? 'deactivate' : 'activate' ?> this agent?')">
                                 <i class="fas fa-<?= $employee['is_active'] ? 'times' : 'check' ?>"></i>
                             </a>
-                            <a href="#" onclick="event.preventDefault(); showDeleteModal(<?= $employee['id'] ?>)" class="text-red-500 hover:text-red-400" title="Delete record">
+                            <a href="#" onclick="event.preventDefault(); showDeleteModal(<?= $employee['id'] ?>)" class="text-red-500 hover:text-red-400 transition-colors duration-200" title="Delete record">
                                 <i class="fas fa-trash"></i>
                             </a>
                         </td>
@@ -195,10 +197,10 @@ try {
     </div>
     <div class="flex gap-1">
         <?php if ($page > 1): ?>
-            <a href="#" data-page="1" class="pagination-link px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700">
+            <a href="#" data-page="1" class="pagination-link px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700 hover:border-gray-500 transition-colors duration-200">
                 <i class="fas fa-angle-double-left"></i>
             </a>
-            <a href="#" data-page="<?= $page - 1 ?>" class="pagination-link px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700">
+            <a href="#" data-page="<?= $page - 1 ?>" class="pagination-link px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700 hover:border-gray-500 transition-colors duration-200">
                 <i class="fas fa-angle-left"></i>
             </a>
         <?php endif; ?>
@@ -208,16 +210,16 @@ try {
         $endPage = min($totalPages, $page + 2);
         
         for ($i = $startPage; $i <= $endPage; $i++): ?>
-            <a href="#" data-page="<?= $i ?>" class="pagination-link px-3 py-1 rounded-lg border <?= $i == $page ? 'bg-primary-600 border-primary-600 text-white' : 'border-gray-600 text-gray-300 hover:bg-gray-700' ?>">
+            <a href="#" data-page="<?= $i ?>" class="pagination-link px-3 py-1 rounded-lg border <?= $i == $page ? 'bg-primary-600 border-primary-600 text-white' : 'border-gray-600 text-gray-300 hover:bg-gray-700 hover:border-gray-500' ?> transition-colors duration-200">
                 <?= $i ?>
             </a>
         <?php endfor; ?>
 
         <?php if ($page < $totalPages): ?>
-            <a href="#" data-page="<?= $page + 1 ?>" class="pagination-link px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700">
+            <a href="#" data-page="<?= $page + 1 ?>" class="pagination-link px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700 hover:border-gray-500 transition-colors duration-200">
                 <i class="fas fa-angle-right"></i>
             </a>
-            <a href="#" data-page="<?= $totalPages ?>" class="pagination-link px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700">
+            <a href="#" data-page="<?= $totalPages ?>" class="pagination-link px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700 hover:border-gray-500 transition-colors duration-200">
                 <i class="fas fa-angle-double-right"></i>
             </a>
         <?php endif; ?>

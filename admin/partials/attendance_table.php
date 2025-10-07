@@ -3,27 +3,24 @@ require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/functions.php';
 
 // Get all filter parameters with proper fallbacks
-$search = isset($_POST['search']) ? trim($_POST['search']) : '';
+$search = isset($_POST['search']) ? trim($_POST['search']) : (isset($_GET['search']) ? trim($_GET['search']) : '');
 $page = isset($_POST['page']) ? (int)$_POST['page'] : (isset($_GET['page']) ? (int)$_GET['page'] : 1);
-$type = isset($_POST['type']) ? $_POST['type'] : (isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism');
-$dateFrom = isset($_POST['date_from']) ? $_POST['date_from'] : (isset($_GET['from']) ? $_GET['from'] : '');
-$dateTo = isset($_POST['date_to']) ? $_POST['date_to'] : (isset($_GET['to']) ? $_GET['to'] : '');
-$department = isset($_POST['department']) ? $_POST['department'] : (isset($_GET['dept']) ? $_GET['dept'] : '');
+$type = isset($_POST['tab']) ? $_POST['tab'] : (isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism');
+$dateFrom = isset($_POST['from']) ? $_POST['from'] : (isset($_GET['from']) ? $_GET['from'] : '');
+$dateTo = isset($_POST['to']) ? $_POST['to'] : (isset($_GET['to']) ? $_GET['to'] : '');
+$department = isset($_POST['dept']) ? $_POST['dept'] : (isset($_GET['dept']) ? $_GET['dept'] : '');
 $coverage = '';
 if ($type === 'absenteeism') {
-    $coverage = isset($_POST['coverage']) ? $_POST['coverage'] : (isset($_GET['cov']) ? $_GET['cov'] : '');
+    $coverage = isset($_POST['cov']) ? $_POST['cov'] : (isset($_GET['cov']) ? $_GET['cov'] : '');
 }
 
 $cardFilter = isset($_POST['filter']) ? $_POST['filter'] : (isset($_GET['filter']) ? $_GET['filter'] : '');
-$irFilter = isset($_POST['ir_filter']) ? $_POST['ir_filter'] : (isset($_GET['ir']) ? $_GET['ir'] : '');
+$irFilter = isset($_POST['ir']) ? $_POST['ir'] : (isset($_GET['ir']) ? $_GET['ir'] : '');
 $statusFilter = isset($_GET['status']) ? $_GET['status'] : '';
 
-// Ensure we have the table and type from the parent file
-if (!isset($type)) $type = 'absenteeism';
-if (!isset($table)) {
-    $table = ($type === 'tardiness') ? 'tardiness' : ($type === 'vto' ? 'vto_tracker' : 'absenteeism');
-}
-if (!isset($perPage)) $perPage = 15;
+// Set table based on type
+$table = ($type === 'tardiness') ? 'tardiness' : ($type === 'vto' ? 'vto_tracker' : 'absenteeism');
+$perPage = 15;
 
 // Initialize where clauses and parameters
 $whereClauses = [];
@@ -333,6 +330,7 @@ try {
     }
 } catch (PDOException $e) {
     $records = [];
+    error_log("Database error in attendance_table.php: " . $e->getMessage());
 }
 ?>
 
@@ -421,7 +419,7 @@ try {
                                 <div class="text-sm text-gray-300"><?= htmlspecialchars($record['vto_mins'] ?? '') ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['vto_type'] === 'REALTIME' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' ?>" title="<?= htmlspecialchars($record['vto_type'] ?? '') ?>">
+                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['vto_type'] === 'REALTIME' ? 'bg-green-500/20 text-green-300 border border-green-500/30' : 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30' ?>" title="<?= htmlspecialchars($record['vto_type'] ?? '') ?>">
                                     <?= htmlspecialchars($record['vto_type'] ?? '') ?> 
                                 </span>
                             </td>
@@ -478,7 +476,7 @@ try {
                                     <div class="text-sm text-gray-300"><?= htmlspecialchars($record['shift']) ?></div>
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['follow_call_in_procedure'] === 'NO' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' ?>">
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['follow_call_in_procedure'] === 'NO' ? 'bg-red-500/20 text-red-300 border border-red-500/30' : 'bg-green-500/20 text-green-300 border border-green-500/30' ?>">
                                         <?= $record['follow_call_in_procedure'] ?>
                                     </span>
                                 </td>
@@ -499,7 +497,7 @@ try {
                                     <div class="text-sm text-gray-300"><?= date('M d, Y', strtotime($record['date_of_incident'])) ?></div>
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['types'] === 'Late' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800' ?>">
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['types'] === 'Late' ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30' : 'bg-red-500/20 text-red-300 border border-red-500/30' ?>">
                                         <?= $record['types'] ?>
                                     </span>
                                 </td>

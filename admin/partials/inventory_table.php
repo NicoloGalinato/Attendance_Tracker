@@ -184,29 +184,31 @@ try {
             <tbody class="bg-gray-800 divide-y divide-gray-700">
                 <?php if (empty($records)): ?>
                     <tr>
-                        <td colspan="<?= $type === 'headset' ? 18 : ($type === 'headset_inventory' ? 7 : 12) ?>" class="px-6 py-4 text-center text-gray-400">
-                            No records found
+                        <td colspan="<?= $type === 'headset' ? 18 : ($type === 'headset_inventory' ? 7 : 12) ?>" class="px-6 py-8 text-center text-gray-400">
+                            <i class="fas fa-boxes text-3xl mb-3 opacity-50"></i>
+                            <p class="text-lg">No records found</p>
+                            <p class="text-sm mt-1"><?= !empty($search) ? 'Try adjusting your search' : 'No inventory records found' ?></p>
                         </td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($records as $record): ?>
-                    <tr class="hover:bg-gray-700/50">
+                    <tr class="hover:bg-gray-700/50 transition-colors duration-150">
                         <?php if ($type === 'headset'): ?>
-                            <!-- Headset Tracker Table Content (same as before) -->
+                            <!-- Headset Tracker Table Content -->
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm text-gray-300" ><?= date('M d, Y', strtotime($record['date_issued'])) ?></div>
+                                <div class="text-sm text-gray-300"><?= date('M d, Y', strtotime($record['date_issued'])) ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm font-medium text-gray-100"  title="<?= htmlspecialchars($record['employee_id'] ?? '') ?>"><?= htmlspecialchars($record['employee_id']) ?></div>
+                                <div class="text-sm font-medium text-gray-100" title="<?= htmlspecialchars($record['employee_id'] ?? '') ?>"><?= htmlspecialchars($record['employee_id']) ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm text-gray-300"  title="<?= htmlspecialchars($record['full_name'] ?? '') ?>"><?= htmlspecialchars($record['full_name']) ?></div>
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['full_name'] ?? '') ?>"><?= htmlspecialchars($record['full_name']) ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm text-gray-300"  title="<?= htmlspecialchars($record['department'] ?? '') ?>"><?= htmlspecialchars($record['department']) ?></div>
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['department'] ?? '') ?>"><?= htmlspecialchars($record['department']) ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <div class="text-sm text-gray-300"  title="<?= htmlspecialchars($record['operation_manager'] ?? '') ?>"><?= htmlspecialchars($record['operation_manager']) ?></div>
+                                <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['operation_manager'] ?? '') ?>"><?= htmlspecialchars($record['operation_manager']) ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['brand_model_no'] ?? '') ?>"><?= htmlspecialchars($record['brand_model_no']) ?></div>
@@ -218,7 +220,7 @@ try {
                                 <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['yjack_serial_no'] ?? 'N/A') ?>"><?= htmlspecialchars($record['yjack_serial_no'] ?? 'N/A') ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['w_xtra_foam'] === 'YES' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' ?>">
+                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['w_xtra_foam'] === 'YES' ? 'bg-green-500/20 text-green-300 border border-green-500/30' : 'bg-red-500/20 text-red-300 border border-red-500/30' ?>">
                                     <?= $record['w_xtra_foam'] ?>
                                 </span>
                             </td>
@@ -232,11 +234,11 @@ try {
                                 <div class="text-sm text-gray-300"><?= date('g:i A', strtotime($record['release_time'])) ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    <?= $record['equipment_status'] === 'WORKING ALL ITEMS' ? 'bg-green-100 text-green-800' : 
-                                       ($record['equipment_status'] === 'NOT WORKING - HEADSET' ? 'bg-red-100 text-red-800' : 
-                                       ($record['equipment_status'] === 'NOT WORKING - YJACK' ? 'bg-red-100 text-red-800' : 
-                                       ($record['equipment_status'] === 'WITH ISSUE' ? 'bg-red-100 text-red-800' : 'bg-red-100 text-red-800'))) ?>">
+                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
+                                    <?= $record['equipment_status'] === 'WORKING ALL ITEMS' ? 'bg-green-500/20 text-green-300 border border-green-500/30' : 
+                                       ($record['equipment_status'] === 'NOT WORKING - HEADSET' ? 'bg-red-500/20 text-red-300 border border-red-500/30' : 
+                                       ($record['equipment_status'] === 'NOT WORKING - YJACK' ? 'bg-red-500/20 text-red-300 border border-red-500/30' : 
+                                       ($record['equipment_status'] === 'WITH ISSUE' ? 'bg-red-500/20 text-red-300 border border-red-500/30' : 'bg-red-500/20 text-red-300 border border-red-500/30'))) ?>">
                                     <?= $record['equipment_status'] ?>
                                 </span>
                             </td>
@@ -255,7 +257,7 @@ try {
                                 <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['remarks'] ?? 'PENDING') ?>"><?= htmlspecialchars($record['remarks'] ?? 'PENDING') ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['status'] === 'RETURNED' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' ?>">
+                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full <?= $record['status'] === 'RETURNED' ? 'bg-green-500/20 text-green-300 border border-green-500/30' : 'bg-red-500/20 text-red-300 border border-red-500/30' ?>">
                                     <?= $record['status'] ?>
                                 </span>
                             </td>
@@ -275,11 +277,11 @@ try {
                                 <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['headset_serial_no'] ?? '') ?>"><?= htmlspecialchars($record['headset_serial_no']) ?></div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    <?= $record['status'] === 'AVAILABLE' ? 'bg-green-100 text-green-800' : 
-                                       ($record['status'] === 'IN USE' ? 'bg-yellow-100 text-yellow-800' : 
-                                       ($record['status'] === 'DEFECTIVE' ? 'bg-red-100 text-red-800' : 
-                                       ($record['status'] === 'MAINTENANCE' ? 'bg-orange-100 text-orange-800' : 'bg-gray-100 text-gray-800'))) ?>">
+                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    <?= $record['status'] === 'AVAILABLE' ? 'bg-green-500/20 text-green-300 border border-green-500/30' : 
+                                       ($record['status'] === 'IN USE' ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30' : 
+                                       ($record['status'] === 'DEFECTIVE' ? 'bg-red-500/20 text-red-300 border border-red-500/30' : 
+                                       ($record['status'] === 'MAINTENANCE' ? 'bg-orange-500/20 text-orange-300 border border-orange-500/30' : 'bg-gray-500/20 text-gray-300 border border-gray-500/30'))) ?>">
                                     <?= $record['status'] ?>
                                 </span>
                             </td>
@@ -291,7 +293,7 @@ try {
                             </td>
                             
                         <?php else: ?>
-                            <!-- Peripherals Table Content (same as before) -->
+                            <!-- Peripherals Table Content -->
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <div class="text-sm text-gray-300"><?= date('M d, Y', strtotime($record['request_date'])) ?></div>
                             </td>
@@ -314,7 +316,7 @@ try {
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                 <?php if (!$record['email_sent']): ?>
-                                    <a href="send_peripheral_email.php?send_email=<?= $record['id'] ?>" title="Send Email" class="text-blue-500 hover:text-blue-400 mr-3">
+                                    <a href="send_peripheral_email.php?send_email=<?= $record['id'] ?>" title="Send Email" class="text-blue-500 hover:text-blue-400 mr-3 transition-colors duration-200">
                                         <i class="fas fa-envelope"></i>
                                     </a>
                                 <?php else: ?>
@@ -345,7 +347,7 @@ try {
                         <?php endif; ?>
                         <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <?php if ($type === 'headset'): ?>
-                                <a href="headset_form.php?id=<?= $record['id'] ?>" title="Edit record" class="text-primary-500 hover:text-primary-400 mr-3">
+                                <a href="headset_form.php?id=<?= $record['id'] ?>" title="Edit record" class="text-primary-500 hover:text-primary-400 mr-3 transition-colors duration-200">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <?php if ($record['status'] === 'RETURNED'): ?>
@@ -355,18 +357,18 @@ try {
                                 <?php else: ?>
                                     <a href="#" onclick="event.preventDefault(); showReturnModal(<?= $record['id'] ?>)" 
                                     title="Mark as Returned" 
-                                    class="text-purple-500 hover:text-purple-400 mr-3">
+                                    class="text-purple-500 hover:text-purple-400 mr-3 transition-colors duration-200">
                                         <i class="fas fa-undo"></i>
                                     </a>
                                 <?php endif; ?>
                             <?php elseif ($type === 'headset_inventory'): ?>
-                                <a href="headset_inventory_form.php?id=<?= $record['id'] ?>" title="Edit record" class="text-primary-500 hover:text-primary-400 mr-3">
+                                <a href="headset_inventory_form.php?id=<?= $record['id'] ?>" title="Edit record" class="text-primary-500 hover:text-primary-400 mr-3 transition-colors duration-200">
                                     <i class="fas fa-edit"></i>
                                 </a>
                             <?php else: ?>
                                 <!-- peripheral actions -->
                             <?php endif; ?>
-                            <a href="#" onclick="event.preventDefault(); showDeleteModal(<?= $record['id'] ?>, '<?= $type ?>')" class="text-red-500 hover:text-red-400" title="Delete record">
+                            <a href="#" onclick="event.preventDefault(); showDeleteModal(<?= $record['id'] ?>, '<?= $type ?>')" class="text-red-500 hover:text-red-400 transition-colors duration-200" title="Delete record">
                                 <i class="fas fa-trash"></i>
                             </a>
                         </td>
@@ -386,10 +388,10 @@ try {
     </div>
     <div class="flex gap-1">
         <?php if ($page > 1): ?>
-            <a href="#" data-page="1" class="pagination-link px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700">
+            <a href="#" data-page="1" class="pagination-link px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700 hover:border-gray-500 transition-colors duration-200">
                 <i class="fas fa-angle-double-left"></i>
             </a>
-            <a href="#" data-page="<?= $page - 1 ?>" class="pagination-link px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700">
+            <a href="#" data-page="<?= $page - 1 ?>" class="pagination-link px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700 hover:border-gray-500 transition-colors duration-200">
                 <i class="fas fa-angle-left"></i>
             </a>
         <?php endif; ?>
@@ -399,16 +401,16 @@ try {
         $endPage = min($totalPages, $page + 2);
         
         for ($i = $startPage; $i <= $endPage; $i++): ?>
-            <a href="#" data-page="<?= $i ?>" class="pagination-link px-3 py-1 rounded-lg border <?= $i == $page ? 'bg-primary-600 border-primary-600 text-white' : 'border-gray-600 text-gray-300 hover:bg-gray-700' ?>">
+            <a href="#" data-page="<?= $i ?>" class="pagination-link px-3 py-1 rounded-lg border <?= $i == $page ? 'bg-primary-600 border-primary-600 text-white' : 'border-gray-600 text-gray-300 hover:bg-gray-700 hover:border-gray-500' ?> transition-colors duration-200">
                 <?= $i ?>
             </a>
         <?php endfor; ?>
 
         <?php if ($page < $totalPages): ?>
-            <a href="#" data-page="<?= $page + 1 ?>" class="pagination-link px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700">
+            <a href="#" data-page="<?= $page + 1 ?>" class="pagination-link px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700 hover:border-gray-500 transition-colors duration-200">
                 <i class="fas fa-angle-right"></i>
             </a>
-            <a href="#" data-page="<?= $totalPages ?>" class="pagination-link px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700">
+            <a href="#" data-page="<?= $totalPages ?>" class="pagination-link px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700 hover:border-gray-500 transition-colors duration-200">
                 <i class="fas fa-angle-double-right"></i>
             </a>
         <?php endif; ?>
