@@ -469,9 +469,9 @@ class SimpleLoadingManager {
                 this.initialLoading.style.opacity = '0';
                 setTimeout(() => {
                     this.initialLoading.remove();
-                }, 100);
+                }, 200);
             }
-        }, 300);
+        }, 500);
     }
 }
 

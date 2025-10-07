@@ -8,10 +8,8 @@ if (!isLoggedIn() || !isAdmin()) {
 
 updateLastActivity();
 
-
 // Get statistics
 $stats = [
-    
     'pending_emails' => 0,
     'pending_ir' => 0,
     'uncovered_shift' => 0, 
@@ -27,7 +25,6 @@ $stats = [
 ];
 
 try {
-
     // Pending emails (not sent)
     $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE email_sent = 0");
     $stats['pending_emails'] += $stmt->fetchColumn();
@@ -164,6 +161,14 @@ renderHead('Dashboard');
 renderNavbar();
 renderSidebar('dashboard');
 ?>
+
+<!-- Initial Loading Screen -->
+<div id="initialLoading" class="fixed inset-0 bg-gray-900 flex items-center justify-center z-50 transition-opacity duration-300">
+    <div class="text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+        <p class="text-white text-lg">Loading Dashboard...</p>
+    </div>
+</div>
 
 <div class="pt-2 min-h-screen">
     <main class="p-6">
@@ -352,39 +357,72 @@ renderSidebar('dashboard');
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Simple real-time Manila clock
-    function updateManilaClock() {
-        const now = new Date();
-        const manilaTime = now.toLocaleTimeString('en-US', {
-            timeZone: 'Asia/Manila',
-            hour12: true,
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-        });
-        document.getElementById('realtime-clock').textContent = manilaTime ;
+// Simple real-time Manila clock
+function updateManilaClock() {
+    const now = new Date();
+    const manilaTime = now.toLocaleTimeString('en-US', {
+        timeZone: 'Asia/Manila',
+        hour12: true,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+    const clockElement = document.getElementById('realtime-clock');
+    if (clockElement) {
+        clockElement.textContent = manilaTime;
+    }
+}
+
+updateManilaClock();
+setInterval(updateManilaClock, 1000);
+
+// Dashboard Loading and Chart Manager
+class DashboardManager {
+    constructor() {
+        this.initialLoading = document.getElementById('initialLoading');
+        this.charts = new Map();
+        this.isLoading = false;
+        this.init();
     }
 
-    updateManilaClock();
-    setInterval(updateManilaClock, 1000);
-document.addEventListener('DOMContentLoaded', function() {
-    // Absenteeism Chart
-    const absentCtx = document.getElementById('absenteeismChart').getContext('2d');
-    const absenteeismChart = new Chart(absentCtx, {
-        type: 'bar',
-        data: {
-            labels: <?= json_encode($chartData['months']) ?>,
-            datasets: [{
-                label: 'Absenteeism',
-                data: <?= json_encode($chartData['absenteeism']) ?>,
-                backgroundColor: 'rgba(239, 68, 68, 0.7)',
-                borderColor: 'rgba(239, 68, 68, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
+    init() {
+        this.hideInitialLoading();
+    }
+
+    hideInitialLoading() {
+        // Wait for everything to load, then hide loading screen and initialize charts
+        setTimeout(() => {
+            if (this.initialLoading) {
+                this.initialLoading.style.opacity = '0';
+                setTimeout(() => {
+                    this.initialLoading.remove();
+                    // Initialize charts AFTER loading screen is gone
+                    this.initializeCharts();
+                }, 200);
+            } else {
+                // If no loading screen, initialize charts immediately
+                this.initializeCharts();
+            }
+        }, 500); // Slightly longer delay to ensure everything is ready
+    }
+
+    initializeCharts() {
+        this.createCharts();
+        this.bindEvents();
+        
+        // Load initial data for combined chart
+        this.fetchChartData('30days');
+    }
+
+    createCharts() {
+        // Chart configurations with animations enabled
+        const chartOptions = {
             responsive: true,
             maintainAspectRatio: false,
+            animation: {
+                duration: 1000,
+                easing: 'easeOutQuart'
+            },
             scales: {
                 y: {
                     beginAtZero: true,
@@ -411,254 +449,324 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             }
-        }
-    });
+        };
 
-    // Tardiness Chart
-    const tardyCtx = document.getElementById('tardinessChart').getContext('2d');
-    const tardinessChart = new Chart(tardyCtx, {
-        type: 'bar',
-        data: {
-            labels: <?= json_encode($chartData['months']) ?>,
-            datasets: [{
-                label: 'Tardiness',
-                data: <?= json_encode($chartData['tardiness']) ?>,
-                backgroundColor: 'rgba(234, 179, 8, 0.7)',
-                borderColor: 'rgba(234, 179, 8, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: 'rgba(55, 65, 81, 0.5)'
-                    },
-                    ticks: {
-                        color: '#9CA3AF'
-                    }
+        // Absenteeism Chart
+        const absentCtx = document.getElementById('absenteeismChart')?.getContext('2d');
+        if (absentCtx) {
+            this.charts.set('absenteeism', new Chart(absentCtx, {
+                type: 'bar',
+                data: {
+                    labels: <?= json_encode($chartData['months']) ?>,
+                    datasets: [{
+                        label: 'Absenteeism',
+                        data: <?= json_encode($chartData['absenteeism']) ?>,
+                        backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        borderWidth: 1
+                    }]
                 },
-                x: {
-                    grid: {
-                        display: false
-                    },
-                    ticks: {
-                        color: '#9CA3AF'
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    labels: {
-                        color: '#9CA3AF'
-                    }
-                }
-            }
+                options: chartOptions
+            }));
         }
-    });
 
-    // Combined Chart - now with dynamic data loading
-    const combinedCtx = document.getElementById('combinedChart').getContext('2d');
-    let combinedChart = new Chart(combinedCtx, {
-        type: 'line',
-        data: {
-            labels: <?= json_encode($chartData['months']) ?>,
-            datasets: [
-                {
-                    label: 'Absenteeism (Count)',
-                    data: <?= json_encode($chartData['absenteeism']) ?>,
-                    borderColor: 'rgba(239, 68, 68, 1)',
-                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                    borderWidth: 2,
-                    tension: 0.3,
-                    fill: true,
-                    yAxisID: 'y-count'
+        // Tardiness Chart
+        const tardyCtx = document.getElementById('tardinessChart')?.getContext('2d');
+        if (tardyCtx) {
+            this.charts.set('tardiness', new Chart(tardyCtx, {
+                type: 'bar',
+                data: {
+                    labels: <?= json_encode($chartData['months']) ?>,
+                    datasets: [{
+                        label: 'Tardiness',
+                        data: <?= json_encode($chartData['tardiness']) ?>,
+                        backgroundColor: 'rgba(234, 179, 8, 0.7)',
+                        borderColor: 'rgba(234, 179, 8, 1)',
+                        borderWidth: 1
+                    }]
                 },
-                {
-                    label: 'Tardiness (Count)',
-                    data: <?= json_encode($chartData['tardiness']) ?>,
-                    borderColor: 'rgba(234, 179, 8, 1)',
-                    backgroundColor: 'rgba(234, 179, 8, 0.1)',
-                    borderWidth: 2,
-                    tension: 0.3,
-                    fill: true,
-                    yAxisID: 'y-count'
-                },
-                {
-                    label: 'Absenteeism %',
-                    data: <?= json_encode($chartData['absenteeism_percentage']) ?>,
-                    borderColor: 'rgba(239, 68, 68, 0.7)',
-                    borderWidth: 2,
-                    borderDash: [5, 5],
-                    pointRadius: 3,
-                    pointHoverRadius: 5,
-                    yAxisID: 'y-percentage'
-                },
-                {
-                    label: 'Tardiness %',
-                    data: <?= json_encode($chartData['tardiness_percentage']) ?>,
-                    borderColor: 'rgba(234, 179, 8, 0.7)',
-                    borderWidth: 2,
-                    borderDash: [5, 5],
-                    pointRadius: 3,
-                    pointHoverRadius: 5,
-                    yAxisID: 'y-percentage'
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-                mode: 'index',
-                intersect: false,
+                options: chartOptions
+            }));
+        }
+
+        // Combined Chart - Initial setup
+        const combinedCtx = document.getElementById('combinedChart')?.getContext('2d');
+        if (combinedCtx) {
+            this.charts.set('combined', new Chart(combinedCtx, this.getCombinedChartConfig()));
+        }
+    }
+
+    getCombinedChartConfig() {
+        return {
+            type: 'line',
+            data: {
+                labels: <?= json_encode($chartData['months']) ?>,
+                datasets: [
+                    {
+                        label: 'Absenteeism (Count)',
+                        data: <?= json_encode($chartData['absenteeism']) ?>,
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true,
+                        yAxisID: 'y-count'
+                    },
+                    {
+                        label: 'Tardiness (Count)',
+                        data: <?= json_encode($chartData['tardiness']) ?>,
+                        borderColor: 'rgba(234, 179, 8, 1)',
+                        backgroundColor: 'rgba(234, 179, 8, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true,
+                        yAxisID: 'y-count'
+                    },
+                    {
+                        label: 'Absenteeism %',
+                        data: <?= json_encode($chartData['absenteeism_percentage']) ?>,
+                        borderColor: 'rgba(239, 68, 68, 0.7)',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
+                        yAxisID: 'y-percentage'
+                    },
+                    {
+                        label: 'Tardiness %',
+                        data: <?= json_encode($chartData['tardiness_percentage']) ?>,
+                        borderColor: 'rgba(234, 179, 8, 0.7)',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
+                        yAxisID: 'y-percentage'
+                    }
+                ]
             },
-            scales: {
-                'y-count': {
-                    type: 'linear',
-                    display: true,
-                    position: 'left',
-                    title: {
-                        display: true,
-                        text: 'Count',
-                        color: '#9CA3AF'
-                    },
-                    beginAtZero: true,
-                    grid: {
-                        color: 'rgba(55, 65, 81, 0.5)'
-                    },
-                    ticks: {
-                        color: '#9CA3AF',
-                        precision: 0
-                    }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 1000,
+                    easing: 'easeOutQuart'
                 },
-                'y-percentage': {
-                    type: 'linear',
-                    display: true,
-                    position: 'right',
-                    title: {
-                        display: true,
-                        text: 'Percentage (%)',
-                        color: '#9CA3AF'
-                    },
-                    beginAtZero: true,
-                    grid: {
-                        drawOnChartArea: false,
-                    },
-                    ticks: {
-                        color: '#9CA3AF',
-                        callback: function(value) {
-                            return value + '%';
-                        },
-                        maxTicksLimit: 6
-                    }
-                },
-                x: {
-                    grid: {
-                        color: 'rgba(55, 65, 81, 0.5)'
-                    },
-                    ticks: {
-                        color: '#9CA3AF'
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    labels: {
-                        color: '#9CA3AF',
-                        usePointStyle: true,
-                        pointStyle: 'line',
-                        padding: 20
-                    }
-                },
-                tooltip: {
+                interaction: {
                     mode: 'index',
                     intersect: false,
-                    callbacks: {
-                        label: function(context) {
-                            let label = context.dataset.label || '';
-                            if (label) {
-                                label += ': ';
+                },
+                scales: {
+                    'y-count': {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Count',
+                            color: '#9CA3AF'
+                        },
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(55, 65, 81, 0.5)'
+                        },
+                        ticks: {
+                            color: '#9CA3AF',
+                            precision: 0
+                        }
+                    },
+                    'y-percentage': {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Percentage (%)',
+                            color: '#9CA3AF'
+                        },
+                        beginAtZero: true,
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                        ticks: {
+                            color: '#9CA3AF',
+                            callback: function(value) {
+                                return value + '%';
+                            },
+                            maxTicksLimit: 6
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(55, 65, 81, 0.5)'
+                        },
+                        ticks: {
+                            color: '#9CA3AF'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#9CA3AF',
+                            usePointStyle: true,
+                            pointStyle: 'line',
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.datasetIndex < 2) {
+                                    // Count datasets
+                                    label += context.raw;
+                                } else {
+                                    // Percentage datasets
+                                    label += context.raw.toFixed(1) + '% of agents';
+                                }
+                                return label;
                             }
-                            if (context.datasetIndex < 2) {
-                                // Count datasets
-                                label += context.raw;
-                            } else {
-                                // Percentage datasets
-                                label += context.raw.toFixed(1) + '% of agents';
-                            }
-                            return label;
                         }
                     }
                 }
             }
+        };
+    }
+
+    bindEvents() {
+        const timeRangeSelect = document.getElementById('timeRange');
+        if (timeRangeSelect) {
+            timeRangeSelect.addEventListener('change', (e) => {
+                this.handleTimeRangeChange(e.target.value);
+            });
         }
-    });
+    }
 
+    async handleTimeRangeChange(timeRange) {
+        if (this.isLoading) return;
+        
+        this.isLoading = true;
+        this.showChartLoading('combinedChart');
+        
+        await this.fetchChartData(timeRange);
+        
+        this.isLoading = false;
+        this.hideChartLoading('combinedChart');
+    }
 
-fetchChartData('30days');
+    showChartLoading(chartId) {
+        const canvas = document.getElementById(chartId);
+        if (!canvas) return;
 
-// Time range selector functionality
-document.getElementById('timeRange').addEventListener('change', function() {
-    const timeRange = this.value;
-    fetchChartData(timeRange);
-});
+        const container = canvas.parentElement;
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'absolute inset-0 bg-gray-800/80 flex items-center justify-center z-10';
+        loadingDiv.id = `loading-${chartId}`;
+        loadingDiv.innerHTML = `
+            <div class="text-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+                <p class="text-gray-300 text-sm">Loading chart...</p>
+            </div>
+        `;
+        
+        container.style.position = 'relative';
+        container.appendChild(loadingDiv);
+    }
 
-function fetchChartData(timeRange) {
-    // Show loading state
-    combinedChart.data.labels = ['Loading...'];
-    combinedChart.data.datasets.forEach(dataset => {
-        dataset.data = [0];
-    });
-    combinedChart.update();
+    hideChartLoading(chartId) {
+        const loadingDiv = document.getElementById(`loading-${chartId}`);
+        if (loadingDiv) {
+            loadingDiv.remove();
+        }
+    }
 
-    fetch(`../includes/fetch_chart_data.php?range=${timeRange}`)
-        .then(response => {
+    async fetchChartData(timeRange) {
+        try {
+            const response = await fetch(`../includes/fetch_chart_data.php?range=${timeRange}`);
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            return response.json();
-        })
-        .then(data => {
+            
+            const data = await response.json();
             if (data.error) {
                 throw new Error(data.error);
             }
-            updateChart(combinedChart, data);
-        })
-        .catch(error => {
+            
+            this.updateCombinedChart(data);
+        } catch (error) {
             console.error('Error fetching chart data:', error);
-            // Show error state
-            combinedChart.data.labels = ['Error loading data'];
-            combinedChart.data.datasets.forEach(dataset => {
-                dataset.data = [0];
-            });
-            combinedChart.update();
-        });
-}
-
-function updateChart(chart, newData) {
-    // Ensure we have all required data
-    if (!newData.labels || !newData.absenteeism || !newData.tardiness || 
-        !newData.absenteeism_percentage || !newData.tardiness_percentage) {
-        throw new Error('Incomplete chart data received');
+            this.showChartError('combinedChart', 'Error loading chart data');
+        }
     }
 
-    chart.data.labels = newData.labels;
-    chart.data.datasets[0].data = newData.absenteeism;
-    chart.data.datasets[1].data = newData.tardiness;
-    chart.data.datasets[2].data = newData.absenteeism_percentage;
-    chart.data.datasets[3].data = newData.tardiness_percentage;
-    
-    // Update chart scales based on time range
-    const isDaily = document.getElementById('timeRange').value !== '12months';
-    chart.options.scales.x.ticks.maxRotation = isDaily ? 45 : 0;
-    chart.options.scales.x.ticks.autoSkip = isDaily;
-    
-    chart.update();
+    updateCombinedChart(newData) {
+        const chart = this.charts.get('combined');
+        if (!chart || !newData) return;
+
+        // Ensure we have all required data
+        if (!newData.labels || !newData.absenteeism || !newData.tardiness || 
+            !newData.absenteeism_percentage || !newData.tardiness_percentage) {
+            throw new Error('Incomplete chart data received');
+        }
+
+        // Update chart data with animation
+        chart.data.labels = newData.labels;
+        chart.data.datasets[0].data = newData.absenteeism;
+        chart.data.datasets[1].data = newData.tardiness;
+        chart.data.datasets[2].data = newData.absenteeism_percentage;
+        chart.data.datasets[3].data = newData.tardiness_percentage;
+        
+        // Update chart scales based on time range
+        const isDaily = document.getElementById('timeRange').value !== '12months';
+        chart.options.scales.x.ticks.maxRotation = isDaily ? 45 : 0;
+        chart.options.scales.x.ticks.autoSkip = isDaily;
+        
+        // Update with animation
+        chart.update();
+    }
+
+    showChartError(chartId, message) {
+        const canvas = document.getElementById(chartId);
+        if (!canvas) return;
+
+        const container = canvas.parentElement;
+        container.innerHTML = `
+            <div class="flex items-center justify-center h-full bg-gray-800/50 rounded-lg">
+                <div class="text-center text-gray-400">
+                    <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+                    <p class="text-sm">${message}</p>
+                </div>
+            </div>
+        `;
+    }
 }
+
+// Initialize dashboard manager when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    window.dashboardManager = new DashboardManager();
+});
+
+// Performance optimization: Handle page visibility
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden && window.dashboardManager) {
+        // Optional: Pause animations when page is hidden
+        window.dashboardManager.charts.forEach(chart => {
+            chart.options.animation = false;
+        });
+    } else if (window.dashboardManager) {
+        // Resume animations when page is visible
+        window.dashboardManager.charts.forEach(chart => {
+            chart.options.animation = {
+                duration: 1000,
+                easing: 'easeOutQuart'
+            };
+        });
+    }
 });
 </script>
 

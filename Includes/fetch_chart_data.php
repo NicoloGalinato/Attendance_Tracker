@@ -5,117 +5,105 @@ require_once 'functions.php';
 header('Content-Type: application/json');
 
 if (!isLoggedIn() || !isAdmin()) {
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
+    echo json_encode(['error' => 'Unauthorized access']);
+    exit();
 }
 
-$range = $_GET['range'] ?? '12months';
-$response = [
-    'labels' => [],
-    'absenteeism' => [],
-    'tardiness' => [],
-    'absenteeism_percentage' => [],
-    'tardiness_percentage' => []
-];
-
 try {
-    // Get total number of active agents
+    $range = $_GET['range'] ?? '30days';
+    $chartData = [
+        'labels' => [],
+        'absenteeism' => [],
+        'tardiness' => [],
+        'absenteeism_percentage' => [],
+        'tardiness_percentage' => []
+    ];
+
+    // Get total number of active agents for percentage calculation
     $stmt = $pdo->query("SELECT COUNT(*) FROM employees WHERE is_active = 1");
     $totalActiveAgents = $stmt->fetchColumn();
     $totalActiveAgents = max($totalActiveAgents, 1);
 
-    if ($range === '12months') {
-        // 12 months data
-        $currentDate = new DateTime('first day of this month');
-        
-        for ($i = 11; $i >= 0; $i--) {
-            $monthDate = clone $currentDate;
-            $monthDate->sub(new DateInterval("P{$i}M"));
-            
-            $startDate = $monthDate->format('Y-m-01');
-            $endDate = $monthDate->format('Y-m-t');
-            
-            $response['labels'][] = $monthDate->format('M Y');
-            
-            // Absenteeism
-            $stmt = $pdo->prepare("SELECT COUNT(*) FROM absenteeism WHERE date_of_absent BETWEEN ? AND ?");
-            $stmt->execute([$startDate, $endDate]);
-            $absentCount = $stmt->fetchColumn();
-            $response['absenteeism'][] = (int)$absentCount;
-            $response['absenteeism_percentage'][] = round(($absentCount / $totalActiveAgents) * 100, 2);
-            
-            // Tardiness
-            $stmt = $pdo->prepare("SELECT COUNT(*) FROM tardiness WHERE date_of_incident BETWEEN ? AND ?");
-            $stmt->execute([$startDate, $endDate]);
-            $tardyCount = $stmt->fetchColumn();
-            $response['tardiness'][] = (int)$tardyCount;
-            $response['tardiness_percentage'][] = round(($tardyCount / $totalActiveAgents) * 100, 2);
-        }
-    } 
-    elseif ($range === '30days') {
-        // Last 30 days (including today)
-        $endDate = new DateTime();
-        $startDate = clone $endDate;
-        $startDate->sub(new DateInterval('P29D')); // 29 days ago to make 30 days total
-        
-        $interval = new DateInterval('P1D');
-        // We need to include the end date, so add 1 day to the end date
-        $periodEnd = clone $endDate;
-        $periodEnd->add(new DateInterval('P1D'));
-        $period = new DatePeriod($startDate, $interval, $periodEnd);
-        
-        foreach ($period as $date) {
-            $day = $date->format('Y-m-d');
-            $response['labels'][] = $date->format('M j');
-            
-            // Absenteeism
-            $stmt = $pdo->prepare("SELECT COUNT(*) FROM absenteeism WHERE date_of_absent = ?");
-            $stmt->execute([$day]);
-            $absentCount = $stmt->fetchColumn();
-            $response['absenteeism'][] = (int)$absentCount;
-            $response['absenteeism_percentage'][] = round(($absentCount / $totalActiveAgents) * 100, 2);
-            
-            // Tardiness
-            $stmt = $pdo->prepare("SELECT COUNT(*) FROM tardiness WHERE date_of_incident = ?");
-            $stmt->execute([$day]);
-            $tardyCount = $stmt->fetchColumn();
-            $response['tardiness'][] = (int)$tardyCount;
-            $response['tardiness_percentage'][] = round(($tardyCount / $totalActiveAgents) * 100, 2);
-        }
-    }
-    elseif ($range === '7days') {
-        // Last 7 days (including today)
-        $endDate = new DateTime();
-        $startDate = clone $endDate;
-        $startDate->sub(new DateInterval('P6D')); // 6 days ago to make 7 days total
-        
-        $interval = new DateInterval('P1D');
-        // We need to include the end date, so add 1 day to the end date
-        $periodEnd = clone $endDate;
-        $periodEnd->add(new DateInterval('P1D'));
-        $period = new DatePeriod($startDate, $interval, $periodEnd);
-        
-        foreach ($period as $date) {
-            $day = $date->format('Y-m-d');
-            $response['labels'][] = $date->format('D, M j');
-            
-            // Absenteeism
-            $stmt = $pdo->prepare("SELECT COUNT(*) FROM absenteeism WHERE date_of_absent = ?");
-            $stmt->execute([$day]);
-            $absentCount = $stmt->fetchColumn();
-            $response['absenteeism'][] = (int)$absentCount;
-            $response['absenteeism_percentage'][] = round(($absentCount / $totalActiveAgents) * 100, 2);
-            
-            // Tardiness
-            $stmt = $pdo->prepare("SELECT COUNT(*) FROM tardiness WHERE date_of_incident = ?");
-            $stmt->execute([$day]);
-            $tardyCount = $stmt->fetchColumn();
-            $response['tardiness'][] = (int)$tardyCount;
-            $response['tardiness_percentage'][] = round(($tardyCount / $totalActiveAgents) * 100, 2);
-        }
-    }
-} catch (PDOException $e) {
-    $response['error'] = 'Database error: ' . $e->getMessage();
-}
+    switch ($range) {
+        case '7days':
+            // Last 7 days
+            for ($i = 6; $i >= 0; $i--) {
+                $date = date('Y-m-d', strtotime("-$i days"));
+                $chartData['labels'][] = date('M j', strtotime($date));
+                
+                // Absenteeism
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM absenteeism WHERE date_of_absent = ?");
+                $stmt->execute([$date]);
+                $absentCount = $stmt->fetchColumn();
+                $chartData['absenteeism'][] = $absentCount;
+                $chartData['absenteeism_percentage'][] = round(($absentCount / $totalActiveAgents) * 100, 2);
+                
+                // Tardiness
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM tardiness WHERE date_of_incident = ?");
+                $stmt->execute([$date]);
+                $tardyCount = $stmt->fetchColumn();
+                $chartData['tardiness'][] = $tardyCount;
+                $chartData['tardiness_percentage'][] = round(($tardyCount / $totalActiveAgents) * 100, 2);
+            }
+            break;
 
-echo json_encode($response);
+        case '30days':
+            // Last 30 days
+            for ($i = 29; $i >= 0; $i--) {
+                $date = date('Y-m-d', strtotime("-$i days"));
+                $chartData['labels'][] = date('M j', strtotime($date));
+                
+                // Absenteeism
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM absenteeism WHERE date_of_absent = ?");
+                $stmt->execute([$date]);
+                $absentCount = $stmt->fetchColumn();
+                $chartData['absenteeism'][] = $absentCount;
+                $chartData['absenteeism_percentage'][] = round(($absentCount / $totalActiveAgents) * 100, 2);
+                
+                // Tardiness
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM tardiness WHERE date_of_incident = ?");
+                $stmt->execute([$date]);
+                $tardyCount = $stmt->fetchColumn();
+                $chartData['tardiness'][] = $tardyCount;
+                $chartData['tardiness_percentage'][] = round(($tardyCount / $totalActiveAgents) * 100, 2);
+            }
+            break;
+
+        case '12months':
+        default:
+            // Last 12 months
+            $currentDate = new DateTime('first day of this month');
+            
+            for ($i = 11; $i >= 0; $i--) {
+                $monthDate = clone $currentDate;
+                $monthDate->sub(new DateInterval("P{$i}M"));
+                
+                $startDate = $monthDate->format('Y-m-01');
+                $endDate = $monthDate->format('Y-m-t');
+                
+                $chartData['labels'][] = $monthDate->format('M Y');
+                
+                // Absenteeism
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM absenteeism WHERE date_of_absent BETWEEN ? AND ?");
+                $stmt->execute([$startDate, $endDate]);
+                $absentCount = $stmt->fetchColumn();
+                $chartData['absenteeism'][] = $absentCount;
+                $chartData['absenteeism_percentage'][] = round(($absentCount / $totalActiveAgents) * 100, 2);
+                
+                // Tardiness
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM tardiness WHERE date_of_incident BETWEEN ? AND ?");
+                $stmt->execute([$startDate, $endDate]);
+                $tardyCount = $stmt->fetchColumn();
+                $chartData['tardiness'][] = $tardyCount;
+                $chartData['tardiness_percentage'][] = round(($tardyCount / $totalActiveAgents) * 100, 2);
+            }
+            break;
+    }
+
+    echo json_encode($chartData);
+
+} catch (Exception $e) {
+    error_log("Error in fetch_chart_data.php: " . $e->getMessage());
+    echo json_encode(['error' => 'Failed to fetch chart data']);
+}
+?>
