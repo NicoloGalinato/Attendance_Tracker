@@ -253,6 +253,10 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
                 <button id="noNeedEmailBtn" class="hidden bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg flex items-center">
                     <i class="fas fa-envelope mr-2"></i> No Need Email
                 </button>
+                <!-- Re-track Email Button (initially hidden) -->
+                <button id="reTrackEmailBtn" class="hidden bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
+                    <i class="fas fa-redo-alt mr-2"></i> Re-track Email
+                </button>
                 <a href="<?= $currentTab === 'vto' ? 'vto_form.php' : 'attendance_form.php' ?>?action=create&type=<?= $currentTab ?>" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center">
                     <i class="fas fa-plus mr-2"></i> Add New
                 </a>
@@ -670,12 +674,12 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.record-checkbox').forEach(checkbox => {
                 checkbox.checked = isChecked;
             });
-            toggleNoNeedEmailButton();
+            toggleActionButtons();
         }
         
         // Handle individual record checkboxes
         if (e.target.classList.contains('record-checkbox')) {
-            toggleNoNeedEmailButton();
+            toggleActionButtons();
         }
     });
     
@@ -722,27 +726,73 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Modify the toggleNoNeedEmailButton function
-    function toggleNoNeedEmailButton() {
-        // Don't show the button for VTO tab
+    // Re-track Email button functionality
+    const reTrackEmailBtn = document.getElementById('reTrackEmailBtn');
+    if (reTrackEmailBtn) {
+        reTrackEmailBtn.addEventListener('click', function() {
+            const selectedIds = Array.from(document.querySelectorAll('.record-checkbox'))
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.getAttribute('data-id'));
+                
+            if (selectedIds.length === 0) {
+                alert('Please select at least one record.');
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to re-track email for ${selectedIds.length} record(s)? This will reset the email status.`)) {
+                return;
+            }
+            
+            // Send AJAX request to update records
+            const formData = new FormData();
+            formData.append('action', 're_track_email');
+            formData.append('record_ids', JSON.stringify(selectedIds));
+            formData.append('type', '<?= $currentTab ?>');
+            
+            fetch('../includes/update_attendance.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Successfully reset email status for ${data.updated} record(s).`);
+                    location.reload(); // Reload to reflect changes
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating records.');
+            });
+        });
+    }
+    
+    // Modify the toggleActionButtons function to handle both buttons
+    function toggleActionButtons() {
+        // Don't show the buttons for VTO tab
         if ('<?= $currentTab ?>' === 'vto') return;
         
         const anyChecked = Array.from(document.querySelectorAll('.record-checkbox')).some(checkbox => checkbox.checked);
         const noNeedEmailBtn = document.getElementById('noNeedEmailBtn');
+        const reTrackEmailBtn = document.getElementById('reTrackEmailBtn');
         
-        if (anyChecked && noNeedEmailBtn) {
-            noNeedEmailBtn.classList.remove('hidden');
-        } else if (noNeedEmailBtn) {
-            noNeedEmailBtn.classList.add('hidden');
+        if (anyChecked) {
+            if (noNeedEmailBtn) noNeedEmailBtn.classList.remove('hidden');
+            if (reTrackEmailBtn) reTrackEmailBtn.classList.remove('hidden');
+        } else {
+            if (noNeedEmailBtn) noNeedEmailBtn.classList.add('hidden');
+            if (reTrackEmailBtn) reTrackEmailBtn.classList.add('hidden');
         }
     }
 
-    // Also hide the "No Need Email" button when in VTO tab
+    // Also hide the buttons when in VTO tab
     if ('<?= $currentTab ?>' === 'vto') {
         const noNeedEmailBtn = document.getElementById('noNeedEmailBtn');
-        if (noNeedEmailBtn) {
-            noNeedEmailBtn.classList.add('hidden');
-        }
+        const reTrackEmailBtn = document.getElementById('reTrackEmailBtn');
+        if (noNeedEmailBtn) noNeedEmailBtn.classList.add('hidden');
+        if (reTrackEmailBtn) reTrackEmailBtn.classList.add('hidden');
     }
     
     // Initialize filter functionality
