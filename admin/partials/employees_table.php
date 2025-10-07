@@ -2,7 +2,15 @@
 require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/functions.php';
 
-// Handle AJAX requests for table data
+// Unified parameter handling
+$search = '';
+$department = '';
+$supervisor = '';
+$operationManager = '';
+$status = '';
+$page = 1;
+$selectedEmployees = [];
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $search = $_POST['search'] ?? '';
     $department = $_POST['department'] ?? '';
@@ -11,129 +19,84 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $status = $_POST['status'] ?? '';
     $page = isset($_POST['page']) ? (int)$_POST['page'] : 1;
     
-    // Get previously selected employees from AJAX
-    $selectedEmployees = [];
     if (!empty($_POST['selected_employees_json'])) {
         $selectedEmployees = json_decode($_POST['selected_employees_json'], true) ?? [];
     }
-    
-    // Build query with filters
-    $whereConditions = [];
-    $params = [];
-    
-    if (!empty($search)) {
-        $whereConditions[] = "(employee_id LIKE ? OR full_name LIKE ? OR email LIKE ?)";
-        $searchTerm = "%$search%";
-        $params[] = $searchTerm;
-        $params[] = $searchTerm;
-        $params[] = $searchTerm;
-    }
-    
-    if (!empty($department)) {
-        $whereConditions[] = "department = ?";
-        $params[] = $department;
-    }
-    
-    if (!empty($supervisor)) {
-        $whereConditions[] = "supervisor = ?";
-        $params[] = $supervisor;
-    }
-    
-    if (!empty($operationManager)) {
-        $whereConditions[] = "operation_manager = ?";
-        $params[] = $operationManager;
-    }
-    
-    if ($status !== '') {
-        $whereConditions[] = "is_active = ?";
-        $params[] = $status;
-    }
-    
-    $whereClause = '';
-    if (!empty($whereConditions)) {
-        $whereClause = 'WHERE ' . implode(' AND ', $whereConditions);
-    }
 } else {
-    // Handle GET requests (initial page load)
-    $search = isset($_GET['search']) ? trim($_GET['search']) : '';
-    $department = isset($_GET['department']) ? trim($_GET['department']) : '';
-    $supervisor = isset($_GET['supervisor']) ? trim($_GET['supervisor']) : '';
-    $operationManager = isset($_GET['operation_manager']) ? trim($_GET['operation_manager']) : '';
-    $status = isset($_GET['status']) ? trim($_GET['status']) : '';
+    $search = $_GET['search'] ?? '';
+    $department = $_GET['department'] ?? '';
+    $supervisor = $_GET['supervisor'] ?? '';
+    $operationManager = $_GET['operation_manager'] ?? '';
+    $status = $_GET['status'] ?? '';
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-    $selectedEmployees = [];
-    
-    // Build query with filters for GET request
-    $whereConditions = [];
-    $params = [];
-    
-    if (!empty($search)) {
-        $whereConditions[] = "(employee_id LIKE ? OR full_name LIKE ? OR email LIKE ?)";
-        $searchTerm = "%$search%";
-        $params[] = $searchTerm;
-        $params[] = $searchTerm;
-        $params[] = $searchTerm;
-    }
-    
-    if (!empty($department)) {
-        $whereConditions[] = "department = ?";
-        $params[] = $department;
-    }
-    
-    if (!empty($supervisor)) {
-        $whereConditions[] = "supervisor = ?";
-        $params[] = $supervisor;
-    }
-    
-    if (!empty($operationManager)) {
-        $whereConditions[] = "operation_manager = ?";
-        $params[] = $operationManager;
-    }
-    
-    if ($status !== '') {
-        $whereConditions[] = "is_active = ?";
-        $params[] = $status;
-    }
-    
-    $whereClause = '';
-    if (!empty($whereConditions)) {
-        $whereClause = 'WHERE ' . implode(' AND ', $whereConditions);
-    }
 }
 
+// Build query efficiently
+$whereConditions = [];
+$params = [];
+
+if (!empty($search)) {
+    $whereConditions[] = "(employee_id LIKE ? OR full_name LIKE ?)";
+    $searchTerm = "%$search%";
+    $params[] = $searchTerm;
+    $params[] = $searchTerm;
+}
+
+if (!empty($department)) {
+    $whereConditions[] = "department = ?";
+    $params[] = $department;
+}
+
+if (!empty($supervisor)) {
+    $whereConditions[] = "supervisor = ?";
+    $params[] = $supervisor;
+}
+
+if (!empty($operationManager)) {
+    $whereConditions[] = "operation_manager = ?";
+    $params[] = $operationManager;
+}
+
+if ($status !== '') {
+    $whereConditions[] = "is_active = ?";
+    $params[] = $status;
+}
+
+$whereClause = empty($whereConditions) ? '' : 'WHERE ' . implode(' AND ', $whereConditions);
 $page = max($page, 1);
 $perPage = 10;
+$offset = ($page - 1) * $perPage;
 
+// Optimized count query
 try {
-    $countStmt = $pdo->prepare("SELECT COUNT(*) FROM employees $whereClause");
-    if (!empty($params)) {
-        foreach ($params as $key => $value) {
-            $countStmt->bindValue($key + 1, $value);
-        }
-    }
-    $countStmt->execute();
+    $countSql = "SELECT COUNT(*) FROM employees $whereClause";
+    $countStmt = $pdo->prepare($countSql);
+    $countStmt->execute($params);
     $totalEmployees = $countStmt->fetchColumn();
 } catch (PDOException $e) {
     $totalEmployees = 0;
 }
 
 $totalPages = ceil($totalEmployees / $perPage);
-$page = min($page, $totalPages);
-$offset = ($page - 1) * $perPage;
+$page = min($page, max($totalPages, 1));
 
+// Optimized data query
 try {
-    $stmt = $pdo->prepare("SELECT * FROM employees $whereClause ORDER BY created_at DESC LIMIT ? OFFSET ?");
+    $sql = "SELECT id, employee_id, full_name, department, supervisor, operation_manager, email, created_at, is_active 
+            FROM employees 
+            $whereClause 
+            ORDER BY created_at DESC 
+            LIMIT ? OFFSET ?";
     
-    // Bind where clause parameters
+    $stmt = $pdo->prepare($sql);
+    
+    // Bind all parameters
     $paramIndex = 1;
-    if (!empty($params)) {
-        foreach ($params as $value) {
-            $stmt->bindValue($paramIndex, $value);
-            $paramIndex++;
-        }
+    foreach ($params as $param) {
+        $stmt->bindValue($paramIndex, $param);
+        $paramIndex++;
     }
     
-    // Bind limit and offset
     $stmt->bindValue($paramIndex, $perPage, PDO::PARAM_INT);
     $stmt->bindValue($paramIndex + 1, $offset, PDO::PARAM_INT);
     
@@ -141,6 +104,7 @@ try {
     $employees = $stmt->fetchAll();
 } catch (PDOException $e) {
     $employees = [];
+    error_log("Database error: " . $e->getMessage());
 }
 ?>
 
