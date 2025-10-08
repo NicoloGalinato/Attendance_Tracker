@@ -282,7 +282,8 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
                 <button id="reTrackEmailBtn" class="hidden bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
                     <i class="fas fa-redo-alt mr-2"></i> Re-track Email
                 </button>
-                <a href="<?= $currentTab === 'vto' ? 'vto_form.php' : 'attendance_form.php' ?>?action=create&type=<?= $currentTab ?>" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center">
+                <!-- Updated Add New Button -->
+                <a href="#" id="addNewButton" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center">
                     <i class="fas fa-plus mr-2"></i> Add New
                 </a>
             </div>
@@ -560,7 +561,7 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
 
 
         <?php if (isset($showPendingIRModal) && $showPendingIRModal): ?>
-        <div id="pendingIRModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+        <div id="pendingIRModal" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-200">
             <div class="bg-gray-800 rounded-lg border border-gray-700 shadow-xl w-full max-w-4xl">
                 <div class="px-6 py-6">
                     <h3 class="text-lg font-bold text-gray-100 mb-4">Pending IR Forms Found for <?= htmlspecialchars($employeeName) ?></h3>
@@ -662,6 +663,138 @@ function updateAllPendingIRs() {
 </div>
 
 <script>
+    // Simple checkbox functionality that works with dynamic content
+document.addEventListener('DOMContentLoaded', function() {
+    // Use event delegation for checkboxes since they're loaded dynamically
+    document.addEventListener('change', function(e) {
+        // Handle select all checkbox
+        if (e.target.id === 'selectAllCheckbox') {
+            const isChecked = e.target.checked;
+            document.querySelectorAll('.record-checkbox').forEach(checkbox => {
+                checkbox.checked = isChecked;
+            });
+            toggleActionButtons();
+        }
+        
+        // Handle individual record checkboxes
+        if (e.target.classList.contains('record-checkbox')) {
+            toggleActionButtons();
+        }
+    });
+    
+    // No Need Email button functionality
+    const noNeedEmailBtn = document.getElementById('noNeedEmailBtn');
+    if (noNeedEmailBtn) {
+        noNeedEmailBtn.addEventListener('click', function() {
+            const selectedIds = Array.from(document.querySelectorAll('.record-checkbox'))
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.getAttribute('data-id'));
+                
+            if (selectedIds.length === 0) {
+                alert('Please select at least one record.');
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to mark ${selectedIds.length} record(s) as "No Need Email"?`)) {
+                return;
+            }
+            
+            // Send AJAX request to update records
+            const formData = new FormData();
+            formData.append('action', 'no_need_email');
+            formData.append('record_ids', JSON.stringify(selectedIds));
+            formData.append('type', '<?= $currentTab ?>');
+            
+            fetch('../includes/update_attendance.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Successfully updated ${data.updated} record(s).`);
+                    location.reload(); // Reload to reflect changes
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating records.');
+            });
+        });
+    }
+    
+    // Re-track Email button functionality
+    const reTrackEmailBtn = document.getElementById('reTrackEmailBtn');
+    if (reTrackEmailBtn) {
+        reTrackEmailBtn.addEventListener('click', function() {
+            const selectedIds = Array.from(document.querySelectorAll('.record-checkbox'))
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.getAttribute('data-id'));
+                
+            if (selectedIds.length === 0) {
+                alert('Please select at least one record.');
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to re-track email for ${selectedIds.length} record(s)? This will reset the email status.`)) {
+                return;
+            }
+            
+            // Send AJAX request to update records
+            const formData = new FormData();
+            formData.append('action', 're_track_email');
+            formData.append('record_ids', JSON.stringify(selectedIds));
+            formData.append('type', '<?= $currentTab ?>');
+            
+            fetch('../includes/update_attendance.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Successfully reset email status for ${data.updated} record(s).`);
+                    location.reload(); // Reload to reflect changes
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating records.');
+            });
+        });
+    }
+});
+    
+    // Modify the toggleActionButtons function to handle both buttons
+    function toggleActionButtons() {
+        // Don't show the buttons for VTO tab
+        if ('<?= $currentTab ?>' === 'vto') return;
+        
+        const anyChecked = Array.from(document.querySelectorAll('.record-checkbox')).some(checkbox => checkbox.checked);
+        const noNeedEmailBtn = document.getElementById('noNeedEmailBtn');
+        const reTrackEmailBtn = document.getElementById('reTrackEmailBtn');
+        
+        if (anyChecked) {
+            if (noNeedEmailBtn) noNeedEmailBtn.classList.remove('hidden');
+            if (reTrackEmailBtn) reTrackEmailBtn.classList.remove('hidden');
+        } else {
+            if (noNeedEmailBtn) noNeedEmailBtn.classList.add('hidden');
+            if (reTrackEmailBtn) reTrackEmailBtn.classList.add('hidden');
+        }
+    }
+
+    // Also hide the buttons when in VTO tab
+    if ('<?= $currentTab ?>' === 'vto') {
+        const noNeedEmailBtn = document.getElementById('noNeedEmailBtn');
+        const reTrackEmailBtn = document.getElementById('reTrackEmailBtn');
+        if (noNeedEmailBtn) noNeedEmailBtn.classList.add('hidden');
+        if (reTrackEmailBtn) reTrackEmailBtn.classList.add('hidden');
+    }
+
 // Simple Loading Manager - Only for initial load
 class SimpleLoadingManager {
     constructor() {
@@ -706,6 +839,7 @@ class AttendanceManager {
         this.tabLinks = document.querySelectorAll('.tab-link');
         this.tableContainer = document.getElementById('attendanceTableContainer');
         this.statsCardsContainer = document.getElementById('statsCardsContainer');
+        this.addNewButton = document.getElementById('addNewButton');
         
         this.searchTimeout = null;
         this.isLoading = false;
@@ -727,6 +861,7 @@ class AttendanceManager {
 
     init() {
         this.bindEvents();
+        this.updateAddNewButton(this.currentTab); // Add this line
         this.loadInitialData();
     }
 
@@ -800,9 +935,34 @@ class AttendanceManager {
         // Update stats cards for the new tab
         this.updateStatsCards(tab);
         
+        // Update Add New button URL
+        this.updateAddNewButton(tab);
+        
         // Update URL without reload
         this.updateUrl();
         this.loadTable(1);
+    }
+
+    updateAddNewButton(tab) {
+        let formUrl = '';
+        let type = 'absenteeism';
+        
+        switch(tab) {
+            case 'tardiness':
+                formUrl = 'attendance_form.php';
+                type = 'tardiness';
+                break;
+            case 'vto':
+                formUrl = 'vto_form.php';
+                type = 'vto';
+                break;
+            default:
+                formUrl = 'attendance_form.php';
+                type = 'absenteeism';
+        }
+        
+        // Update the href attribute of the Add New button
+        this.addNewButton.href = `${formUrl}?action=create&type=${type}`;
     }
 
     async updateStatsCards(tab) {
@@ -989,8 +1149,10 @@ class AttendanceManager {
         if (this.currentPage > 1) params.append('page', this.currentPage);
         
         const queryString = params.toString();
-        const newUrl = queryString ? `?${queryString}` : window.location.pathname;
-        history.replaceState(null, '', newUrl);
+        const newUrl = queryString ? `attendance.php?${queryString}` : 'attendance.php';
+        
+        // Update browser URL without reloading the page
+        window.history.replaceState({ path: newUrl }, '', newUrl);
     }
 
     loadInitialData() {
@@ -1024,6 +1186,9 @@ class AttendanceManager {
         
         // Update card buttons state for initial tab
         this.updateCardButtonsState(this.currentTab);
+        
+        // Update Add New button for initial tab
+        this.updateAddNewButton(this.currentTab);
         
         // Load initial data
         this.loadTable(this.currentPage);

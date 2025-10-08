@@ -77,12 +77,12 @@ foreach ($requiredEmails as $role => $email) {
         // Create PHPMailer instance
         $mail = new PHPMailer(true);
         
-        // SMTP Configuration for Brevo
+        // SMTP Configuration for GMail
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = 'cxi-slm@communixinc.com'; // Replace with your Brevo email
-        $mail->Password = 'wwrb ohbj ghrm mseo'; // Replace with your Brevo SMTP password
+        $mail->Username = 'cxi-slm@communixinc.com'; // Replace with your GMail
+        $mail->Password = 'lvxi sqrd tpvq bpgh'; // Replace with your GMail SMTP password
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
 
