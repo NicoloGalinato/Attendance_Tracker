@@ -8,7 +8,7 @@ if (isset($_POST['login'])) {
     
     try {
         // Check if account is temporarily locked
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ? AND is_active = 1");
         $stmt->execute([$username]);
         $user = $stmt->fetch();
         

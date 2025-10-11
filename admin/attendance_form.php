@@ -342,6 +342,7 @@ renderSidebar('attendance');
                                 <option value="ABSENCE / NCNS (LATE ADVISE)" <?= $record && $record['sanction'] === 'ABSENCE / NCNS (LATE ADVISE)' ? 'selected' : '' ?>>ABSENCE / NCNS (LATE ADVISE)</option>
                                 <option value="ABSENCE / NCNS / CWD" <?= $record && $record['sanction'] === 'ABSENCE / NCNS / CWD' ? 'selected' : '' ?>>ABSENCE / NCNS / CWD</option>
                                 <option value="ABSENCE / NCNS / CWD (LATE ADVISE)" <?= $record && $record['sanction'] === 'ABSENCE / NCNS / CWD (LATE ADVISE)' ? 'selected' : '' ?>>ABSENCE / NCNS / CWD (LATE ADVISE)</option>
+                                <option value="PVL" <?= $record && $record['sanction'] === 'PVL' ? 'selected' : '' ?>>PVL</option>
                             </select>
                         </div>
                         
@@ -370,6 +371,7 @@ renderSidebar('attendance');
                                 <option value="DSOT" <?= $record && $record['coverage_type'] === 'DSOT' ? 'selected' : '' ?>>DSOT</option>
                                 <option value="RDOT" <?= $record && $record['coverage_type'] === 'RDOT' ? 'selected' : '' ?>>RDOT</option>
                                 <option value="AGENT MODE" <?= $record && $record['coverage_type'] === 'AGENT MODE' ? 'selected' : '' ?>>AGENT MODE</option>
+                                <option value="PVL" <?= $record && $record['coverage_type'] === 'PVL' ? 'selected' : '' ?>>PVL</option>
                             </select>
                         </div>
                         

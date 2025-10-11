@@ -8,95 +8,78 @@ if (!isLoggedIn() || !isAdmin()) {
 
 updateLastActivity();
 
-// Get statistics - will be updated via AJAX
+// Get statistics
 $stats = [
+    
     'pending_emails' => 0,
     'pending_ir' => 0,
     'uncovered_shift' => 0, 
-    'pending_coverage' => 0
+    'pending_coverage' => 0, 
+    'absent_today' => 0,
+    'absent_week' => 0,
+    'absent_month' => 0,
+    'absent_year' => 0,
+    'late_today' => 0,
+    'late_week' => 0,
+    'late_month' => 0,
+    'late_year' => 0
 ];
 
-// Handle AJAX request for stats
-if (isset($_POST['ajax']) && $_POST['ajax'] === 'get_stats') {
-    $tab = $_POST['tab'] ?? 'absenteeism';
-    $stats = getStatsForTab($tab);
-    header('Content-Type: application/json');
-    echo json_encode($stats);
-    exit;
-}
+try {
+    $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
 
-function getStatsForTab($currentTab) {
-    global $pdo;
-    
-    $stats = [
-        'pending_emails' => 0,
-        'pending_ir' => 0,
-        'uncovered_shift' => 0, 
-        'pending_coverage' => 0
-    ];
-
-    try {
-        // Pending emails (not sent)
-        if ($currentTab === 'absenteeism' || $currentTab === 'tardiness') {
-            if ($currentTab === 'absenteeism') {
-                $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE email_sent = 0");
-                $stats['pending_emails'] = $stmt->fetchColumn();
-            } else {
-                $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE email_sent = 0");
-                $stats['pending_emails'] = $stmt->fetchColumn();
-            }
-        } else {
-            // For VTO tab, show both
+    // Pending emails (not sent)
+    if ($currentTab === 'absenteeism' || $currentTab === 'tardiness') {
+        if ($currentTab === 'absenteeism') {
             $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE email_sent = 0");
-            $stats['pending_emails'] += $stmt->fetchColumn();
-            
-            $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE email_sent = 0");
-            $stats['pending_emails'] += $stmt->fetchColumn();
-        }
-        
-        // Pending IR forms
-        if ($currentTab === 'absenteeism' || $currentTab === 'tardiness') {
-            if ($currentTab === 'absenteeism') {
-                $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE ir_form NOT REGEXP '^(YES|NO NEED)'");
-                $stats['pending_ir'] = $stmt->fetchColumn();
-            } else {
-                $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE ir_form NOT REGEXP '^(YES|FOR ACCUMULATION|NO NEED|EXPIRED)'");
-                $stats['pending_ir'] += $stmt->fetchColumn();
-            }
+            $stats['pending_emails'] = $stmt->fetchColumn();
         } else {
-            // For VTO tab, show both
+            $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE email_sent = 0");
+            $stats['pending_emails'] = $stmt->fetchColumn();
+        }
+    } else {
+        // For other tabs or when no tab is selected, show both
+        $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE email_sent = 0");
+        $stats['pending_emails'] += $stmt->fetchColumn();
+        
+        $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE email_sent = 0");
+        $stats['pending_emails'] += $stmt->fetchColumn();
+    }
+    
+    // Pending IR forms
+    if ($currentTab === 'absenteeism' || $currentTab === 'tardiness') {
+        if ($currentTab === 'absenteeism') {
             $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE ir_form NOT REGEXP '^(YES|NO NEED)'");
-            $stats['pending_ir'] += $stmt->fetchColumn();
-
+            $stats['pending_ir'] = $stmt->fetchColumn();
+        } else {
             $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE ir_form NOT REGEXP '^(YES|FOR ACCUMULATION|NO NEED|EXPIRED)'");
             $stats['pending_ir'] += $stmt->fetchColumn();
         }
+    } else {
+        // For other tabs or when no tab is selected, show both
+        $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE ir_form NOT REGEXP '^(YES|NO NEED)'");
+        $stats['pending_ir'] += $stmt->fetchColumn();
 
-        // Pending Coverage - only for absenteeism
-        if ($currentTab === 'absenteeism') {
-            $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE coverage = 'PENDING'"); 
-            $stats['pending_coverage'] = $stmt->fetchColumn();
-        }
-
-        // Pending Uncovered Shift - only for absenteeism
-        if ($currentTab === 'absenteeism') {
-            $todayDate = date('Y-m-d');
-            $stmt = $pdo->prepare("SELECT COUNT(*) FROM absenteeism WHERE coverage = 'UNCOVERED' AND date_of_absent = ?");
-            $stmt->execute([$todayDate]);
-            $stats['uncovered_shift'] = $stmt->fetchColumn();
-        }
-        
-    } catch (PDOException $e) {
-        // If there's an error, we'll just use the default 0 values
-        error_log("Error getting stats: " . $e->getMessage());
+        $stmt = $pdo->query("SELECT COUNT(*) FROM tardiness WHERE ir_form NOT REGEXP '^(YES|FOR ACCUMULATION|NO NEED|EXPIRED)'");
+        $stats['pending_ir'] += $stmt->fetchColumn();
     }
-    
-    return $stats;
-}
 
-// Get initial stats for current tab
-$currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
-$stats = getStatsForTab($currentTab);
+    // Pending Coverage
+    $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE coverage = 'PENDING'"); 
+    $stats['pending_coverage'] += $stmt->fetchColumn();
+
+
+
+    $todayDate = date('Y-m-d');
+    // Pending Uncovered Shift
+    $todayDate = date('Y-m-d');
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM absenteeism WHERE coverage = 'UNCOVERED' AND date_of_absent = ?");
+    $stmt->execute([$todayDate]);
+    $stats['uncovered_shift'] += $stmt->fetchColumn();
+    
+} catch (PDOException $e) {
+    // If there's an error, we'll just use the default 0 values
+}
 
 // Get data for charts (last 12 months)
 $chartData = [
@@ -261,14 +244,6 @@ renderSidebar('attendance');
 $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
 ?>
 
-<!-- Minimal Loading Screen - Only for initial page load -->
-<div id="initialLoading" class="fixed inset-0 bg-gray-900 flex items-center justify-center z-50 transition-opacity duration-300">
-    <div class="text-center">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-        <p class="text-white text-lg">Loading Attendance Tracker...</p>
-    </div>
-</div>
-
 <div class=" pt-2 min-h-screen">
     <main class="p-6">
         <div class="flex justify-between items-center mb-6">
@@ -282,15 +257,14 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
                 <button id="reTrackEmailBtn" class="hidden bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
                     <i class="fas fa-redo-alt mr-2"></i> Re-track Email
                 </button>
-                <!-- Updated Add New Button -->
-                <a href="#" id="addNewButton" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center">
+                <a href="<?= $currentTab === 'vto' ? 'vto_form.php' : 'attendance_form.php' ?>?action=create&type=<?= $currentTab ?>" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center">
                     <i class="fas fa-plus mr-2"></i> Add New
                 </a>
             </div>
         </div>
         
         <!-- Stats Cards -->
-        <div id="statsCardsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <!-- Pending Emails -->
             <button type="button" name="filter" value="pending_emails" 
                 class="filter-button bg-gray-800 rounded-xl border border-gray-700 p-6 shadow hover:border-blue-500 transition-colors duration-200 text-left 
@@ -299,7 +273,7 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
                 <div class="flex items-center justify-between">
                     <div>
                         <h3 class="text-gray-400 text-sm font-medium">Pending Emails</h3>
-                        <p class="text-3xl font-bold mt-2 text-gray-100" id="pendingEmailsCount"><?= $stats['pending_emails'] ?></p>
+                        <p class="text-3xl font-bold mt-2 text-gray-100"><?= $stats['pending_emails'] ?></p>
                         <p class="text-xs text-gray-400 mt-1">Emails not yet sent</p>
                     </div>
                     <div class="bg-primary-500/20 p-3 rounded-full">
@@ -316,7 +290,7 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
                 <div class="flex items-center justify-between">
                     <div>
                         <h3 class="text-gray-400 text-sm font-medium">Pending IR Forms</h3>
-                        <p class="text-3xl font-bold mt-2 text-gray-100" id="pendingIrCount"><?= $stats['pending_ir'] ?></p>
+                        <p class="text-3xl font-bold mt-2 text-gray-100"><?= $stats['pending_ir'] ?></p>
                         <p class="text-xs text-gray-400 mt-1">Forms not yet submitted</p>
                     </div>
                     <div class="bg-yellow-500/20 p-3 rounded-full">
@@ -333,7 +307,7 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
                 <div class="flex items-center justify-between">
                     <div>
                         <h3 class="text-gray-400 text-sm font-medium">Pending Coverage</h3>
-                        <p class="text-3xl font-bold mt-2 text-gray-100" id="pendingCoverageCount"><?= $stats['pending_coverage'] ?></p>
+                        <p class="text-3xl font-bold mt-2 text-gray-100"><?= $stats['pending_coverage'] ?></p>
                         <p class="text-xs text-gray-400 mt-1">Shift not yet covered</p>
                     </div>
                     <div class="bg-orange-500/20 p-3 rounded-full">
@@ -350,7 +324,7 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
                 <div class="flex items-center justify-between">
                     <div>
                         <h3 class="text-gray-400 text-sm font-medium">Uncovered Shift</h3>
-                        <p class="text-3xl font-bold mt-2 text-gray-100" id="uncoveredShiftCount"><?= $stats['uncovered_shift'] ?></p>
+                        <p class="text-3xl font-bold mt-2 text-gray-100"><?= $stats['uncovered_shift'] ?></p>
                         <p class="text-xs text-gray-400 mt-1">Today's uncovered shift</p>
                     </div>
                     <div class="bg-red-500/20 p-3 rounded-full">
@@ -359,17 +333,41 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
                 </div>
             </button>
         </div>
+        <!-- Wrap your stats cards in a form that preserves all filters -->
+        <!-- Replace the existing stats cards form with this -->
+        <form method="get" action="attendance.php" id="mainFilterForm">
+            <input type="hidden" name="tab" value="<?= $currentTab ?>">
+            <!-- Preserve existing filters -->
+            <?php if (!empty($_GET['search'])): ?>
+                <input type="hidden" name="search" value="<?= htmlspecialchars($_GET['search']) ?>">
+            <?php endif; ?>
+            <?php if (!empty($_GET['from'])): ?>
+                <input type="hidden" name="from" value="<?= htmlspecialchars($_GET['from']) ?>">
+            <?php endif; ?>
+            <?php if (!empty($_GET['to'])): ?>
+                <input type="hidden" name="to" value="<?= htmlspecialchars($_GET['to']) ?>">
+            <?php endif; ?>
+            <?php if (!empty($_GET['dept'])): ?>
+                <input type="hidden" name="dept" value="<?= htmlspecialchars($_GET['dept']) ?>">
+            <?php endif; ?>
+            <?php if (!empty($_GET['cov'])): ?>
+                <input type="hidden" name="cov" value="<?= htmlspecialchars($_GET['cov']) ?>">
+            <?php endif; ?>
+            <?php if (!empty($_GET['ir'])): ?>
+                <input type="hidden" name="ir" value="<?= htmlspecialchars($_GET['ir']) ?>">
+            <?php endif; ?>
+        </form>
 
         <!-- Tabs -->
         <div class="border-b border-gray-700 mb-6">
             <nav class="-mb-px flex space-x-8">
-                <a href="#" data-tab="absenteeism" class="tab-link <?= $currentTab === 'absenteeism' ? 'border-primary-500 text-primary-400' : 'border-transparent text-gray-400 hover:text-gray-300' ?> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                <a href="?tab=absenteeism" class="<?= $currentTab === 'absenteeism' ? 'border-primary-500 text-primary-400' : 'border-transparent text-gray-400 hover:text-gray-300' ?> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
                     Absenteeism
                 </a>
-                <a href="#" data-tab="tardiness" class="tab-link <?= $currentTab === 'tardiness' ? 'border-primary-500 text-primary-400' : 'border-transparent text-gray-400 hover:text-gray-300' ?> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                <a href="?tab=tardiness" class="<?= $currentTab === 'tardiness' ? 'border-primary-500 text-primary-400' : 'border-transparent text-gray-400 hover:text-gray-300' ?> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
                     Tardiness
                 </a>
-                <a href="#" data-tab="vto" class="tab-link <?= $currentTab === 'vto' ? 'border-primary-500 text-primary-400' : 'border-transparent text-gray-400 hover:text-gray-300' ?> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                <a href="?tab=vto" class="<?= $currentTab === 'vto' ? 'border-primary-500 text-primary-400' : 'border-transparent text-gray-400 hover:text-gray-300' ?> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
                     VTO Tracker
                 </a>
             </nav>
@@ -555,13 +553,13 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
             </div>
         </div>
 
-        <div id="attendanceTableContainer" class="transition-opacity duration-200">
+        <div id="attendanceTableContainer">
             <?php include 'partials/attendance_table.php'; ?>
         </div>
 
 
         <?php if (isset($showPendingIRModal) && $showPendingIRModal): ?>
-        <div id="pendingIRModal" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-200">
+        <div id="pendingIRModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
             <div class="bg-gray-800 rounded-lg border border-gray-700 shadow-xl w-full max-w-4xl">
                 <div class="px-6 py-6">
                     <h3 class="text-lg font-bold text-gray-100 mb-4">Pending IR Forms Found for <?= htmlspecialchars($employeeName) ?></h3>
@@ -662,8 +660,11 @@ function updateAllPendingIRs() {
     </main>
 </div>
 
+
+
 <script>
-    // Simple checkbox functionality that works with dynamic content
+
+// Simple checkbox functionality that works with dynamic content
 document.addEventListener('DOMContentLoaded', function() {
     // Use event delegation for checkboxes since they're loaded dynamically
     document.addEventListener('change', function(e) {
@@ -767,7 +768,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-});
     
     // Modify the toggleActionButtons function to handle both buttons
     function toggleActionButtons() {
@@ -794,486 +794,325 @@ document.addEventListener('DOMContentLoaded', function() {
         if (noNeedEmailBtn) noNeedEmailBtn.classList.add('hidden');
         if (reTrackEmailBtn) reTrackEmailBtn.classList.add('hidden');
     }
+    
+    // Initialize filter functionality
+    const searchInput = document.getElementById('searchInput');
+    const dateFrom = document.getElementById('dateFrom');
+    const dateTo = document.getElementById('dateTo');
+    const departmentFilter = document.getElementById('departmentFilter');
+    const coverageFilter = document.getElementById('coverageFilter');
+    const irFilter = document.getElementById('irFilter');
+    let searchTimeout;
+    let currentFilter = '';
 
-// Simple Loading Manager - Only for initial load
-class SimpleLoadingManager {
-    constructor() {
-        this.initialLoading = document.getElementById('initialLoading');
-        this.init();
-    }
-
-    init() {
-        // Hide loading when page is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.hideInitialLoading());
+    // Function to load data with current filters
+    function loadFilteredData(page = 1) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const formData = new FormData();
+        
+        // Always include search
+        formData.append('search', searchInput.value);
+        
+        // Apply current filter type
+        if (currentFilter) {
+            formData.append('filter', currentFilter);
+            if (currentFilter !== 'pending_coverage') {
+                coverageFilter.value = '';
+            }
         } else {
-            this.hideInitialLoading();
+            formData.append('department', departmentFilter.value);
+            formData.append('coverage', coverageFilter.value);
+            formData.append('ir_filter', irFilter.value);
         }
-    }
 
-    hideInitialLoading() {
-        setTimeout(() => {
-            if (this.initialLoading) {
-                this.initialLoading.style.opacity = '0';
-                setTimeout(() => {
-                    this.initialLoading.remove();
-                }, 100);
-            }
-        }, 300);
-    }
-}
-
-// Initialize loading manager
-const loadingManager = new SimpleLoadingManager();
-
-// Optimized Attendance Manager
-class AttendanceManager {
-    constructor() {
-        this.searchInput = document.getElementById('searchInput');
-        this.dateFrom = document.getElementById('dateFrom');
-        this.dateTo = document.getElementById('dateTo');
-        this.departmentFilter = document.getElementById('departmentFilter');
-        this.coverageFilter = document.getElementById('coverageFilter');
-        this.irFilter = document.getElementById('irFilter');
-        this.filterButtons = document.querySelectorAll('.filter-button');
-        this.tabLinks = document.querySelectorAll('.tab-link');
-        this.tableContainer = document.getElementById('attendanceTableContainer');
-        this.statsCardsContainer = document.getElementById('statsCardsContainer');
-        this.addNewButton = document.getElementById('addNewButton');
+        // Add other filters
+        formData.append('date_from', dateFrom.value);
+        formData.append('date_to', dateTo.value);
+        formData.append('type', urlParams.get('tab') || 'absenteeism');
+        formData.append('page', page);
         
-        this.searchTimeout = null;
-        this.isLoading = false;
-        this.pendingRequest = null;
-        this.currentTab = '<?= $currentTab ?>';
-        this.currentPage = 1;
-        this.filters = {
-            search: '',
-            from: '',
-            to: '',
-            dept: '',
-            cov: '',
-            ir: '',
-            filter: ''
-        };
-        
-        this.init();
-    }
-
-    init() {
-        this.bindEvents();
-        this.updateAddNewButton(this.currentTab); // Add this line
-        this.loadInitialData();
-    }
-
-    bindEvents() {
-        // Search with debouncing
-        this.searchInput?.addEventListener('input', (e) => {
-            this.filters.search = e.target.value;
-            clearTimeout(this.searchTimeout);
-            this.searchTimeout = setTimeout(() => {
-                this.loadTable(1);
-            }, 300);
-        });
-
-        // Other filters
-        [this.dateFrom, this.dateTo, this.departmentFilter, this.coverageFilter, this.irFilter].forEach(element => {
-            element?.addEventListener('change', () => {
-                this.updateFilters();
-                this.loadTable(1);
-            });
-        });
-
-        // Filter buttons
-        this.filterButtons.forEach(button => {
-            button.addEventListener('click', (e) => {
-                if (!button.disabled) {
-                    const filterValue = button.getAttribute('value');
-                    this.filters.filter = filterValue;
-                    this.loadTable(1);
-                }
-            });
-        });
-
-        // Tab links
-        this.tabLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const tab = link.getAttribute('data-tab');
-                this.switchTab(tab);
-            });
+        fetch('partials/attendance_table.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('attendanceTableContainer').innerHTML = data;
+            setupPaginationLinks();
         });
     }
 
-    updateFilters() {
-        this.filters = {
-            search: this.searchInput.value,
-            from: this.dateFrom.value,
-            to: this.dateTo.value,
-            dept: this.departmentFilter.value,
-            cov: this.coverageFilter.value,
-            ir: this.irFilter.value,
-            filter: this.filters.filter
-        };
-    }
-
-    switchTab(tab) {
-        this.currentTab = tab;
-        this.currentPage = 1;
-        this.filters.filter = '';
-        
-        // Update active tab UI
-        this.tabLinks.forEach(link => {
-            if (link.getAttribute('data-tab') === tab) {
-                link.classList.add('border-primary-500', 'text-primary-400');
-                link.classList.remove('border-transparent', 'text-gray-400');
-            } else {
-                link.classList.remove('border-primary-500', 'text-primary-400');
-                link.classList.add('border-transparent', 'text-gray-400');
-            }
-        });
-
-        // Update stats cards for the new tab
-        this.updateStatsCards(tab);
-        
-        // Update Add New button URL
-        this.updateAddNewButton(tab);
-        
-        // Update URL without reload
-        this.updateUrl();
-        this.loadTable(1);
-    }
-
-    updateAddNewButton(tab) {
-        let formUrl = '';
-        let type = 'absenteeism';
-        
-        switch(tab) {
-            case 'tardiness':
-                formUrl = 'attendance_form.php';
-                type = 'tardiness';
-                break;
-            case 'vto':
-                formUrl = 'vto_form.php';
-                type = 'vto';
-                break;
-            default:
-                formUrl = 'attendance_form.php';
-                type = 'absenteeism';
-        }
-        
-        // Update the href attribute of the Add New button
-        this.addNewButton.href = `${formUrl}?action=create&type=${type}`;
-    }
-
-    async updateStatsCards(tab) {
-        try {
-            const formData = new FormData();
-            formData.append('ajax', 'get_stats');
-            formData.append('tab', tab);
-
-            const response = await fetch('attendance.php', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-
-            if (!response.ok) throw new Error('Network response was not ok');
-
-            const stats = await response.json();
-            
-            // Update the stats numbers
-            document.getElementById('pendingEmailsCount').textContent = stats.pending_emails;
-            document.getElementById('pendingIrCount').textContent = stats.pending_ir;
-            document.getElementById('pendingCoverageCount').textContent = stats.pending_coverage;
-            document.getElementById('uncoveredShiftCount').textContent = stats.uncovered_shift;
-
-            // Update button states based on tab
-            this.updateCardButtonsState(tab);
-
-        } catch (error) {
-            console.error('Error updating stats:', error);
-        }
-    }
-
-    updateCardButtonsState(tab) {
-        const pendingEmailsBtn = document.querySelector('button[value="pending_emails"]');
-        const pendingIrBtn = document.querySelector('button[value="pending_ir"]');
-        const pendingCoverageBtn = document.querySelector('button[value="pending_coverage"]');
-        const uncoveredShiftBtn = document.querySelector('button[value="uncovered_shift"]');
-
-        // Reset all buttons first
-        [pendingEmailsBtn, pendingIrBtn, pendingCoverageBtn, uncoveredShiftBtn].forEach(btn => {
-            if (btn) {
-                btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                btn.disabled = false;
-            }
-        });
-
-        // Disable appropriate buttons based on tab
-        if (tab === 'vto') {
-            // Disable all filter buttons for VTO tab
-            [pendingEmailsBtn, pendingIrBtn, pendingCoverageBtn, uncoveredShiftBtn].forEach(btn => {
-                if (btn) {
-                    btn.classList.add('opacity-50', 'cursor-not-allowed');
-                    btn.disabled = true;
-                }
-            });
-        } else if (tab === 'tardiness') {
-            // Disable coverage-related buttons for tardiness
-            if (pendingCoverageBtn) {
-                pendingCoverageBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                pendingCoverageBtn.disabled = true;
-            }
-            if (uncoveredShiftBtn) {
-                uncoveredShiftBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                uncoveredShiftBtn.disabled = true;
-            }
-        }
-        // For absenteeism tab, all buttons are enabled (default state)
-    }
-
-    async loadTable(page = 1) {
-        if (this.isLoading && this.pendingRequest) {
-            this.pendingRequest.abort();
-        }
-
-        this.currentPage = page;
-        this.isLoading = true;
-        
-        // Show loading state
-        this.tableContainer.style.opacity = '0.7';
-
-        try {
-            const formData = new FormData();
-            formData.append('tab', this.currentTab);
-            formData.append('page', page);
-            
-            // Add all filters
-            Object.entries(this.filters).forEach(([key, value]) => {
-                if (value) formData.append(key, value);
-            });
-
-            const controller = new AbortController();
-            this.pendingRequest = controller;
-
-            const response = await fetch('partials/attendance_table.php', {
-                method: 'POST',
-                body: formData,
-                signal: controller.signal,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-
-            if (!response.ok) throw new Error('Network response was not ok');
-
-            const html = await response.text();
-            this.tableContainer.innerHTML = html;
-            this.isLoading = false;
-            this.pendingRequest = null;
-            this.tableContainer.style.opacity = '1';
-            
-            this.rebindTableEvents();
-            this.updateUrl();
-
-        } catch (error) {
-            if (error.name !== 'AbortError') {
-                console.error('Error loading table:', error);
-                this.isLoading = false;
-                this.pendingRequest = null;
-                this.tableContainer.style.opacity = '1';
-                this.showError('Error loading data. Please try again.');
-            }
-        }
-    }
-
-    rebindTableEvents() {
-        // Rebind pagination events
+    function setupPaginationLinks() {
         document.querySelectorAll('.pagination-link').forEach(link => {
-            link.addEventListener('click', (e) => {
+            link.addEventListener('click', function(e) {
                 e.preventDefault();
-                const page = parseInt(link.getAttribute('data-page'));
-                this.loadTable(page);
+                const page = this.getAttribute('data-page');
+                loadFilteredData(page);
+                
+                // Update URL with new page parameter
+                const urlParams = new URLSearchParams(window.location.search);
+                urlParams.set('page', page);
+                history.pushState(null, '', '?' + urlParams.toString());
             });
         });
-
-        // Rebind checkbox events
-        document.querySelectorAll('.record-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', () => this.toggleActionButtons());
-        });
-
-        // Rebind select all checkbox
-        const selectAll = document.getElementById('selectAllCheckbox');
-        if (selectAll) {
-            selectAll.addEventListener('change', (e) => {
-                const isChecked = e.target.checked;
-                document.querySelectorAll('.record-checkbox').forEach(checkbox => {
-                    checkbox.checked = isChecked;
-                });
-                this.toggleActionButtons();
-            });
-        }
     }
-
-    toggleActionButtons() {
-        const anyChecked = Array.from(document.querySelectorAll('.record-checkbox')).some(checkbox => checkbox.checked);
-        const noNeedEmailBtn = document.getElementById('noNeedEmailBtn');
-        const reTrackEmailBtn = document.getElementById('reTrackEmailBtn');
-        
-        if (this.currentTab === 'vto') {
-            if (noNeedEmailBtn) noNeedEmailBtn.classList.add('hidden');
-            if (reTrackEmailBtn) reTrackEmailBtn.classList.add('hidden');
-            return;
-        }
-        
-        if (anyChecked) {
-            if (noNeedEmailBtn) noNeedEmailBtn.classList.remove('hidden');
-            if (reTrackEmailBtn) reTrackEmailBtn.classList.remove('hidden');
-        } else {
-            if (noNeedEmailBtn) noNeedEmailBtn.classList.add('hidden');
-            if (reTrackEmailBtn) reTrackEmailBtn.classList.add('hidden');
-        }
-    }
-
-    updateUrl() {
-        const params = new URLSearchParams();
-        params.append('tab', this.currentTab);
-        
-        // Add all filters
-        Object.entries(this.filters).forEach(([key, value]) => {
-            if (value) params.append(key, value);
-        });
-        
-        if (this.currentPage > 1) params.append('page', this.currentPage);
-        
-        const queryString = params.toString();
-        const newUrl = queryString ? `attendance.php?${queryString}` : 'attendance.php';
-        
-        // Update browser URL without reloading the page
-        window.history.replaceState({ path: newUrl }, '', newUrl);
-    }
-
-    loadInitialData() {
+            
+    // Card filter buttons handler
+    function handleCardFilter(filterValue) {
         const urlParams = new URLSearchParams(window.location.search);
         
-        // Set current tab
-        const initialTab = urlParams.get('tab') || 'absenteeism';
-        this.currentTab = initialTab;
+        // Reset all filter params
+        urlParams.delete('dept');
+        urlParams.delete('cov');
+        urlParams.delete('filter');
         
-        // Set filters from URL
-        this.filters = {
-            search: urlParams.get('search') || '',
-            from: urlParams.get('from') || '',
-            to: urlParams.get('to') || '',
-            dept: urlParams.get('dept') || '',
-            cov: urlParams.get('cov') || '',
-            ir: urlParams.get('ir') || '',
-            filter: urlParams.get('filter') || ''
-        };
+        // Set the new filter
+        currentFilter = filterValue;
+        urlParams.set('filter', filterValue);
         
-        // Set filter values in UI
-        this.searchInput.value = this.filters.search;
-        this.dateFrom.value = this.filters.from;
-        this.dateTo.value = this.filters.to;
-        this.departmentFilter.value = this.filters.dept;
-        this.coverageFilter.value = this.filters.cov;
-        this.irFilter.value = this.filters.ir;
+        // Update UI
+        document.querySelectorAll('.filter-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
         
-        // Set initial page
-        this.currentPage = parseInt(urlParams.get('page')) || 1;
-        
-        // Update card buttons state for initial tab
-        this.updateCardButtonsState(this.currentTab);
-        
-        // Update Add New button for initial tab
-        this.updateAddNewButton(this.currentTab);
-        
-        // Load initial data
-        this.loadTable(this.currentPage);
+        history.pushState(null, '', '?' + urlParams.toString());
+        loadFilteredData();
     }
 
-    showError(message) {
-        this.tableContainer.innerHTML = `
-            <div class="bg-red-900/20 border border-red-700 rounded-lg p-6 text-center">
-                <i class="fas fa-exclamation-triangle text-red-400 text-2xl mb-3"></i>
-                <p class="text-red-300 mb-4">${message}</p>
-                <button onclick="attendanceManager.loadTable(1)" 
-                        class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg transition-colors duration-200">
-                    <i class="fas fa-redo mr-2"></i>Try Again
-                </button>
-            </div>
-        `;
+    // Dropdown filter handler
+    function handleDropdownFilter() {
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // Clear card filter
+        currentFilter = '';
+        urlParams.delete('filter');
+        
+        // Set dropdown filters
+        if (departmentFilter.value) {
+            urlParams.set('dept', departmentFilter.value);
+        } else {
+            urlParams.delete('dept');
+        }
+        
+        if (coverageFilter.value) {
+            urlParams.set('cov', coverageFilter.value);
+        } else {
+            urlParams.delete('cov');
+        }
+        
+        // Update UI
+        document.querySelectorAll('.filter-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        history.pushState(null, '', '?' + urlParams.toString());
+        loadFilteredData();
     }
-}
 
-// Initialize attendance manager when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    window.attendanceManager = new AttendanceManager();
+    // Initialize event listeners
+    document.querySelectorAll('.filter-button').forEach(button => {
+        button.addEventListener('click', function() {
+            handleCardFilter(this.value);
+        });
+    });
+
+    departmentFilter.addEventListener('change', handleDropdownFilter);
+    coverageFilter.addEventListener('change', handleDropdownFilter);
+    irFilter.addEventListener('change', handleDropdownFilter);
+    searchInput.addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Preserve current filters
+            if (currentFilter) {
+                urlParams.set('filter', currentFilter);
+            } else {
+                // Preserve dropdown filters
+                if (departmentFilter.value) urlParams.set('dept', departmentFilter.value);
+                if (coverageFilter.value) urlParams.set('cov', coverageFilter.value);
+            }
+            
+            // Update search parameter
+            if (searchInput.value) {
+                urlParams.set('search', searchInput.value);
+            } else {
+                urlParams.delete('search');
+            }
+            
+            history.pushState(null, '', '?' + urlParams.toString());
+            loadFilteredData();
+        }, 300);
+    });
+    dateFrom.addEventListener('change', handleDropdownFilter);
+    dateTo.addEventListener('change', handleDropdownFilter);
+
+    // Initial load
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('filter')) {
+        currentFilter = urlParams.get('filter');
+        document.querySelector(`.filter-button[value="${currentFilter}"]`)?.classList.add('active');
+    }
+    const initialPage = urlParams.get('page') || 1;
+    loadFilteredData(initialPage);
 });
+// // // // // 
 
-// Global functions for modals and other interactions
+
+</script>
+
+<script>
+// // // // // 
+// Delete confirmation modal
+// // // // // 
 function showDeleteModal(recordId, recordType = '') {
-    const modal = document.createElement('div');
-    modal.id = 'deleteModal';
-    modal.className = 'fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-200';
-    modal.innerHTML = `
-        <div class="bg-gray-800 rounded-lg border border-gray-700 shadow-xl w-full max-w-md transform transition-transform duration-200 scale-95">
-            <div class="px-6 py-6">
-                <h3 class="text-lg font-bold text-gray-100 mb-4">Confirm Deletion</h3>
-                <p class="text-gray-300 mb-4">Are you sure you want to delete this record?</p>
-                <form method="post" action="attendance.php?delete=${recordId}&type=${recordType}" class="space-y-4">
-                    <div>
-                        <label for="delete_password" class="block text-sm font-medium text-gray-300 mb-1">To confirm please enter the KEY:</label>
-                        <input type="password" name="delete_password" id="delete_password" 
-                               class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors duration-200" 
-                               required autocomplete="off">
-                    </div>
-                    <div class="flex justify-end space-x-3">
-                        <button type="button" onclick="closeDeleteModal()" 
-                                class="px-4 py-2 bg-gray-600 text-gray-100 rounded-md hover:bg-gray-500 transition-colors duration-200">
-                            Cancel
-                        </button>
-                        <button type="submit" 
-                                class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-500 transition-colors duration-200">
-                            Delete
-                        </button>
-                    </div>
-                </form>
+    const modal = `
+        <div id="deleteModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-gray-800 rounded-lg border border-gray-700 shadow-xl w-full max-w-md">
+                <div class="px-6 py-6">
+                    <h3 class="text-lg font-bold text-gray-100 mb-4">Confirm Deletion</h3>
+                    <p class="text-gray-300 mb-4">Are you sure you want to delete this record?</p>
+                    <form method="post" action="${window.location.pathname}?delete=${recordId}${recordType ? '&type=' + recordType : ''}" class="space-y-4">
+                        <div>
+                            <label for="delete_password" class="block text-sm font-medium text-gray-300 mb-1">To confirm please enter the KEY:</label>
+                            <input type="password" name="delete_password" id="delete_password" 
+                                   class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-200" required>
+                        </div>
+                        <div class="flex justify-end space-x-3">
+                            <button type="button" onclick="closeDeleteModal()" 
+                                    class="px-4 py-2 bg-gray-600 text-gray-100 rounded-md hover:bg-gray-500">
+                                Cancel
+                            </button>
+                            <button type="submit" 
+                                    class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-500">
+                                Delete
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     `;
     
-    document.body.appendChild(modal);
-    
-    setTimeout(() => {
-        modal.querySelector('div').classList.remove('scale-95');
-    }, 10);
-    
-    modal.querySelector('input').focus();
+    document.body.insertAdjacentHTML('beforeend', modal);
 }
 
 function closeDeleteModal() {
     const modal = document.getElementById('deleteModal');
     if (modal) {
-        modal.querySelector('div').classList.add('scale-95');
-        setTimeout(() => modal.remove(), 150);
+        modal.remove();
     }
 }
+// // // // // 
 
-// Global event listeners for modals
+// // // // // 
+// History modal function JS 
+// // // // // 
+function showHistoryModal(recordId, recordType) {
+    const modal = document.getElementById('historyModal');
+    const loader = `
+        <div class="relative">
+            <div class="absolute -left-2.5 top-0 h-5 w-5 rounded-full bg-gray-500 border-4 border-gray-800"></div>
+            <div class="ml-4">
+                <p class="text-sm text-gray-400">Loading history...</p>
+            </div>
+        </div>
+    `;
+    document.getElementById('historyTableBody').innerHTML = loader;
+    modal.classList.remove('hidden');
+    
+    fetch(`get_history.php?record_id=${recordId}&type=${recordType}`)
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = '';
+            
+            if (data.length > 0) {
+                data.forEach(activity => {
+                    const initials = activity.sub_name.split(' ').map(n => n[0]).join('').toUpperCase();
+                    const item = `
+                        <div class="bg-gray-800 rounded-lg p-4 shadow-md border border-gray-700 mb-4 ">
+                            <!-- User & Activity Info -->
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
+                                    ${initials.substring(0, 2)}
+                                </div>
+                                <div class="ml-4">
+                                    <h4 class="text-base font-semibold text-gray-100">${activity.sub_name}</h4>
+                                    <p class="text-sm text-gray-300 mt-1">${activity.activity_description}</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Timeline Indicator & Timestamp -->
+                            <div class="relative ml-10 mt-3">
+                                <div class="absolute -left-2.5 top-0 h-5 w-5 rounded-full bg-blue-600 border-4 border-gray-800"></div>
+                                <div class="ml-4">
+                                    <p class="text-xs text-gray-400">
+                                        ${new Date(activity.activity_time).toLocaleString('en-US', { 
+                                            month: 'short', 
+                                            day: 'numeric', 
+                                            year: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        })}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    tbody.insertAdjacentHTML('beforeend', item);
+                });
+            } else {
+                tbody.innerHTML = `
+                    <div class="relative">
+                        <div class="absolute -left-2.5 top-0 h-5 w-5 rounded-full bg-gray-500 border-4 border-gray-800"></div>
+                        <div class="ml-4">
+                            <p class="text-sm text-gray-400">No history found for this record</p>
+                        </div>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = `
+                <div class="relative">
+                    <div class="absolute -left-2.5 top-0 h-5 w-5 rounded-full bg-red-600 border-4 border-gray-800"></div>
+                    <div class="ml-4">
+                        <p class="text-sm text-red-400">Error loading history: ${error.message}</p>
+                    </div>
+                </div>
+            `;
+        });
+}
+
+function closeHistoryModal() {
+    document.getElementById('historyModal').classList.add('hidden');
+}
+// // // // // 
+
+
+
+// // // // // 
+// Close modal when clicking outside or pressing Escape
+// // // // // 
 document.addEventListener('click', function(e) {
-    if (e.target === document.getElementById('deleteModal')) closeDeleteModal();
+    if (e.target === document.getElementById('historyModal')) {
+        closeHistoryModal();
+    }
 });
 
 document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        if (document.getElementById('deleteModal')) closeDeleteModal();
+    if (e.key === 'Escape' && !document.getElementById('historyModal').classList.contains('hidden')) {
+        closeHistoryModal();
     }
 });
-</script>
 
-<?php
-renderFooter();
-?>
+// // // / // 
+</script>
+<?php renderFooter(); ?>

@@ -25,10 +25,10 @@ if (isset($_GET['send_email']) && isset($_GET['type'])) {
             die('Record not found');
         }
 
-        // Get the record from users for esignature
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE sub_name = ?");
-        $stmt->execute([$record['sub_name']]);
-        $record2 = $stmt->fetch();
+        // Get current user's sub_name
+        $userStmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+        $userStmt->execute([$_SESSION['user_id']]);
+        $record2 = $userStmt->fetch();
         
         // Get the record from users full_name to separate the first name format
         $stmt = $pdo->prepare("
@@ -77,12 +77,12 @@ foreach ($requiredEmails as $role => $email) {
         // Create PHPMailer instance
         $mail = new PHPMailer(true);
         
-        // SMTP Configuration for GMail
+        // SMTP Configuration for Brevo
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = 'cxi-slm@communixinc.com'; // Replace with your GMail
-        $mail->Password = 'lvxi sqrd tpvq bpgh'; // Replace with your GMail SMTP password
+        $mail->Username = 'cxi-slm@communixinc.com'; // Replace with your Brevo email
+        $mail->Password = 'lvxi sqrd tpvq bpgh'; // Replace with your Brevo SMTP password
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
 
