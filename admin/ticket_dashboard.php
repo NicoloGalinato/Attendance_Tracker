@@ -9,7 +9,6 @@ if (!isLoggedIn() || !isAdmin()) {
     redirect(BASE_URL);
 }
 
-updateLastActivity();
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
@@ -625,7 +624,6 @@ function formatTimestamp(timestamp) {
         }
     }
 
-    // Update badge periodically (every 0.5 second)
     setInterval(updateNotificationBadge, 500);
 
     // Initial update
