@@ -544,12 +544,12 @@ function renderFooter() {
                         if (data.onlineUsers.includes(userId)) {
                             indicator.classList.remove('bg-gray-400');
                             indicator.classList.add('bg-green-400');
-                            pingElement.style.display = 'inline-flex';
+                            indicator.setAttribute('title', 'Online'); // Add title for online
                         } else {
                             // User is offline
                             indicator.classList.remove('bg-green-400');
                             indicator.classList.add('bg-gray-400');
-                            pingElement.style.display = 'none';
+                            indicator.setAttribute('title', 'Offline'); // Add title for idle
                         }
                     });
                 })
@@ -558,7 +558,7 @@ function renderFooter() {
 
         // Check immediately and then every 15 seconds
         checkOnlineStatus();
-        const statusCheckInterval = setInterval(checkOnlineStatus, 15000);
+        const statusCheckInterval = setInterval(checkOnlineStatus, 1800000);
     </script>
     </body>
     </html>

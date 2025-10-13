@@ -9,8 +9,6 @@ if (!isLoggedIn() || !isAdmin()) {
     redirect(BASE_URL);
 }
 
-updateLastActivity();
-
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 // Get current user's sub_name
@@ -625,8 +623,8 @@ function formatTimestamp(timestamp) {
         }
     }
 
-    // Update badge periodically (every 0.5 second)
-    setInterval(updateNotificationBadge, 500);
+    // Update badge periodically (every 3 seconds)
+    setInterval(updateNotificationBadge, 3000);
 
     // Initial update
     updateNotificationBadge();

@@ -64,7 +64,7 @@ if ($status !== '') {
 
 $whereClause = empty($whereConditions) ? '' : 'WHERE ' . implode(' AND ', $whereConditions);
 $page = max($page, 1);
-$perPage = 10;
+$perPage = 15;
 $offset = ($page - 1) * $perPage;
 
 // Optimized count query

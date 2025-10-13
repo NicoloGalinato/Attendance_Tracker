@@ -24,7 +24,7 @@ if ($type === 'management') {
 }
 
 // Pagination configuration
-$perPage = 10;
+$perPage = 15;
 $searchQuery = '';
 $params = [];
 
@@ -59,7 +59,7 @@ $offset = ($page - 1) * $perPage;
 
 // Get paginated records
 try {
-    $query = "SELECT * FROM $table $searchQuery ORDER BY created_at DESC LIMIT :limit OFFSET :offset";
+    $query = "SELECT * FROM $table $searchQuery ORDER BY is_active = 0, created_at DESC LIMIT :limit OFFSET :offset";
     $stmt = $pdo->prepare($query);
     
     if (!empty($search)) {

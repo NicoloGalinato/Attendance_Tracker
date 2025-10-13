@@ -29,9 +29,13 @@ function sanitizeInput($data) {
 function updateLastActivity() {
     global $pdo;
     if (isset($_SESSION['user_id'])) {
-        $stmt = $pdo->prepare("UPDATE users SET last_activity = NOW() WHERE id = ?");
-        $stmt->execute([$_SESSION['user_id']]);
-        $_SESSION['last_activity'] = time();
+        try {
+            $stmt = $pdo->prepare("UPDATE users SET last_activity = CONVERT_TZ(NOW(), 'SYSTEM', '+08:00') WHERE id = ?");
+            $stmt->execute([$_SESSION['user_id']]);
+            $_SESSION['last_activity'] = time();
+        } catch (PDOException $e) {
+            error_log("Update last activity error: " . $e->getMessage());
+        }
     }
 }
 
