@@ -353,83 +353,136 @@ $monthsWithData = $monthsResult->fetch_all(MYSQLI_ASSOC);
         renderPagination(totalPages, page);
     }
 
-function renderTable(ticketsToRender) {
-    const tableBody = document.getElementById('ticket-table-body');
-    let html = '';
-    if (ticketsToRender.length === 0) {
-        html = `<tr><td colspan="12" class="px-6 py-4 text-center text-gray-400">No tickets found.</td></tr>`;
-    } else {
-        ticketsToRender.forEach(ticket => {
-            const statusBadge = ticket.Status === 'PENDING' 
-                ? `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>`
-                : `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Resolved</span>`;
-            
-            // Format the timestamp
-            const formattedTimestamp = formatTimestamp(ticket.Timestamp);
-            
-            html += `
-                <tr class="cursor-pointer hover:bg-gray-700 transition duration-300" onclick="openModal(${JSON.stringify(ticket).replace(/"/g, '&quot;')})">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.Work_Number}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.EID}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.Employee_name}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.Station_Number}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.LOB}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm">${statusBadge}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.Issues_Concerning}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.TIME_RECEIVED}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.SLT_on_DUTY}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${formattedTimestamp}</td>
-                </tr>
-            `;
-        });
-    }
-    tableBody.innerHTML = html;
-}
-
-// Add this function to format the timestamp
-function formatTimestamp(timestamp) {
-    if (!timestamp) return 'N/A';
-    
-    try {
-        // If timestamp is already a Date object or valid date string
-        const date = new Date(timestamp);
-        
-        // Check if date is valid
-        if (isNaN(date.getTime())) {
-            return 'Invalid Date';
+    function renderTable(ticketsToRender) {
+        const tableBody = document.getElementById('ticket-table-body');
+        let html = '';
+        if (ticketsToRender.length === 0) {
+            html = `<tr><td colspan="12" class="px-6 py-4 text-center text-gray-400">No tickets found.</td></tr>`;
+        } else {
+            ticketsToRender.forEach(ticket => {
+                const statusBadge = ticket.Status === 'PENDING' 
+                    ? `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>`
+                    : `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Resolved</span>`;
+                
+                // Format the timestamp
+                const formattedTimestamp = formatTimestamp(ticket.Timestamp);
+                
+                html += `
+                    <tr class="cursor-pointer hover:bg-gray-700 transition duration-300" onclick="openModal(${JSON.stringify(ticket).replace(/"/g, '&quot;')})">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.Work_Number}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.EID}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.Employee_name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.Station_Number}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.LOB}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">${statusBadge}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.Issues_Concerning}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.TIME_RECEIVED}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${ticket.SLT_on_DUTY}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${formattedTimestamp}</td>
+                    </tr>
+                `;
+            });
         }
-        
-        // Format to "Sep 2, 2025 4:00 AM"
-        const options = { 
-            month: 'short', 
-            day: 'numeric', 
-            year: 'numeric',
-            hour: 'numeric', 
-            minute: '2-digit', 
-            hour12: true 
-        };
-        
-        return date.toLocaleString('en-US', options);
-    } catch (error) {
-        console.error('Error formatting timestamp:', error);
-        return timestamp; // Return original if formatting fails
+        tableBody.innerHTML = html;
     }
-}
+
+    // Add this function to format the timestamp
+    function formatTimestamp(timestamp) {
+        if (!timestamp) return 'N/A';
+        
+        try {
+            // If timestamp is already a Date object or valid date string
+            const date = new Date(timestamp);
+            
+            // Check if date is valid
+            if (isNaN(date.getTime())) {
+                return 'Invalid Date';
+            }
+            
+            // Format to "Sep 2, 2025 4:00 AM"
+            const options = { 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric',
+                hour: 'numeric', 
+                minute: '2-digit', 
+                hour12: true 
+            };
+            
+            return date.toLocaleString('en-US', options);
+        } catch (error) {
+            console.error('Error formatting timestamp:', error);
+            return timestamp; // Return original if formatting fails
+        }
+    }
 
     function renderPagination(totalPages, page) {
         const paginationControls = document.getElementById('pagination-controls');
         let html = '<ul class="flex items-center space-x-2">';
         
+        // Previous button
         const prevDisabled = page === 1 ? 'pointer-events-none opacity-50' : '';
-        html += `<li><a href="#" class="px-3 py-2 leading-tight text-gray-400 bg-gray-700 border border-gray-600 rounded-lg hover:bg-gray-600 hover:text-white ${prevDisabled}" onclick="filterAndPaginate(currentFilter, ${Math.max(1, page - 1)}); return false;">Previous</a></li>`;
+        html += `<li>
+            <a href="#" class="px-3 py-2 leading-tight text-gray-400 bg-gray-700 border border-gray-600 rounded-lg hover:bg-gray-600 hover:text-white ${prevDisabled}" 
+               onclick="filterAndPaginate(currentFilter, ${Math.max(1, page - 1)}); return false;">
+                Previous
+            </a>
+        </li>`;
         
-        for (let i = 1; i <= totalPages; i++) {
-            const activeClass = i === page ? 'font-bold bg-blue-600 text-white hover:bg-blue-600' : 'bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white';
-            html += `<li><a href="#" class="px-3 py-2 leading-tight border border-gray-600 rounded-lg ${activeClass}" onclick="filterAndPaginate(currentFilter, ${i}); return false;">${i}</a></li>`;
+        // Page numbers - improved logic
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, page - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+        
+        // Adjust start page if we're near the end
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
         }
         
+        // First page and ellipsis if needed
+        if (startPage > 1) {
+            html += `<li>
+                <a href="#" class="px-3 py-2 leading-tight border border-gray-600 rounded-lg bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white" 
+                   onclick="filterAndPaginate(currentFilter, 1); return false;">1</a>
+            </li>`;
+            if (startPage > 2) {
+                html += `<li><span class="px-3 py-2 text-gray-400">...</span></li>`;
+            }
+        }
+        
+        // Page numbers
+        for (let i = startPage; i <= endPage; i++) {
+            const activeClass = i === page ? 'font-bold bg-blue-600 text-white hover:bg-blue-600' : 'bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white';
+            html += `<li>
+                <a href="#" class="px-3 py-2 leading-tight border border-gray-600 rounded-lg ${activeClass}" 
+                   onclick="filterAndPaginate(currentFilter, ${i}); return false;">${i}</a>
+            </li>`;
+        }
+        
+        // Last page and ellipsis if needed
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                html += `<li><span class="px-3 py-2 text-gray-400">...</span></li>`;
+            }
+            html += `<li>
+                <a href="#" class="px-3 py-2 leading-tight border border-gray-600 rounded-lg bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white" 
+                   onclick="filterAndPaginate(currentFilter, ${totalPages}); return false;">${totalPages}</a>
+            </li>`;
+        }
+        
+        // Next button
         const nextDisabled = page === totalPages ? 'pointer-events-none opacity-50' : '';
-        html += `<li><a href="#" class="px-3 py-2 leading-tight text-gray-400 bg-gray-700 border border-gray-600 rounded-lg hover:bg-gray-600 hover:text-white ${nextDisabled}" onclick="filterAndPaginate(currentFilter, ${Math.min(totalPages, page + 1)}); return false;">Next</a></li>`;
+        html += `<li>
+            <a href="#" class="px-3 py-2 leading-tight text-gray-400 bg-gray-700 border border-gray-600 rounded-lg hover:bg-gray-600 hover:text-white ${nextDisabled}" 
+               onclick="filterAndPaginate(currentFilter, ${Math.min(totalPages, page + 1)}); return false;">
+                Next
+            </a>
+        </li>`;
+        
+        // Page info
+        html += `<li class="ml-4 text-gray-400 text-sm">
+            Page ${page} of ${totalPages} | Total: ${allTickets.length} tickets
+        </li>`;
         
         html += '</ul>';
         paginationControls.innerHTML = html;
