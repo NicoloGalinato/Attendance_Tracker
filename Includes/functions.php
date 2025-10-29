@@ -12,6 +12,10 @@ function isAdmin() {
     return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
 }
 
+function isHR() {
+    return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'hr';
+}
+
 function redirect($url) {
     if (!headers_sent()) {
         header("Location: $url");

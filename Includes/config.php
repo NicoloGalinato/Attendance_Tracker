@@ -14,9 +14,6 @@ date_default_timezone_set('Asia/Manila');
 define('DB_TIMEZONE', 'UTC');
 
 // Constants
-// define('BASE_URL', '/');
-// define('ADMIN_URL', BASE_URL . 'admin/dashboard.php');
-
-// Constants
 define('BASE_URL', 'http://localhost/attendance_tracker/');
 define('ADMIN_URL', BASE_URL . 'admin/dashboard.php');
+define('HR_URL', BASE_URL . 'hr/dashboard.php');
