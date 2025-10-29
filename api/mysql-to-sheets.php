@@ -81,6 +81,10 @@ try {
             return $timeA - $timeB;
         });
         
+    } elseif ($type === 'incident_report') {
+        $stmt = $pdo->prepare("SELECT * FROM incident_report");
+        $stmt->execute();
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } else {
         throw new Exception("Invalid data type requested");
     }
