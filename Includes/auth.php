@@ -41,6 +41,7 @@ if (isset($_POST['login'])) {
                 $_SESSION['user_role'] = $user['role'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['nickname'] = $user['sub_name'];
+                $_SESSION['slt_email'] = $user['slt_email'];
                 $_SESSION['last_activity'] = time();
                 
                 if (isAdmin()) {

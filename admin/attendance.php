@@ -65,7 +65,7 @@ try {
     }
 
     // Pending Coverage
-    $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE coverage = 'PENDING'"); 
+    $stmt = $pdo->query("SELECT COUNT(*) FROM absenteeism WHERE coverage_1 = 'PENDING'"); 
     $stats['pending_coverage'] += $stmt->fetchColumn();
 
 
@@ -73,7 +73,7 @@ try {
     $todayDate = date('Y-m-d');
     // Pending Uncovered Shift
     $todayDate = date('Y-m-d');
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM absenteeism WHERE coverage = 'UNCOVERED' AND date_of_absent = ?");
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM absenteeism WHERE coverage_1 = 'UNCOVERED' AND date_of_absent = ?");
     $stmt->execute([$todayDate]);
     $stats['uncovered_shift'] += $stmt->fetchColumn();
     
@@ -249,6 +249,9 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'absenteeism';
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold">Attendance Tracker</h1>
             <div class="flex items-center gap-2">
+                <button id="clubInIRBtn" class="hidden bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center">
+                    <i class="fas fa-object-group mr-2"></i> Club in IR
+                </button>
                 <!-- No Need Email Button (initially hidden) -->
                 <button id="noNeedEmailBtn" class="hidden bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg flex items-center">
                     <i class="fas fa-envelope mr-2"></i> No Need Email
@@ -821,7 +824,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } else {
             formData.append('department', departmentFilter.value);
-            formData.append('coverage', coverageFilter.value);
+            formData.append('coverage_1', coverageFilter.value);
             formData.append('ir_filter', irFilter.value);
         }
 

@@ -11,7 +11,7 @@ $dateTo = isset($_POST['date_to']) ? $_POST['date_to'] : (isset($_GET['to']) ? $
 $department = isset($_POST['department']) ? $_POST['department'] : (isset($_GET['dept']) ? $_GET['dept'] : '');
 $coverage = '';
 if ($type === 'absenteeism') {
-    $coverage = isset($_POST['coverage']) ? $_POST['coverage'] : (isset($_GET['cov']) ? $_GET['cov'] : '');
+    $coverage = isset($_POST['coverage_1']) ? $_POST['coverage_1'] : (isset($_GET['cov']) ? $_GET['cov'] : '');
 }
 
 $cardFilter = isset($_POST['filter']) ? $_POST['filter'] : (isset($_GET['filter']) ? $_GET['filter'] : '');
@@ -45,10 +45,10 @@ if (!empty($cardFilter)) {
             }
             break;
         case 'pending_coverage':
-            $whereClauses[] = "coverage = 'PENDING'";
+            $whereClauses[] = "coverage_1 = 'PENDING'";
             break;
         case 'uncovered_shift':
-            $whereClauses[] = "coverage = 'UNCOVERED'";
+            $whereClauses[] = "coverage_1 = 'UNCOVERED'";
             // Only add date filter if not already filtered by date
             if (empty($dateFrom) && empty($dateTo)) {
                 $dateField = ($table === 'tardiness') ? 'date_of_incident' : 'date_of_absent';
@@ -73,10 +73,10 @@ elseif (!empty($statusFilter)) {
             }
             break;
         case 'pending_coverage':
-            $whereClauses[] = "coverage = 'PENDING'";
+            $whereClauses[] = "coverage_1 = 'PENDING'";
             break;
         case 'uncovered_shift':
-            $whereClauses[] = "coverage = 'UNCOVERED'";
+            $whereClauses[] = "coverage_1 = 'UNCOVERED'";
             // Only add date filter if no date range is specified
             if(empty($dateFrom) && empty($dateTo)) {
                 $whereClauses[] = "date_of_absent = CURDATE()";
@@ -87,8 +87,8 @@ elseif (!empty($statusFilter)) {
 
 // Separate handling for coverage dropdown filter
 if(!empty($coverage) && empty($cardFilter)) {
-    $whereClauses[] = "coverage = :coverage";
-    $params[':coverage'] = $coverage;
+    $whereClauses[] = "coverage_1 = :coverage_1";
+    $params[':coverage_1'] = $coverage;
 }
 
 // Add other filters (search, date range, department)
@@ -116,8 +116,8 @@ if (!empty($department)) {
 
 // ONLY apply coverage filter for absenteeism
 if ($type === 'absenteeism' && !empty($coverage)) {
-    $whereClauses[] = "coverage = :coverage";
-    $params[':coverage'] = $coverage;
+    $whereClauses[] = "coverage_1 = :coverage_1";
+    $params[':coverage_1'] = $coverage;
 }
 
 // Add this to the where clauses section
@@ -357,8 +357,7 @@ try {
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Reason</th>
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-24">Shift</th>
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-40">Followed Procedure</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Coverage</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-40">Coverage Type</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-64">Coverage Details</th>
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-40">Incident Report</th>
                     <?php elseif ($type === 'tardiness'): ?>
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider w-32">Operations Manager</th>
@@ -385,7 +384,7 @@ try {
             <tbody class="bg-gray-800 divide-y divide-gray-700">
                 <?php if (empty($records)): ?>
                     <tr>
-                        <td colspan="<?= $type === 'absenteeism' ? 16 : ($type === 'tardiness' ? 14 : 14) ?>" class="px-6 py-8 text-center text-gray-400">
+                        <td colspan="<?= $type === 'absenteeism' ? 16 : ($type === 'tardiness' ? 13 : 14) ?>" class="px-6 py-8 text-center text-gray-400">
                             <i class="fas fa-users-slash text-3xl mb-3 opacity-50"></i>
                             <p class="text-lg">No records found</p>
                             <p class="text-sm mt-1" style="text-transform: uppercase;"><?= $type ?></p>
@@ -485,10 +484,72 @@ try {
                                     </span>
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                    <div class="text-sm text-gray-300" style="text-transform: uppercase;" title="<?= htmlspecialchars($record['coverage']) ?>"><?= htmlspecialchars($record['coverage']) ?></div>
-                                </td>
-                                <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                                    <div class="text-sm text-gray-300" title="<?= htmlspecialchars($record['coverage_type']) ?>"><?= htmlspecialchars($record['coverage_type']) ?></div>
+                                    <div class="text-sm text-gray-300" 
+                                        title="<?php
+                                        // Combine all coverage fields into one display for tooltip
+                                        $coverageDetails = [];
+                                        for ($i = 1; $i <= 4; $i++) {
+                                            $coverageField = "coverage_{$i}";
+                                            $coverageTypeField = "coverage_type_{$i}";
+                                            $coverageDetailsField = "coverage_details_{$i}";
+                                            
+                                            if (!empty($record[$coverageField])) {
+                                                $coverageText = htmlspecialchars($record[$coverageField]);
+                                                $coverageType = htmlspecialchars($record[$coverageTypeField] ?? '');
+                                                $coverageDetail = htmlspecialchars($record[$coverageDetailsField] ?? '');
+                                                
+                                                $detail = $coverageText;
+                                                if (!empty($coverageType) && $coverageType !== '-') {
+                                                    $detail .= " ($coverageType";
+                                                    if (!empty($coverageDetail)) {
+                                                        $detail .= " - $coverageDetail";
+                                                    }
+                                                    $detail .= ")";
+                                                }
+                                                
+                                                $coverageDetails[] = $detail;
+                                            }
+                                        }
+                                        
+                                        if (!empty($coverageDetails)) {
+                                            echo implode(' | ', $coverageDetails);
+                                        } else {
+                                            echo '-';
+                                        }
+                                        ?>">
+                                        <?php
+                                        // Combine all coverage fields into one display for visible content
+                                        $coverageDetails = [];
+                                        for ($i = 1; $i <= 4; $i++) {
+                                            $coverageField = "coverage_{$i}";
+                                            $coverageTypeField = "coverage_type_{$i}";
+                                            $coverageDetailsField = "coverage_details_{$i}";
+                                            
+                                            if (!empty($record[$coverageField])) {
+                                                $coverageText = htmlspecialchars($record[$coverageField]);
+                                                $coverageType = htmlspecialchars($record[$coverageTypeField] ?? '');
+                                                $coverageDetail = htmlspecialchars($record[$coverageDetailsField] ?? '');
+                                                
+                                                $detail = $coverageText;
+                                                if (!empty($coverageType) && $coverageType !== '-') {
+                                                    $detail .= " ($coverageType";
+                                                    if (!empty($coverageDetail)) {
+                                                        $detail .= " - $coverageDetail";
+                                                    }
+                                                    $detail .= ")";
+                                                }
+                                                
+                                                $coverageDetails[] = $detail;
+                                            }
+                                        }
+                                        
+                                        if (!empty($coverageDetails)) {
+                                            echo implode('<br>', $coverageDetails);
+                                        } else {
+                                            echo '-';
+                                        }
+                                        ?>
+                                    </div>
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                                     <div class="text-sm text-gray-300" style="text-transform: uppercase;" title="<?= $record['ir_form'] ?>"><?= $record['ir_form'] ?></div>

@@ -311,6 +311,14 @@ function renderSidebar($activePage = 'dashboard', $pendingCount = 0) {
                                     <span class="sidebar-text text-sm">Attendance Statistics</span>
                                 </a>
                             </li>
+                            <li>
+                                <a href="incident_report.php" class="sidebar-item flex items-center px-4 py-2 text-gray-300 hover:text-white <?= $activePage === 'incident_report' ? 'active' : '' ?>">
+                                    <div class="sidebar-icon-container">
+                                        <i class="sidebar-icon fas fa-exclamation-triangle text-xs"></i>
+                                    </div>
+                                    <span class="sidebar-text">Incident Report</span>
+                                </a>
+                            </li>
                         </ul>
                     </li>
                     
@@ -358,17 +366,6 @@ function renderSidebar($activePage = 'dashboard', $pendingCount = 0) {
                         </ul>
                     </li>
                     
-                    <!-- Incident Report 
-                    <li>
-                        <a href="incident_report.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'incident_report' ? 'active' : '' ?>">
-                            <div class="sidebar-icon-container">
-                                <i class="sidebar-icon fas fa-exclamation-triangle"></i>
-                            </div>
-                            <span class="sidebar-text">Incident Report</span>
-                        </a>
-                    </li>
-                    -->
-                    
                     <!-- Management Settings with submenu -->
                     <li class="relative group">
                         <a href="users.php" class="sidebar-item flex items-center justify-between px-4 py-3 text-gray-300 hover:text-white <?= in_array($activePage, ['users', 'inventory', 'employees', 'team_members']) ? 'active' : '' ?>">
@@ -411,14 +408,6 @@ function renderSidebar($activePage = 'dashboard', $pendingCount = 0) {
                     <li>
                         <br>
                         <span class="sidebar-text">Coming soon!</span>
-                        <div class="relative group">
-                            <div class="sidebar-item flex items-center px-4 py-3 text-gray-500 cursor-not-allowed opacity-50">
-                                <div class="sidebar-icon-container">
-                                    <i class="sidebar-icon fas fa-exclamation-triangle"></i>
-                                </div>
-                                <span class="sidebar-text">Incident Report</span>
-                            </div>
-                        </div>
                         <div class="relative group">
                             <div class="sidebar-item flex items-center px-4 py-3 text-gray-500 cursor-not-allowed opacity-50">
                                 <div class="sidebar-icon-container">
