@@ -46,9 +46,12 @@ if (isset($_POST['login'])) {
                 
                 if (isAdmin()) {
                     redirect(ADMIN_URL);
+                } elseif (isHR()) {
+                    redirect(HR_URL);
                 } else {
                     redirect(BASE_URL);
                 }
+
             } else {
                 // Increment failed login attempts
                 $login_attempts = $user['login_attempts'] + 1;

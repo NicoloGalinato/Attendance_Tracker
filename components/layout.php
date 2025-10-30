@@ -113,69 +113,69 @@ function renderHead($title) {
             }
             
             /* Sidebar styles */
-        #sidebar {
-            width: 5rem;
-            transition: all 0.3s ease;
-            overflow: hidden;
-        }
-        
-        #sidebar:hover {
-            width: 16rem;
-        }
-        
-        #sidebar:hover .sidebar-text {
-            opacity: 1;
-            transition: opacity 0.3s ease 0.2s;
-        }
-        
-        .sidebar-text {
-            opacity: 0;
-            transition: opacity 0.1s ease;
-            white-space: nowrap;
-        }
-        
-        /* Adjust main content margin */
-        .main-content {
-            margin-left: 5rem;
-            transition: margin-left 0.3s ease;
-        }
-        
-        #sidebar:hover ~ .main-content {
-            margin-left: 16rem;
-        }
-        
-        /* Sidebar item styles */
-        .sidebar-item.active {
-            background-color: rgba(14, 165, 233, 0.2);
-            border-left: 3px solid #0ea5e9;
-        }
-        
-        .sidebar-item.active .sidebar-icon {
-            color: #0ea5e9;
-        }
-        
-        .sidebar-item:hover:not(.active) {
-            background-color: rgba(255, 255, 255, 0.05);
-        }
-        
-        /* Icon centering solution */
-        .sidebar-icon-container {
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: start;
-            margin-right: 12px;
-            flex-shrink: 0;
-        }
-        
-        /* Center the sidebar content */
-        .sidebar-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-        }
+            #sidebar {
+                width: 5rem;
+                transition: all 0.3s ease;
+                overflow: hidden;
+            }
+            
+            #sidebar:hover {
+                width: 16rem;
+            }
+            
+            #sidebar:hover .sidebar-text {
+                opacity: 1;
+                transition: opacity 0.3s ease 0.2s;
+            }
+            
+            .sidebar-text {
+                opacity: 0;
+                transition: opacity 0.1s ease;
+                white-space: nowrap;
+            }
+            
+            /* Adjust main content margin */
+            .main-content {
+                margin-left: 5rem;
+                transition: margin-left 0.3s ease;
+            }
+            
+            #sidebar:hover ~ .main-content {
+                margin-left: 16rem;
+            }
+            
+            /* Sidebar item styles */
+            .sidebar-item.active {
+                background-color: rgba(14, 165, 233, 0.2);
+                border-left: 3px solid #0ea5e9;
+            }
+            
+            .sidebar-item.active .sidebar-icon {
+                color: #0ea5e9;
+            }
+            
+            .sidebar-item:hover:not(.active) {
+                background-color: rgba(255, 255, 255, 0.05);
+            }
+            
+            /* Icon centering solution */
+            .sidebar-icon-container {
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: start;
+                margin-right: 12px;
+                flex-shrink: 0;
+            }
+            
+            /* Center the sidebar content */
+            .sidebar-content {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+            }
             
             /* Adjust main content margin */
             .main-content {
@@ -272,218 +272,248 @@ function renderSidebar($activePage = 'dashboard', $pendingCount = 0) {
             <!-- Navigation Menu as Unordered List -->
             <nav class="mt-6">
                 <ul class="space-y-2">
-                    <!-- Dashboard -->
-                    <li>
-                        <a href="dashboard.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'dashboard' ? 'active' : '' ?>">
-                            <div class="sidebar-icon-container">
-                                <i class="sidebar-icon fas fa-tachometer-alt"></i>
-                            </div>
-                            <span class="sidebar-text">Dashboard</span>
-                        </a>
-                    </li>
-                    
-                    <!-- SLT Tracker with submenu -->
-                    <li class="relative group">
-                        <a href="attendance.php" class="sidebar-item flex items-center justify-between px-4 py-3 text-gray-300 hover:text-white <?= in_array($activePage, ['attendance', 'attendance_statistics']) ? 'active' : '' ?>">
-                            <div class="flex items-center">
-                                <div class="sidebar-icon-container">
-                                    <i class="sidebar-icon fas fa-chart-line"></i>
-                                </div>
-                                <span class="sidebar-text">SLT Tracker</span>
-                            </div>
-                            <i class="fas fa-chevron-down text-xs transition-transform duration-200 group-hover:rotate-180"></i>
-                        </a>
-                        <!-- Dropdown menu for SLT Tracker -->
-                        <ul class="ml-4 mt-1 space-y-1 overflow-hidden max-h-0 group-hover:max-h-32 transition-all duration-300 ease-in-out border-l border-gray-700">
-                            <li>
-                                <a href="attendance.php" class="sidebar-item flex items-center px-4 py-2 text-gray-300 hover:text-white <?= $activePage === 'attendance' ? 'active' : '' ?>">
-                                    <div class="sidebar-icon-container">
-                                        <i class="sidebar-icon fas fa-list text-xs"></i>
-                                    </div>
-                                    <span class="sidebar-text text-sm">Tracker</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="attendance_statistics.php" class="sidebar-item flex items-center px-4 py-2 text-gray-300 hover:text-white <?= $activePage === 'attendance_statistics' ? 'active' : '' ?>">
-                                    <div class="sidebar-icon-container">
-                                        <i class="sidebar-icon fas fa-chart-pie text-xs"></i>
-                                    </div>
-                                    <span class="sidebar-text text-sm">Attendance Statistics</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="incident_report.php" class="sidebar-item flex items-center px-4 py-2 text-gray-300 hover:text-white <?= $activePage === 'incident_report' ? 'active' : '' ?>">
-                                    <div class="sidebar-icon-container">
-                                        <i class="sidebar-icon fas fa-exclamation-triangle text-xs"></i>
-                                    </div>
-                                    <span class="sidebar-text">Incident Report</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    
-                    <!-- SLT Ticketing with submenu -->
-                    <li class="relative group">
-                        <a href="ticket_dashboard.php" class="sidebar-item flex items-center justify-between px-4 py-3 text-gray-300 hover:text-white <?= in_array($activePage, ['ticket_dashboard', 'statistics']) ? 'active' : '' ?>">
-                            <div class="flex items-center">
-                                <div class="sidebar-icon-container relative">
-                                    <i class="sidebar-icon fas fa-clipboard-list"></i>
-                                    <?php if ($pendingCount > 0): ?>
-                                        <span class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs notification-dot" id="pending-tickets-badge">
-                                            <?= $pendingCount > 9 ? '9+' : $pendingCount ?>
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs notification-dot" id="pending-tickets-badge" style="display: none;"></span>
-                                    <?php endif; ?>
-                                </div>
-                                <span class="sidebar-text">SLT Ticketing</span>
-                            </div>
-                            <i class="fas fa-chevron-down text-xs transition-transform duration-200 group-hover:rotate-180"></i>
-                        </a>
-                        <!-- Dropdown menu for SLT Ticketing -->
-                        <ul class="ml-4 mt-1 space-y-1 overflow-hidden max-h-0 group-hover:max-h-32 transition-all duration-300 ease-in-out border-l border-gray-700">
-                            <li>
-                                <a href="ticket_dashboard.php" class="sidebar-item flex items-center px-4 py-2 text-gray-300 hover:text-white <?= $activePage === 'ticket_dashboard' ? 'active' : '' ?>">
-                                    <div class="sidebar-icon-container relative">
-                                        <i class="sidebar-icon fas fa-ticket-alt text-xs"></i>
-                                        <?php if ($pendingCount > 0): ?>
-                                            <span class="absolute -top-1 -right-1 bg-red-500 rounded-full w-2 h-2 flex items-center justify-center text-xs notification-dot" id="pending-tickets-submenu-badge"></span>
-                                        <?php else: ?>
-                                            <span class="absolute -top-1 -right-1 bg-red-500 rounded-full w-2 h-2 flex items-center justify-center text-xs notification-dot" id="pending-tickets-submenu-badge" style="display: none;"></span>
-                                        <?php endif; ?>
-                                    </div>
-                                    <span class="sidebar-text text-sm">Ticketing</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="statistics.php" class="sidebar-item flex items-center px-4 py-2 text-gray-300 hover:text-white <?= $activePage === 'statistics' ? 'active' : '' ?>">
-                                    <div class="sidebar-icon-container">
-                                        <i class="sidebar-icon fas fa-chart-bar text-xs"></i>
-                                    </div>
-                                    <span class="sidebar-text text-sm">Ticket Statistics</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    
-                    <!-- Management Settings with submenu -->
-                    <li class="relative group">
-                        <a href="users.php" class="sidebar-item flex items-center justify-between px-4 py-3 text-gray-300 hover:text-white <?= in_array($activePage, ['users', 'inventory', 'employees', 'team_members']) ? 'active' : '' ?>">
-                            <div class="flex items-center">
-                                <div class="sidebar-icon-container">
-                                    <i class="sidebar-icon fas fa-cog"></i>
-                                </div>
-                                <span class="sidebar-text">Settings</span>
-                            </div>
-                            <i class="fas fa-chevron-down text-xs transition-transform duration-200 group-hover:rotate-180"></i>
-                        </a>
-                        <!-- Dropdown menu for Management Settings -->
-                        <ul class="ml-4 mt-1 space-y-1 overflow-hidden max-h-0 group-hover:max-h-48 transition-all duration-300 ease-in-out border-l border-gray-700">
-                            <li>
-                                <a href="inventory_tracker.php" class="sidebar-item flex items-center px-4 py-2 text-gray-300 hover:text-white <?= $activePage === 'inventory' ? 'active' : '' ?>">
-                                    <div class="sidebar-icon-container">
-                                        <i class="sidebar-icon fas fa-boxes text-xs"></i>
-                                    </div>
-                                    <span class="sidebar-text text-sm">SLT Inventory</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="employees.php" class="sidebar-item flex items-center px-4 py-2 text-gray-300 hover:text-white <?= $activePage === 'employees' ? 'active' : '' ?>">
-                                    <div class="sidebar-icon-container">
-                                        <i class="sidebar-icon fas fa-users text-xs"></i>
-                                    </div>
-                                    <span class="sidebar-text text-sm">Manage Agents</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="users.php" class="sidebar-item flex items-center px-4 py-2 text-gray-300 hover:text-white <?= $activePage === 'users' ? 'active' : '' ?>">
-                                    <div class="sidebar-icon-container">
-                                        <i class="sidebar-icon fas fa-user-friends text-xs"></i>
-                                    </div>
-                                    <span class="sidebar-text text-sm">Team Members</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <br>
-                        <span class="sidebar-text">Coming soon!</span>
-                        <div class="relative group">
-                            <div class="sidebar-item flex items-center px-4 py-3 text-gray-500 cursor-not-allowed opacity-50">
-                                <div class="sidebar-icon-container">
-                                    <i class="sidebar-icon fas fa-clock"></i>
-                                </div>
-                                <span class="sidebar-text">Time keeping</span>
-                            </div>
-                        </div>
-
-                    </li>
+                    <?= generateSidebarMenu($activePage, $pendingCount) ?>
                 </ul>
             </nav>
         </div>
     </aside>
 
     <div class="main-content flex-1 flex flex-col">
-
-    <style>
-        /* Hover effect for logo */
-        .logo {
-            transition: all 0.3s ease;
-            width: 250px; /* Default size */
-            height: auto;
-        }
-        
-        /* Hover effect for menu items */
-        .menu-item {
-            transition: all 0.3s ease;
-            font-size: 16px; /* Default size */
-            display: inline-block;
-            margin: 0 15px;
-        }
-        
-        .menu-item:hover {
-            transform: scale(1.3); /* Lumalaki ng 30% */
-            font-weight: bold; /* Optional: nagiging bold din */
-        }
-        
-        .notification-dot {
-            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
-            z-index: 10;
-        }
-        
-        .animate-pulse {
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-            }
-            70% {
-                box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
-            }
-        }
-        
-        /* Submenu styling */
-        .sidebar-item {
-            transition: all 0.2s ease;
-        }
-        
-        /* Ensure sidebar adapts to content height */
-        #sidebar {
-            height: auto;
-            min-height: 100vh;
-        }
-        
-        /* Dropdown arrow rotation */
-        .fa-chevron-down {
-            transition: transform 0.2s ease;
-        }
-    </style>
     <?php
+}
+
+function generateSidebarMenu($activePage, $pendingCount) {
+    $userRole = getUserRole(); // Dapat meron kang function na ito para makuha ang user role
+    $menuItems = '';
+
+    switch($userRole) {
+        case 'admin':
+            $menuItems = generateAdminMenu($activePage, $pendingCount);
+            break;
+            
+        case 'hr':
+            $menuItems = generateHRMenu($activePage);
+            break;
+            
+        default:
+            $menuItems = generateDefaultMenu($activePage);
+            break;
+    }
+
+    return $menuItems;
+}
+
+function generateAdminMenu($activePage, $pendingCount) {
+    ob_start();
+    ?>
+    <!-- Dashboard -->
+    <li>
+        <a href="dashboard.php" class="sidebar-item flex items-center px-4 py-3 text-gray-300 hover:text-white <?= $activePage === 'dashboard' ? 'active' : '' ?>">
+            <div class="sidebar-icon-container">
+                <i class="sidebar-icon fas fa-tachometer-alt"></i>
+            </div>
+            <span class="sidebar-text">Dashboard</span>
+        </a>
+    </li>
+    
+    <!-- SLT Tracker with submenu -->
+    <li class="relative group">
+        <a href="attendance.php" class="sidebar-item flex items-center justify-between px-4 py-3 text-gray-300 hover:text-white <?= in_array($activePage, ['attendance', 'attendance_statistics']) ? 'active' : '' ?>">
+            <div class="flex items-center">
+                <div class="sidebar-icon-container">
+                    <i class="sidebar-icon fas fa-chart-line"></i>
+                </div>
+                <span class="sidebar-text">SLT Tracker</span>
+            </div>
+            <i class="fas fa-chevron-down text-xs transition-transform duration-200 group-hover:rotate-180"></i>
+        </a>
+        <!-- Dropdown menu for SLT Tracker -->
+        <ul class="ml-4 mt-1 space-y-1 overflow-hidden max-h-0 group-hover:max-h-32 transition-all duration-300 ease-in-out border-l border-gray-700">
+            <li>
+                <a href="attendance.php" class="sidebar-item flex items-center px-4 py-2 text-gray-300 hover:text-white <?= $activePage === 'attendance' ? 'active' : '' ?>">
+                    <div class="sidebar-icon-container">
+                        <i class="sidebar-icon fas fa-list text-xs"></i>
+                    </div>
+                    <span class="sidebar-text text-sm">Tracker</span>
+                </a>
+            </li>
+            <li>
+                <a href="attendance_statistics.php" class="sidebar-item flex items-center px-4 py-2 text-gray-300 hover:text-white <?= $activePage === 'attendance_statistics' ? 'active' : '' ?>">
+                    <div class="sidebar-icon-container">
+                        <i class="sidebar-icon fas fa-chart-pie text-xs"></i>
+                    </div>
+                    <span class="sidebar-text text-sm">Attendance Statistics</span>
+                </a>
+            </li>
+            <li>
+                <a href="incident_report.php" class="sidebar-item flex items-center px-4 py-2 text-gray-300 hover:text-white <?= $activePage === 'incident_report' ? 'active' : '' ?>">
+                    <div class="sidebar-icon-container">
+                        <i class="sidebar-icon fas fa-exclamation-triangle text-xs"></i>
+                    </div>
+                    <span class="sidebar-text">Incident Report</span>
+                </a>
+            </li>
+        </ul>
+    </li>
+    
+    <!-- SLT Ticketing with submenu -->
+    <li class="relative group">
+        <a href="ticket_dashboard.php" class="sidebar-item flex items-center justify-between px-4 py-3 text-gray-300 hover:text-white <?= in_array($activePage, ['ticket_dashboard', 'statistics']) ? 'active' : '' ?>">
+            <div class="flex items-center">
+                <div class="sidebar-icon-container relative">
+                    <i class="sidebar-icon fas fa-clipboard-list"></i>
+                    <?php if ($pendingCount > 0): ?>
+                        <span class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs notification-dot" id="pending-tickets-badge">
+                            <?= $pendingCount > 9 ? '9+' : $pendingCount ?>
+                        </span>
+                    <?php else: ?>
+                        <span class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs notification-dot" id="pending-tickets-badge" style="display: none;"></span>
+                    <?php endif; ?>
+                </div>
+                <span class="sidebar-text">SLT Ticketing</span>
+            </div>
+            <i class="fas fa-chevron-down text-xs transition-transform duration-200 group-hover:rotate-180"></i>
+        </a>
+        <!-- Dropdown menu for SLT Ticketing -->
+        <ul class="ml-4 mt-1 space-y-1 overflow-hidden max-h-0 group-hover:max-h-32 transition-all duration-300 ease-in-out border-l border-gray-700">
+            <li>
+                <a href="ticket_dashboard.php" class="sidebar-item flex items-center px-4 py-2 text-gray-300 hover:text-white <?= $activePage === 'ticket_dashboard' ? 'active' : '' ?>">
+                    <div class="sidebar-icon-container relative">
+                        <i class="sidebar-icon fas fa-ticket-alt text-xs"></i>
+                        <?php if ($pendingCount > 0): ?>
+                            <span class="absolute -top-1 -right-1 bg-red-500 rounded-full w-2 h-2 flex items-center justify-center text-xs notification-dot" id="pending-tickets-submenu-badge"></span>
+                        <?php else: ?>
+                            <span class="absolute -top-1 -right-1 bg-red-500 rounded-full w-2 h-2 flex items-center justify-center text-xs notification-dot" id="pending-tickets-submenu-badge" style="display: none;"></span>
+                        <?php endif; ?>
+                    </div>
+                    <span class="sidebar-text text-sm">Ticketing</span>
+                </a>
+            </li>
+            <li>
+                <a href="statistics.php" class="sidebar-item flex items-center px-4 py-2 text-gray-300 hover:text-white <?= $activePage === 'statistics' ? 'active' : '' ?>">
+                    <div class="sidebar-icon-container">
+                        <i class="sidebar-icon fas fa-chart-bar text-xs"></i>
+                    </div>
+                    <span class="sidebar-text text-sm">Ticket Statistics</span>
+                </a>
+            </li>
+        </ul>
+    </li>
+    
+    <!-- Management Settings with submenu -->
+    <li class="relative group">
+        <a href="users.php" class="sidebar-item flex items-center justify-between px-4 py-3 text-gray-300 hover:text-white <?= in_array($activePage, ['users', 'inventory', 'employees', 'team_members']) ? 'active' : '' ?>">
+            <div class="flex items-center">
+                <div class="sidebar-icon-container">
+                    <i class="sidebar-icon fas fa-cog"></i>
+                </div>
+                <span class="sidebar-text">Settings</span>
+            </div>
+            <i class="fas fa-chevron-down text-xs transition-transform duration-200 group-hover:rotate-180"></i>
+        </a>
+        <!-- Dropdown menu for Management Settings -->
+        <ul class="ml-4 mt-1 space-y-1 overflow-hidden max-h-0 group-hover:max-h-48 transition-all duration-300 ease-in-out border-l border-gray-700">
+            <li>
+                <a href="inventory_tracker.php" class="sidebar-item flex items-center px-4 py-2 text-gray-300 hover:text-white <?= $activePage === 'inventory' ? 'active' : '' ?>">
+                    <div class="sidebar-icon-container">
+                        <i class="sidebar-icon fas fa-boxes text-xs"></i>
+                    </div>
+                    <span class="sidebar-text text-sm">SLT Inventory</span>
+                </a>
+            </li>
+            <li>
+                <a href="employees.php" class="sidebar-item flex items-center px-4 py-2 text-gray-300 hover:text-white <?= $activePage === 'employees' ? 'active' : '' ?>">
+                    <div class="sidebar-icon-container">
+                        <i class="sidebar-icon fas fa-users text-xs"></i>
+                    </div>
+                    <span class="sidebar-text text-sm">Manage Agents</span>
+                </a>
+            </li>
+            <li>
+                <a href="users.php" class="sidebar-item flex items-center px-4 py-2 text-white-300 hover:text-white <?= $activePage === 'users' ? 'active' : '' ?>">
+                    <div class="sidebar-icon-container">
+                        <i class="sidebar-icon fas fa-user-friends text-xs"></i>
+                    </div>
+                    <span class="sidebar-text text-sm">Team Members</span>
+                </a>
+            </li>
+        </ul>
+    </li>
+    
+    <!-- Coming Soon Section -->
+    <li>
+        <br>
+        <span class="sidebar-text">Coming soon!</span>
+        <div class="relative group">
+            <div class="sidebar-item flex items-center px-4 py-3 text-gray-500 cursor-not-allowed opacity-50">
+                <div class="sidebar-icon-container">
+                    <i class="sidebar-icon fas fa-clock"></i>
+                </div>
+                <span class="sidebar-text">Time keeping</span>
+            </div>
+        </div>
+    </li>
+    <?php
+    return ob_get_clean();
+}
+
+function generateHRMenu($activePage) {
+    ob_start();
+    ?>
+    <li>
+        <a href="dashboard.php" class="sidebar-item flex items-center px-4 py-3 text-white <?= $activePage === 'dashboard' ? 'active' : '' ?>">
+            <div class="sidebar-icon-container">
+                <i class="sidebar-icon fas fa-tachometer-alt"></i>
+            </div>
+            <span class="sidebar-text">Dashboard</span>
+        </a>
+    </li>
+    <li>
+        <a href="incident_report.php" class="sidebar-item flex items-center px-4 py-2 text-white <?= $activePage === 'incident_report' ? 'active' : '' ?>">
+            <div class="sidebar-icon-container">
+                <i class="sidebar-icon fas fa-exclamation-triangle"></i>
+            </div>
+            <span class="sidebar-text">Incident Report</span>
+        </a>
+    </li>
+    <li>
+        <a href="users.php" class="sidebar-item flex items-center px-4 py-2 text-white <?= $activePage === 'users' ? 'active' : '' ?>">
+            <div class="sidebar-icon-container">
+                <i class="sidebar-icon fas fa-user-friends"></i>
+            </div>
+            <span class="sidebar-text">Team Members</span>
+        </a>
+    </li>
+    <?php
+    return ob_get_clean();
+}
+
+function generateDefaultMenu($activePage) {
+    ob_start();
+    ?>
+    <!-- Default menu for unrecognized roles -->
+    <li>
+        <a href="dashboard.php" class="sidebar-item flex items-center px-4 py-3 text-white <?= $activePage === 'dashboard' ? 'active' : '' ?>">
+            <div class="sidebar-icon-container">
+                <i class="sidebar-icon fas fa-tachometer-alt"></i>
+            </div>
+            <span class="sidebar-text">Dashboard</span>
+        </a>
+    </li>
+    <?php
+    return ob_get_clean();
+}
+
+// Dapat meron kang function na ito para makuha ang user role
+function getUserRole() {
+    // I-adjust ito base sa iyong authentication system
+    if (isAdmin()) {
+        return 'admin';
+    } elseif (isHR()) {
+        return 'hr';
+    } else {
+        return 'default'; // o kung anuman ang default role mo
+    }
 }
 
 function renderFooter() {

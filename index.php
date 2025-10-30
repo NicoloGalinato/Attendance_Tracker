@@ -6,8 +6,10 @@ require_once 'includes/auth.php';
 if (isLoggedIn()) {
     if (isAdmin()) {
         redirect(ADMIN_URL);
-    } else {
+    } elseif (isHR()) {
         redirect(HR_URL);
+    } else {
+        redirect(BASE_URL);
     }
 }
 ?>

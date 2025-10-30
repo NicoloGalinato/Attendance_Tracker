@@ -59,7 +59,7 @@ $offset = ($page - 1) * $perPage;
 
 // Get paginated records
 try {
-    $query = "SELECT * FROM $table $searchQuery WHERE role = 'admin' ORDER BY is_active = 0, created_at DESC LIMIT :limit OFFSET :offset";
+    $query = "SELECT * FROM $table $searchQuery WHERE role = 'hr' ORDER BY is_active = 0, created_at DESC LIMIT :limit OFFSET :offset";
     $stmt = $pdo->prepare($query);
     
     if (!empty($search)) {
