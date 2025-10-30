@@ -86,16 +86,21 @@ try {
                           "\nMinutes Late: " . $minutesLate . " minutes";
     }
 
+
     // Insert into incident_report table
     $stmt = $pdo->prepare("INSERT INTO incident_report 
         (email_address, employee_id, full_name, department, operation_manager, 
          infraction, reported_by, position, date_of_incident, shift, 
-         incident_details, evidence, related_record_id, related_record_type) 
+         incident_details, evidence, created_at, related_record_id, related_record_type) 
         VALUES 
         (:email_address, :employee_id, :full_name, :department, :operation_manager,
          :infraction, :reported_by, :position, :date_of_incident, :shift,
-         :incident_details, :evidence, :related_record_id, :related_record_type)");
+         :incident_details, :evidence, :created_at, :related_record_id, :related_record_type)");
 
+
+    // Set timezone sa PHP
+    date_default_timezone_set('Asia/Manila');
+    
     $data = [
         'email_address' => $_SESSION['slt_email'],
         'employee_id' => $employeeId,
@@ -109,6 +114,7 @@ try {
         'shift' => strtoupper($shift),
         'incident_details' => $incidentDetails,
         'evidence' => '',
+        'created_at' => date('Y-m-d H:i:s'),
         'related_record_id' => $recordId,
         'related_record_type' => $type
     ];

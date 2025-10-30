@@ -30,6 +30,9 @@ if ($id > 0) {
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
+        // Set timezone sa PHP
+        date_default_timezone_set('Asia/Manila');
+
         $data = [
             'email_address' => $_SESSION['slt_email'],
             'employee_id' => $_POST['employee_id'],
@@ -42,7 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'date_of_incident' => $_POST['date_of_incident'],
             'shift' => $_POST['shift'],
             'incident_details' => $_POST['incident_details'],
-            'evidence' => $_POST['evidence']
+            'evidence' => $_POST['evidence'],
+            'created_at' => date('Y-m-d H:i:s')
         ];
 
         if ($id > 0) {
@@ -59,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     date_of_incident = :date_of_incident,
                     shift = :shift,
                     incident_details = :incident_details,
-                    evidence = :evidence
+                    evidence = :evidence,
                     WHERE id = :id";
             
             $data['id'] = $id;
@@ -72,12 +76,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $sql = "INSERT INTO incident_report 
                     (email_address, employee_id, full_name, department, operation_manager, 
                      infraction, reported_by, position, date_of_incident, shift, 
-                     incident_details, evidence) 
+                     incident_details, evidence, created_at) 
                     VALUES 
                     (:email_address, :employee_id, :full_name, :department, :operation_manager,
                      :infraction, :reported_by, :position, :date_of_incident, :shift,
-                     :incident_details, :evidence)";
-            
+                     :incident_details, :evidence, :created_at)";
+
             $stmt = $pdo->prepare($sql);
             $stmt->execute($data);
             
